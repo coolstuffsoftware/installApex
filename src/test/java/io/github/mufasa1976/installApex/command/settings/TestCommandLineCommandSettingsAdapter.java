@@ -39,8 +39,6 @@ import org.testng.annotations.Test;
 
 import io.github.mufasa1976.installApex.cli.CommandLineOption;
 import io.github.mufasa1976.installApex.command.CommandType;
-import io.github.mufasa1976.installApex.command.settings.CommandLineCommandSettingsAdapter;
-import io.github.mufasa1976.installApex.command.settings.CommandSettings;
 import io.github.mufasa1976.installApex.config.TestApplicationConfiguration;
 import io.github.mufasa1976.installApex.exception.NoDirectoryException;
 
@@ -223,8 +221,8 @@ public class TestCommandLineCommandSettingsAdapter extends AbstractTestNGSpringC
   @Test
   public void testSYSDBAConnect() throws SQLException {
     if (!environment.containsProperty("testCommandLineCommandSettingsAdapter.sydbaPassword")) {
-      System.err
-      .println("Test would not run due to missing Property \"testCommandLineCommandSettingsAdapter.sydbaPassword\"");
+      System.err.println(
+          "Test would not run due to missing Property \"testCommandLineCommandSettingsAdapter.sydbaPassword\"");
       return;
     }
 
@@ -284,8 +282,8 @@ public class TestCommandLineCommandSettingsAdapter extends AbstractTestNGSpringC
     testSQLPlus(connect, expectedExitStatus, tnsAdmin.getFile());
   }
 
-  private void testSQLPlus(String connect, int expectedExitStatus, File tnsAdmin) throws IOException,
-      InterruptedException {
+  private void testSQLPlus(String connect, int expectedExitStatus, File tnsAdmin)
+      throws IOException, InterruptedException {
     CommandSettings commandSettings;
     if (tnsAdmin == null) {
       //@formatter:off
@@ -328,7 +326,8 @@ public class TestCommandLineCommandSettingsAdapter extends AbstractTestNGSpringC
     return context;
   }
 
-  private void redirectStandardInputToScript(OutputStream outputStream, Map<String, Object> context) throws IOException {
+  private void redirectStandardInputToScript(OutputStream outputStream, Map<String, Object> context)
+      throws IOException {
     try (Writer output = new PrintWriter(outputStream)) {
       VelocityEngineUtils.mergeTemplate(velocityEngine, sqlplusScriptName, sqlplusScriptEncoding, context, output);
     }
@@ -392,10 +391,7 @@ public class TestCommandLineCommandSettingsAdapter extends AbstractTestNGSpringC
 
   @Test
   public void testForceFalse() {
-    //@formatter:off
-    CommandSettings commandSettings = createCommandLine(
-        CommandLineOption.EXTRACT_DDL.getLongOption("--"));
-    //@formatter:on
+    CommandSettings commandSettings = createCommandLine(CommandLineOption.EXTRACT_DDL.getLongOption("--"));
     Assert.assertFalse(commandSettings.isForce());
   }
 
@@ -411,11 +407,20 @@ public class TestCommandLineCommandSettingsAdapter extends AbstractTestNGSpringC
 
   @Test
   public void testQuietFalse() {
+    CommandSettings commandSettings = createCommandLine(CommandLineOption.EXTRACT_DDL.getLongOption("--"));
+    Assert.assertFalse(commandSettings.isQuiet());
+  }
+
+  @Test
+  public void testApexIdNumeric() {
     //@formatter:off
     CommandSettings commandSettings = createCommandLine(
-        CommandLineOption.EXTRACT_DDL.getLongOption("--"));
+        CommandLineOption.EXTRACT_APEX.getLongOption("--"),
+        CommandLineOption.APEX_SOURCE_ID.getLongOption("--"),
+        "100");
     //@formatter:on
-    Assert.assertFalse(commandSettings.isQuiet());
+    Assert.assertTrue(commandSettings.isApexIdAvailable());
+    Assert.assertEquals(commandSettings.getApexId(), new Integer(100));
   }
 
 }

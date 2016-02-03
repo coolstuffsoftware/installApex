@@ -2,7 +2,7 @@ package io.github.mufasa1976.installApex.command.database;
 
 import io.github.mufasa1976.installApex.command.CommandType;
 import io.github.mufasa1976.installApex.command.settings.CommandSettings;
-import io.github.mufasa1976.installApex.command.settings.LiquibaseParameters;
+import io.github.mufasa1976.installApex.command.settings.LiquibaseParameter;
 import io.github.mufasa1976.installApex.config.TestApplicationConfiguration;
 
 import java.sql.Connection;
@@ -34,13 +34,13 @@ public class TestAbstractLiquibaseCommand extends AbstractTestNGSpringContextTes
 
   @Test
   public void testWithDefaultParameters() throws SQLException, LiquibaseException {
-    LiquibaseParameters liquibaseParameters = new LiquibaseParameters();
+    LiquibaseParameter liquibaseParameters = new LiquibaseParameter();
     testParameters(liquibaseParameters);
   }
 
   @Test
   public void testWithDefaultSchemaParameters() throws SQLException, LiquibaseException {
-    LiquibaseParameters liquibaseParameters = new LiquibaseParameters();
+    LiquibaseParameter liquibaseParameters = new LiquibaseParameter();
     liquibaseParameters.setDefaultSchemaName("TEST1_SCHEMA");
     prepareLiquibaseParameters(liquibaseParameters);
     testParameters(liquibaseParameters);
@@ -48,7 +48,7 @@ public class TestAbstractLiquibaseCommand extends AbstractTestNGSpringContextTes
 
   @Test(expectedExceptions = MigrationFailedException.class)
   public void testWithLiquibaseSchemaParameters() throws SQLException, LiquibaseException {
-    LiquibaseParameters liquibaseParameters = new LiquibaseParameters();
+    LiquibaseParameter liquibaseParameters = new LiquibaseParameter();
     liquibaseParameters.setLiquibaseSchemaName("TEST2_LIQUIBASE");
     prepareLiquibaseParameters(liquibaseParameters);
     testParameters(liquibaseParameters);
@@ -56,16 +56,16 @@ public class TestAbstractLiquibaseCommand extends AbstractTestNGSpringContextTes
 
   @Test
   public void testWithDefaultSchemaAndLiquibaseSchemaParameters() throws SQLException, LiquibaseException {
-    LiquibaseParameters liquibaseParameters = new LiquibaseParameters();
+    LiquibaseParameter liquibaseParameters = new LiquibaseParameter();
     liquibaseParameters.setLiquibaseSchemaName("TEST3_LIQUIBASE");
     liquibaseParameters.setDefaultSchemaName("TEST3_SCHEMA");
     prepareLiquibaseParameters(liquibaseParameters);
     testParameters(liquibaseParameters);
   }
 
-  private void testParameters(LiquibaseParameters liquibaseParameters) throws SQLException, LiquibaseException {
+  private void testParameters(LiquibaseParameter liquibaseParameters) throws SQLException, LiquibaseException {
     final CommandSettings commandSettings = Mockito.mock(CommandSettings.class);
-    Mockito.when(commandSettings.getLiquibaseParameters()).thenReturn(liquibaseParameters);
+    Mockito.when(commandSettings.getLiquibaseParameter()).thenReturn(liquibaseParameters);
     Mockito.when(commandSettings.getDataSource(Mockito.anyString())).thenReturn(dataSource);
     AbstractLiquibaseCommand command = new AbstractLiquibaseCommand() {
 
@@ -90,7 +90,7 @@ public class TestAbstractLiquibaseCommand extends AbstractTestNGSpringContextTes
     }
   }
 
-  private void prepareLiquibaseParameters(LiquibaseParameters liquibaseParameters) throws SQLException {
+  private void prepareLiquibaseParameters(LiquibaseParameter liquibaseParameters) throws SQLException {
     try (Connection connection = dataSource.getConnection()) {
       createSchema(connection, liquibaseParameters.getLiquibaseSchemaName());
       createSchema(connection, liquibaseParameters.getDefaultSchemaName());

@@ -24,10 +24,12 @@ public interface CommandSettings {
 
   String getPassword();
 
-  LiquibaseParameters getLiquibaseParameters();
+  boolean isApexIdAvailable();
 
-  boolean isInstallSchemaAvailable();
+  Integer getApexId();
 
-  String getInstallSchema();
+  LiquibaseParameter getLiquibaseParameter();
+
+  ApexParameter getApexParameter();
 
 }

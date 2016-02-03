@@ -1,16 +1,12 @@
 package io.github.mufasa1976.installApex.command.settings;
 
-public class LiquibaseParameters {
+public class LiquibaseParameter {
 
   private String databaseChangeLogTableName;
   private String databaseChangeLogLockTableName;
   private String defaultSchemaName;
   private String liquibaseSchemaName;
   private String liquibaseTablespaceName;
-
-  public LiquibaseParameters() {
-    // TODO Auto-generated constructor stub
-  }
 
   public String getDatabaseChangeLogTableName() {
     return databaseChangeLogTableName;

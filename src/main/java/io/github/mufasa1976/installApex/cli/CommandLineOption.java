@@ -1,7 +1,5 @@
 package io.github.mufasa1976.installApex.cli;
 
-import io.github.mufasa1976.installApex.command.CommandType;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -13,6 +11,8 @@ import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.cli.Options;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.context.MessageSource;
+
+import io.github.mufasa1976.installApex.command.CommandType;
 
 public enum CommandLineOption {
 
@@ -47,11 +47,16 @@ public enum CommandLineOption {
   APEX_TARGET_ID(new Settings("targetId").setArgument("ID")),
   APEX_TARGET_ALIAS(new Settings("targetAlias").setArgument("Alias")),
   APEX_TARGET_NAME(new Settings("targetName").setArgument("Application Name")),
-  APEX_AUTO_INSTALL_SUP_OBJECT(new Settings("autoInstallSupObj")),
-  APEX_IMAGE_PREFIX(new Settings("imagePrefix").setArgument("Image Prefix")),
+  APEX_TARGET_AUTO_INSTALL_SUP_OBJECT(new Settings("targetAutoInstallSupObj")),
+  APEX_TARGET_IMAGE_PREFIX(new Settings("targetImagePrefix").setArgument("Image Prefix")),
   APEX_TARGET_OFFSET(new Settings("targetOffset").setArgument("Offset")),
-  APEX_WORKSPACE(new Settings("workspace", 'w').setArgument("Workspace")),
-  APEX_PROXY(new Settings("proxy").setArgument("Proxy")),
+  APEX_TARGET_WORKSPACE(new Settings("targetWorkspace", 'w').setArgument("Workspace")),
+  APEX_TARGET_PROXY(new Settings("targetProxy").setArgument("Proxy-Server")),
+  APEX_TARGET_STATIC_APP_FILE_PREFIX(new Settings("targetStaticAppFilePrefix").setArgument("static App File Prefix")),
+  APEX_TARGET_STATIC_PLUGIN_FILE_PREFIX(
+      new Settings("targetStaticPluginFilePrefix").setArgument("static Plugin File Prefix")),
+  APEX_TARGET_STATIC_THEME_FILE_PREFIX(
+      new Settings("targetStaticThemeFilePrefix").setArgument("static Theme File Prefix")),
 
   TEMP_DIRECTORY(new Settings("tempDir").setArgument("Directory"));
 

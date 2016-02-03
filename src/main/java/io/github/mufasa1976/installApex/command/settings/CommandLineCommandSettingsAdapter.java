@@ -1,12 +1,5 @@
 package io.github.mufasa1976.installApex.command.settings;
 
-import io.github.mufasa1976.installApex.cli.CommandLineOption;
-import io.github.mufasa1976.installApex.command.CommandType;
-import io.github.mufasa1976.installApex.exception.CreateDirectoryException;
-import io.github.mufasa1976.installApex.exception.EmptyCommandLineOptionException;
-import io.github.mufasa1976.installApex.exception.NoDirectoryException;
-import io.github.mufasa1976.installApex.exception.NoExecutableFileException;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -17,13 +10,20 @@ import java.util.Properties;
 
 import javax.sql.DataSource;
 
-import oracle.jdbc.pool.OracleDataSource;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import io.github.mufasa1976.installApex.cli.CommandLineOption;
+import io.github.mufasa1976.installApex.command.CommandType;
+import io.github.mufasa1976.installApex.exception.CreateDirectoryException;
+import io.github.mufasa1976.installApex.exception.EmptyCommandLineOptionException;
+import io.github.mufasa1976.installApex.exception.InvalidApexIdException;
+import io.github.mufasa1976.installApex.exception.NoDirectoryException;
+import io.github.mufasa1976.installApex.exception.NoExecutableFileException;
+import oracle.jdbc.pool.OracleDataSource;
 
 public class CommandLineCommandSettingsAdapter implements CommandSettings {
 
@@ -111,9 +111,8 @@ public class CommandLineCommandSettingsAdapter implements CommandSettings {
 
   private void createDirectoryIfAllowed(CommandLineOption option, Path directory, boolean createIfNotExists) {
     if (!createIfNotExists) {
-      throw new IllegalStateException(String.format(
-          "Not allowed to create Directory '%s' due to CommandLine Option %s", directory.toAbsolutePath(),
-          option.getLongOption()));
+      throw new IllegalStateException(String.format("Not allowed to create Directory '%s' due to CommandLine Option %s",
+          directory.toAbsolutePath(), option.getLongOption()));
     }
 
     try {
@@ -423,32 +422,42 @@ public class CommandLineCommandSettingsAdapter implements CommandSettings {
   }
 
   @Override
-  public LiquibaseParameters getLiquibaseParameters() {
-    LiquibaseParameters liquibaseParameters = new LiquibaseParameters();
-    liquibaseParameters
-        .setDatabaseChangeLogTableName(getValueByOptionalArgumentOf(CommandLineOption.CHANGELOG_TABLE_NAME));
-    liquibaseParameters
-        .setDatabaseChangeLogLockTableName(getValueByOptionalArgumentOf(CommandLineOption.CHANGELOG_LOCK_TABLE_NAME));
-    liquibaseParameters.setDefaultSchemaName(getValueByOptionalArgumentOf(CommandLineOption.INSTALL_SCHEMA));
-    liquibaseParameters.setLiquibaseSchemaName(getValueByOptionalArgumentOf(CommandLineOption.CHANGELOG_SCHEMA));
-    liquibaseParameters
-        .setLiquibaseTablespaceName(getValueByOptionalArgumentOf(CommandLineOption.CHANGELOG_TABLESPACE_NAME));
-    return liquibaseParameters;
+  public boolean isApexIdAvailable() {
+    return isOptionSet(CommandLineOption.APEX_SOURCE_ID);
   }
 
   @Override
-  public boolean isInstallSchemaAvailable() {
-    if (isOptionNotSet(CommandLineOption.INSTALL_SCHEMA)) {
-      return false;
+  public Integer getApexId() {
+    String apexIdAsString = getValueByOptionalArgumentOf(CommandLineOption.APEX_SOURCE_ID);
+    if (StringUtils.isBlank(apexIdAsString)) {
+      return null;
     }
-    String connectSchema = getValueByArgumentOf(CommandLineOption.DB_USER);
-    String installSchema = getValueByOptionalArgumentOf(CommandLineOption.INSTALL_SCHEMA);
-    return StringUtils.equalsIgnoreCase(connectSchema, installSchema);
+    try {
+      return Integer.parseInt(apexIdAsString);
+    } catch (NumberFormatException e) {
+      throw new InvalidApexIdException(apexIdAsString, CommandLineOption.APEX_SOURCE_ID);
+    }
   }
 
   @Override
-  public String getInstallSchema() {
-    return getValueByOptionalArgumentOf(CommandLineOption.INSTALL_SCHEMA);
+  public LiquibaseParameter getLiquibaseParameter() {
+    LiquibaseParameter liquibaseParameter = new LiquibaseParameter();
+    liquibaseParameter
+        .setDatabaseChangeLogTableName(getValueByOptionalArgumentOf(CommandLineOption.CHANGELOG_TABLE_NAME));
+    liquibaseParameter
+        .setDatabaseChangeLogLockTableName(getValueByOptionalArgumentOf(CommandLineOption.CHANGELOG_LOCK_TABLE_NAME));
+    liquibaseParameter.setDefaultSchemaName(getValueByOptionalArgumentOf(CommandLineOption.INSTALL_SCHEMA));
+    liquibaseParameter.setLiquibaseSchemaName(getValueByOptionalArgumentOf(CommandLineOption.CHANGELOG_SCHEMA));
+    liquibaseParameter
+        .setLiquibaseTablespaceName(getValueByOptionalArgumentOf(CommandLineOption.CHANGELOG_TABLESPACE_NAME));
+    return liquibaseParameter;
+  }
+
+  @Override
+  public ApexParameter getApexParameter() {
+    ApexParameter apexParameter = new ApexParameter();
+    // TODO: implement me !!!
+    return apexParameter;
   }
 
 }

@@ -1,6 +1,6 @@
 package io.github.mufasa1976.installApex.command.database;
 
-import io.github.mufasa1976.installApex.command.settings.LiquibaseParameters;
+import io.github.mufasa1976.installApex.command.settings.LiquibaseParameter;
 
 import java.sql.Connection;
 
@@ -58,12 +58,12 @@ public abstract class AbstractLiquibaseCommand extends AbstractDataSourceCommand
 
   private Database getDatabase(DatabaseConnection databaseConnection) throws DatabaseException {
     Database database = databaseFactory.findCorrectDatabaseImplementation(databaseConnection);
-    LiquibaseParameters liquibaseParameters = getSettings().getLiquibaseParameters();
+    LiquibaseParameter liquibaseParameters = getSettings().getLiquibaseParameter();
     setLiquibaseDatabaseProperties(database, liquibaseParameters);
     return database;
   }
 
-  private void setLiquibaseDatabaseProperties(Database database, LiquibaseParameters liquibaseParameters)
+  private void setLiquibaseDatabaseProperties(Database database, LiquibaseParameter liquibaseParameters)
       throws DatabaseException {
     if (liquibaseParameters == null) {
       return;
