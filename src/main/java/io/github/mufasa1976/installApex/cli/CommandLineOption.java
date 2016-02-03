@@ -29,7 +29,7 @@ public enum CommandLineOption {
   DB_USER(new Settings("dbUser", 'u').setArgument("User")),
   DB_PASSWORD(new Settings("dbPassword", 'p').setArgument("Password")),
   DB_CONNECT(new Settings("dbConnect", 'c').setArgument("TNS-Connect")),
-  SYSDBA(new Settings("sysdba")),
+  SYSDBA(new Settings("asSysdba")),
 
   ORACLE_HOME(new Settings("oracleHome", 'o').setArgument("Directory")),
   TNS_ADMIN(new Settings("tnsAdmin").setArgument("TNS-Admin")),
@@ -43,7 +43,15 @@ public enum CommandLineOption {
   CHANGELOG_LOCK_TABLE_NAME(new Settings("changeLogLockTableName")),
   CHANGELOG_TABLESPACE_NAME(new Settings("changeLogTablespaceName")),
 
-  APEX_INSTALLATION(new Settings("id", 'i').setArgument("ID")),
+  APEX_SOURCE_ID(new Settings("sourceId").setArgument("ID")),
+  APEX_TARGET_ID(new Settings("targetId").setArgument("ID")),
+  APEX_TARGET_ALIAS(new Settings("targetAlias").setArgument("Alias")),
+  APEX_TARGET_NAME(new Settings("targetName").setArgument("Application Name")),
+  APEX_AUTO_INSTALL_SUP_OBJECT(new Settings("autoInstallSupObj")),
+  APEX_IMAGE_PREFIX(new Settings("imagePrefix").setArgument("Image Prefix")),
+  APEX_TARGET_OFFSET(new Settings("targetOffset").setArgument("Offset")),
+  APEX_WORKSPACE(new Settings("workspace", 'w').setArgument("Workspace")),
+  APEX_PROXY(new Settings("proxy").setArgument("Proxy")),
 
   TEMP_DIRECTORY(new Settings("tempDir").setArgument("Directory"));
 
