@@ -24,6 +24,7 @@ public enum CommandLineOption {
   INSTALL(new Settings(CommandType.INSTALL)),
   EXTRACT_DDL(new Settings(CommandType.EXTRACT_DDL)),
   EXTRACT_APEX(new Settings(CommandType.EXTRACT_APEX)),
+  TEST(new Settings(CommandType.TEST, 't')),
 
   DB_USER(new Settings("dbUser", 'u').setArgument("User")),
   DB_PASSWORD(new Settings("dbPassword", 'p').setArgument("Password")),
@@ -42,9 +43,9 @@ public enum CommandLineOption {
   CHANGELOG_LOCK_TABLE_NAME(new Settings("changeLogLockTableName")),
   CHANGELOG_TABLESPACE_NAME(new Settings("changeLogTablespaceName")),
 
-  APEX_INSTALLATION(new Settings("installId", 'i').setArgument("ID")),
+  APEX_INSTALLATION(new Settings("id", 'i').setArgument("ID")),
 
-  TEMP_DIRECTORY(new Settings("tempDir", 't').setArgument("Directory"));
+  TEMP_DIRECTORY(new Settings("tempDir").setArgument("Directory"));
 
   private Settings settings;
 

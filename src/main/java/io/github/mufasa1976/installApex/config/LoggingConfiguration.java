@@ -1,5 +1,6 @@
 package io.github.mufasa1976.installApex.config;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,6 +13,8 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.ConsoleAppender;
 import ch.qos.logback.core.Context;
+import ch.qos.logback.core.FileAppender;
+import ch.qos.logback.core.OutputStreamAppender;
 import ch.qos.logback.ext.spring.ApplicationContextHolder;
 
 public class LoggingConfiguration {
@@ -34,13 +37,26 @@ public class LoggingConfiguration {
     return encoder;
   }
 
-  @Bean(name = "logback.consoleAppender", initMethod = "start", destroyMethod = "stop")
+  @Bean(name = "logback.springAppender", initMethod = "start", destroyMethod = "stop")
   @Order(Ordered.HIGHEST_PRECEDENCE)
-  public Appender<ILoggingEvent> consoleAppender(PatternLayoutEncoder encoder) {
-    log.debug("Configuring the consoleAppender");
-    ConsoleAppender<ILoggingEvent> appender = new ConsoleAppender<>();
+  public Appender<ILoggingEvent> springAppender(PatternLayoutEncoder encoder) {
+    OutputStreamAppender<ILoggingEvent> appender;
+
+    String logFile = System.getProperty("installApex.logFile");
+    if (StringUtils.isNotBlank(logFile)) {
+      log.debug("Configuring the fileAppender");
+      appender = new FileAppender<>();
+      appender.setName("fileAppender");
+      ((FileAppender<ILoggingEvent>) appender).setFile(logFile);
+    } else {
+      log.debug("Configuring the consoleAppender");
+      appender = new ConsoleAppender<>();
+      appender.setName("consoleAppender");
+    }
+
     appender.setContext((Context) LoggerFactory.getILoggerFactory());
     appender.setEncoder(encoder);
+
     return appender;
   }
 

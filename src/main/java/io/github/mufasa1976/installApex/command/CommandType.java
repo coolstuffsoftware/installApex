@@ -6,7 +6,8 @@ public enum CommandType {
   LIST("list"),
   EXTRACT_DDL("extractDDL"),
   EXTRACT_APEX("extractApex"),
-  INSTALL("install");
+  INSTALL("install"),
+  TEST("test");
 
   private String longOption;
 

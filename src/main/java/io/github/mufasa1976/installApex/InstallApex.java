@@ -1,6 +1,14 @@
 package io.github.mufasa1976.installApex;
 
+import io.github.mufasa1976.installApex.cli.CommandLineOption;
+import io.github.mufasa1976.installApex.command.Command;
+import io.github.mufasa1976.installApex.command.CommandRegistry;
+import io.github.mufasa1976.installApex.config.ApplicationConfiguration;
+import io.github.mufasa1976.installApex.exception.InstallApexException;
+
 import java.util.Locale;
+
+import javax.naming.OperationNotSupportedException;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -12,12 +20,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.stereotype.Component;
-
-import io.github.mufasa1976.installApex.cli.CommandLineOption;
-import io.github.mufasa1976.installApex.command.Command;
-import io.github.mufasa1976.installApex.command.CommandRegistry;
-import io.github.mufasa1976.installApex.config.ApplicationConfiguration;
-import io.github.mufasa1976.installApex.exception.InstallApexException;
 
 @Component
 public class InstallApex {
@@ -49,7 +51,7 @@ public class InstallApex {
     try {
       process(preventEmptyArgs(args));
       return EXIT_STATUS_SUCCESS;
-    } catch (ParseException e) {
+    } catch (ParseException | OperationNotSupportedException e) {
       return printErrorAndUsage(e);
     } catch (InstallApexException e) {
       System.err.println(e.getMessage(messageSource, Locale.getDefault()));
@@ -72,7 +74,7 @@ public class InstallApex {
     return args == null || args.length == 0;
   }
 
-  public void process(String[] args) throws ParseException {
+  public void process(String[] args) throws ParseException, OperationNotSupportedException {
     log.debug("parse the CommandLine");
     CommandLine commandLine = commandLineParser.parse(CommandLineOption.getOptions(messageSource), args);
 
@@ -87,7 +89,7 @@ public class InstallApex {
     System.err.println(e.getMessage());
     try {
       process(preventEmptyArgs(null));
-    } catch (ParseException ignored) {}
+    } catch (ParseException | OperationNotSupportedException ignored) {}
     return EXIT_STATUS_ERROR;
   }
 
