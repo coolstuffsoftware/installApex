@@ -1,0 +1,24 @@
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="
+    http://www.liquibase.org/xml/ns/dbchangelog-ext
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
+    http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd
+  ">
+  <changeSet author="someDeveloper" id="createTables">
+    <sqlFile
+      encoding="utf8"
+      relativeToChangelogFile="true"
+      path="TABLE1.sql"
+    />
+    <createTable tableName="TABLE2">
+      <column name="ID" type="INTEGER">
+        <constraints primaryKey="true" />
+      </column>
+    </createTable>
+    <sql>CREATE TABLE ${defaultSchemaName}.TABLE3 (id INTEGER PRIMARY KEY);</sql>
+  </changeSet>
+</databaseChangeLog>

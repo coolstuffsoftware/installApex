@@ -1,0 +1,11 @@
+<configuration>
+  <appender name="logback.consoleAppender" class="ch.qos.logback.ext.spring.DelegatingLogbackAppender" />
+  
+<!--   <logger name="org.springframework" level="DEBUG" /> -->
+  <logger name="liquibase" level="DEBUG" />
+  <logger name="web.stadler" level="DEBUG" />
+  
+  <root level="ERROR">
+  	<appender-ref ref="logback.consoleAppender" />
+  </root>
+</configuration>

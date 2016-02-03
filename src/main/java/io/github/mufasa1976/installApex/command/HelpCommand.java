@@ -1,0 +1,100 @@
+package io.github.mufasa1976.installApex.command;
+
+import java.util.Locale;
+
+import jline.Terminal;
+
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Options;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.stereotype.Service;
+
+import io.github.mufasa1976.installApex.InstallApex;
+import io.github.mufasa1976.installApex.cli.CommandLineOption;
+import io.github.mufasa1976.installApex.cli.CommandLineUtils;
+
+@Service
+public class HelpCommand extends AbstractCommand {
+
+  private static final String HELP_HEADER_PREFIX = "helpCommand.header.";
+  private static final String HELP_FOOTER_PREFIX = "helpCommand.footer.";
+  private static final String HELP_EXAMPLES_PREFIX = "helpCommand.examples.";
+
+  private static final String EMPTY_MESSAGE = "!#{emptyMessage}#!";
+  private static final String NEW_LINE = "\n";
+
+  private HelpFormatter helpFormatter;
+
+  private Terminal terminal;
+
+  private MessageSource messageSource;
+
+  private Locale locale = Locale.getDefault();
+
+  @Override
+  public void execute() {
+    String syntax = CommandLineUtils.getSyntax(InstallApex.class);
+
+    String header = getMultiLineHelpMessage(HELP_HEADER_PREFIX, syntax);
+    String footer = getMultiLineHelpMessage(HELP_FOOTER_PREFIX, syntax);
+
+    Options options = CommandLineOption.getOptions(messageSource, locale);
+    helpFormatter.printHelp(terminal.getWidth(), syntax, header, options, footer, true);
+
+    String examples = getMultiLineHelpMessage(HELP_EXAMPLES_PREFIX, syntax);
+    System.out.println(examples);
+  }
+
+  @Override
+  protected CommandType getCommandType() {
+    return CommandType.HELP;
+  }
+
+  private String getMultiLineHelpMessage(String messagePrefix, String syntax) {
+    StringBuilder messages = new StringBuilder();
+    String message = null;
+    String[] args = new String[] { syntax };
+    int line = 1;
+    do {
+      String messageKey = messagePrefix + line;
+      message = messageSource.getMessage(messageKey, args, EMPTY_MESSAGE, Locale.getDefault());
+      appendMessage(messages, message, line);
+      line++;
+    } while (!EMPTY_MESSAGE.equals(message));
+    return messages.toString();
+  }
+
+  private void appendMessage(StringBuilder messages, String message, int line) {
+    if (!EMPTY_MESSAGE.equals(message)) {
+      appendNewLine(messages, line);
+      messages.append(message);
+    }
+  }
+
+  private void appendNewLine(StringBuilder messages, int i) {
+    if (i > 1) {
+      messages.append(NEW_LINE);
+    }
+  }
+
+  @Autowired
+  public void setHelpFormatter(HelpFormatter helpFormatter) {
+    this.helpFormatter = helpFormatter;
+  }
+
+  @Autowired
+  public void setMessageSource(MessageSource messageSource) {
+    this.messageSource = messageSource;
+  }
+
+  @Autowired
+  public void setTerminal(Terminal terminal) {
+    this.terminal = terminal;
+  }
+
+  public void setLocale(Locale locale) {
+    this.locale = locale;
+  }
+
+}
