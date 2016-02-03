@@ -1,0 +1,46 @@
+prompt --application/shared_components/navigation/navigation_bar
+begin
+wwv_flow_api.create_icon_bar_item(
+ p_id=>wwv_flow_api.id(1261827839824405646)
+,p_icon_sequence=>10
+,p_icon_image=>'fa-mobile'
+,p_icon_subtext=>'Mobile'
+,p_icon_target=>'f?p=&APP_ID.:200:&SESSION.::&DEBUG.::::'
+,p_nav_entry_is_feedback_yn=>'N'
+,p_begins_on_new_line=>'NO'
+,p_cell_colspan=>1
+);
+wwv_flow_api.create_icon_bar_item(
+ p_id=>wwv_flow_api.id(1261828257534408323)
+,p_icon_sequence=>20
+,p_icon_image=>'fa-question-circle'
+,p_icon_subtext=>'Help'
+,p_icon_target=>'f?p=&APP_ID.:15:&SESSION.::&DEBUG.::::'
+,p_nav_entry_is_feedback_yn=>'N'
+,p_begins_on_new_line=>'NO'
+,p_cell_colspan=>1
+);
+wwv_flow_api.create_icon_bar_item(
+ p_id=>wwv_flow_api.id(7514271476470163240)
+,p_icon_sequence=>30
+,p_icon_image=>'fa-comment'
+,p_icon_subtext=>'Feedback'
+,p_icon_target=>'f?p=&APP_ID.:102:&SESSION.::&DEBUG.:102:P102_APPLICATION_ID,P102_PAGE_ID:&APP_ID.,&APP_PAGE_ID.:'
+,p_nav_entry_is_feedback_yn=>'Y'
+,p_icon_bar_disp_cond=>'ENABLE_FEEDBACK'
+,p_icon_bar_disp_cond_type=>'VAL_OF_ITEM_IN_COND_EQ_COND2'
+,p_icon_bar_flow_cond_instr=>'YES'
+,p_begins_on_new_line=>'NO'
+,p_cell_colspan=>1
+);
+wwv_flow_api.create_icon_bar_item(
+ p_id=>wwv_flow_api.id(7470883812974983679)
+,p_icon_sequence=>40
+,p_icon_subtext=>'Logout'
+,p_icon_target=>'&LOGOUT_URL.'
+,p_icon_image_alt=>'Logout'
+,p_nav_entry_is_feedback_yn=>'N'
+,p_cell_colspan=>1
+);
+end;
+/

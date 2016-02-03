@@ -13,8 +13,10 @@ public class NoExecutableFileException extends InstallApexException {
 
   private static final long serialVersionUID = 8208873456733968144L;
 
-  private static final String COMMAND_LINE_OPTION = "noExecutableFileException.byCommandLineOption";
-  private static final String ENVIRONMENT_VARIABLE = "noExecutableFileException.byEnvironmentVariable";
+  private static final String PREFIX_KEY = "noExecutableFileException.";
+
+  private static final String COMMAND_LINE_OPTION = PREFIX_KEY + "byCommandLineOption";
+  private static final String ENVIRONMENT_VARIABLE = PREFIX_KEY + "byEnvironmentVariable";
 
   private Reason reason;
   private Path location;
@@ -43,8 +45,8 @@ public class NoExecutableFileException extends InstallApexException {
 
   public static enum Reason {
 
-    NO_FILE("noExecutableFileException.reason.noFile"),
-    NO_EXEC_PRIVS("noExecutableFileException.reason.noExecPrivs");
+    NO_FILE(PREFIX_KEY + "reason.noFile"),
+    NO_EXEC_PRIVS(PREFIX_KEY + "reason.noExecPrivs");
 
     private final String messageKey;
 

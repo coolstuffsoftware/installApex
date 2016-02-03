@@ -1,0 +1,40 @@
+prompt --application/user_interfaces
+begin
+wwv_flow_api.create_user_interface(
+ p_id=>wwv_flow_api.id(1519898999322209702)
+,p_ui_type_name=>'DESKTOP'
+,p_display_name=>'Desktop'
+,p_display_seq=>10
+,p_use_auto_detect=>true
+,p_is_default=>true
+,p_theme_id=>42
+,p_home_url=>'f?p=&APP_ID.:1:&SESSION.'
+,p_login_url=>'f?p=&APP_ID.:LOGIN_DESKTOP:&SESSION.'
+,p_global_page_id=>0
+,p_navigation_list_id=>wwv_flow_api.id(657688270698430920)
+,p_navigation_list_position=>'SIDE'
+,p_navigation_list_template_id=>wwv_flow_api.id(1259815758007282001)
+,p_css_file_urls=>'#IMAGE_PREFIX#pkgapp_ui/css/5.0#MIN#.css'
+,p_nav_bar_type=>'LIST'
+,p_nav_bar_list_id=>wwv_flow_api.id(662141387586366594)
+,p_nav_bar_list_template_id=>wwv_flow_api.id(1598297010721879930)
+,p_nav_bar_template_options=>'#DEFAULT#'
+);
+wwv_flow_api.create_user_interface(
+ p_id=>wwv_flow_api.id(1671917025726579211)
+,p_ui_type_name=>'JQM_SMARTPHONE'
+,p_display_name=>'Mobile'
+,p_display_seq=>20
+,p_use_auto_detect=>true
+,p_is_default=>false
+,p_theme_id=>51
+,p_home_url=>'f?p=&APP_ID.:HOME_JQM_SMARTPHONE:&SESSION.'
+,p_login_url=>'f?p=&APP_ID.:LOGIN_JQM_SMARTPHONE:&SESSION.'
+,p_global_page_id=>199
+,p_navigation_list_id=>wwv_flow_api.id(1671927899628614244)
+,p_navigation_list_position=>'SIDE'
+,p_navigation_list_template_id=>wwv_flow_api.id(1609473866606416190)
+,p_nav_bar_type=>'NAVBAR'
+);
+end;
+/

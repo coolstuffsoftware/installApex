@@ -1,0 +1,37 @@
+prompt --application/shared_components/logic/application_items
+begin
+wwv_flow_api.create_flow_item(
+ p_id=>wwv_flow_api.id(2185677710586031465)
+,p_name=>'A01'
+,p_protection_level=>'I'
+);
+wwv_flow_api.create_flow_item(
+ p_id=>wwv_flow_api.id(2185677915001032168)
+,p_name=>'A02'
+,p_protection_level=>'I'
+);
+wwv_flow_api.create_flow_item(
+ p_id=>wwv_flow_api.id(2185678118217032807)
+,p_name=>'A03'
+,p_protection_level=>'I'
+);
+wwv_flow_api.create_flow_item(
+ p_id=>wwv_flow_api.id(4115737744742640906)
+,p_name=>'ENABLE_FEEDBACK'
+,p_protection_level=>'N'
+);
+wwv_flow_api.create_flow_item(
+ p_id=>wwv_flow_api.id(7470884399761983835)
+,p_name=>'FSP_AFTER_LOGIN_URL'
+);
+wwv_flow_api.create_flow_item(
+ p_id=>wwv_flow_api.id(7501110414696586303)
+,p_name=>'G_PAGE_INFO'
+);
+wwv_flow_api.create_flow_item(
+ p_id=>wwv_flow_api.id(4115555742732719545)
+,p_name=>'LAST_VIEW'
+,p_protection_level=>'N'
+);
+end;
+/

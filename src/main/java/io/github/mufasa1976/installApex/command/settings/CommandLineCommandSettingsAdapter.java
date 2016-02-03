@@ -24,6 +24,7 @@ import io.github.mufasa1976.installApex.exception.EmptyCommandLineOptionExceptio
 import io.github.mufasa1976.installApex.exception.InvalidApexIdException;
 import io.github.mufasa1976.installApex.exception.NoDirectoryException;
 import io.github.mufasa1976.installApex.exception.NoExecutableFileException;
+import io.github.mufasa1976.installApex.service.LiquibaseParameter;
 import oracle.jdbc.pool.OracleDataSource;
 
 public class CommandLineCommandSettingsAdapter implements CommandSettings {

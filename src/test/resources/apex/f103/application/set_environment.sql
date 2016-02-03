@@ -1,0 +1,59 @@
+prompt --application/set_environment
+ 
+prompt APPLICATION 103 - Sample Database Application
+--
+-- Application Export:
+--   Application:     103
+--   Name:            Sample Database Application
+--   Date and Time:   23:42 Wednesday February 3, 2016
+--   Exported By:     ERICH
+--   Flashback:       0
+--   Export Type:     Application Export
+--   Version:         5.0.1.00.06
+--   Instance ID:     103897155079469
+--
+
+-- Application Statistics:
+--   Pages:                     67
+--     Items:                  174
+--     Computations:             8
+--     Validations:             34
+--     Processes:               67
+--     Regions:                146
+--     Buttons:                107
+--     Dynamic Actions:         29
+--   Shared Components:
+--     Logic:
+--       Items:                  7
+--       Computations:           3
+--       Build Options:          1
+--       Data Loading:           1
+--     Navigation:
+--       Parent Tabs:            1
+--       Lists:                 14
+--       Breadcrumbs:            1
+--         Entries:             33
+--       NavBar Entries:         4
+--     Security:
+--       Authentication:         1
+--     User Interface:
+--       Themes:                 2
+--       Templates:
+--         Page:                12
+--         Region:              29
+--         Label:                8
+--         List:                16
+--         Popup LOV:            2
+--         Calendar:             2
+--         Breadcrumb:           1
+--         Button:               5
+--         Report:              10
+--       LOVs:                  13
+--       Shortcuts:              2
+--       Plug-ins:              10
+--     Globalization:
+--       Messages:               4
+--     Reports:
+--   Supporting Objects:  Included
+--     Install scripts:          9
+

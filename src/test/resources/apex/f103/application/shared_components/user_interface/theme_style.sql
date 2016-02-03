@@ -1,0 +1,47 @@
+prompt --application/shared_components/user_interface/theme_style
+begin
+wwv_flow_api.create_theme_style(
+ p_id=>wwv_flow_api.id(187773422252360951)
+,p_theme_id=>42
+,p_name=>'Vista'
+,p_css_file_urls=>'#THEME_IMAGES#css/Vista#MIN#.css?v=#APEX_VERSION#'
+,p_is_current=>false
+,p_theme_roller_read_only=>true
+);
+wwv_flow_api.create_theme_style(
+ p_id=>wwv_flow_api.id(187773767153360951)
+,p_theme_id=>42
+,p_name=>'Vita'
+,p_is_current=>true
+,p_theme_roller_input_file_urls=>'#THEME_IMAGES#less/theme/Vita.less'
+,p_theme_roller_output_file_url=>'#THEME_IMAGES#css/Vita#MIN#.css?v=#APEX_VERSION#'
+,p_theme_roller_read_only=>true
+);
+wwv_flow_api.create_theme_style(
+ p_id=>wwv_flow_api.id(187774136880360951)
+,p_theme_id=>42
+,p_name=>'Vita - Slate'
+,p_is_current=>false
+,p_theme_roller_input_file_urls=>'#THEME_IMAGES#less/theme/Vita-Slate.less'
+,p_theme_roller_config=>'{"customCSS":"","vars":{"@g_Accent-BG":"#505f6d","@g_Accent-OG":"#ececec","@g_Body-Title-BG":"#dee1e4","@l_Link-Base":"#337ac0","@g_Body-BG":"#f5f5f5"}}'
+,p_theme_roller_output_file_url=>'#THEME_IMAGES#css/Vita-Slate#MIN#.css?v=#APEX_VERSION#'
+,p_theme_roller_read_only=>true
+);
+wwv_flow_api.create_theme_style(
+ p_id=>wwv_flow_api.id(2290627800691791137)
+,p_theme_id=>51
+,p_name=>'Blue'
+,p_css_file_urls=>'#IMAGE_PREFIX#themes/theme_51/css/style_blue_5_0.css'
+,p_is_current=>true
+,p_theme_roller_read_only=>false
+);
+wwv_flow_api.create_theme_style(
+ p_id=>wwv_flow_api.id(2290628192640791140)
+,p_theme_id=>51
+,p_name=>'Red'
+,p_css_file_urls=>'#IMAGE_PREFIX#themes/theme_51/css/style_red_5_0.css'
+,p_is_current=>false
+,p_theme_roller_read_only=>false
+);
+end;
+/
