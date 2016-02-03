@@ -44,7 +44,7 @@ The following File-Structure is recommended:
 ```
 Extract all your APEX-Applications you wish to package into the Subdirectory ```src/main/resources/apex```. You can also use the [Apex Splitter](https://ruepprich.wordpress.com/2011/07/15/exporting-an-apex-application-via-command-line/) to split your APEX-Application.
 
-All DDL and PL/SQL will be maintaned by [Liquibase](http://liquibase.org/). Please refer to their Documentation.
+All DDL and PL/SQL will be maintaned by [Liquibase](http://liquibase.org/). Please refer to their Documentation. Following the best Practices of Liquibase the Master-File should be named  ```db.changelog-master.xml```. All Liquibase ChangeLog Files must resist within the Directory ```src/main/resources/liquibase```.
 ### Versioning you APEX-Applications
 By setting the Version of your APEX-Application to the Value ```${project.version}``` the maven-shade-plugin will substitute this String by the actual Version of your Project.
 ### Maven
