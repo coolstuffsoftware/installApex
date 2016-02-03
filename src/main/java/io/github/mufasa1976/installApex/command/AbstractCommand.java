@@ -1,8 +1,5 @@
 package io.github.mufasa1976.installApex.command;
 
-import io.github.mufasa1976.installApex.command.settings.CommandLineCommandSettingsAdapter;
-import io.github.mufasa1976.installApex.command.settings.CommandSettings;
-
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.cli.CommandLine;
@@ -11,6 +8,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
+
+import io.github.mufasa1976.installApex.command.settings.CommandLineCommandSettingsAdapter;
+import io.github.mufasa1976.installApex.command.settings.CommandSettings;
 
 public abstract class AbstractCommand implements Command {
 
@@ -31,7 +31,7 @@ public abstract class AbstractCommand implements Command {
 
   protected abstract CommandType getCommandType();
 
-  public void prepareCommand(CommandLine commandLine) {
+  void prepareCommand(CommandLine commandLine) {
     log.debug("prepare the CommandSettings of Command {}", this);
     commandSettings = new CommandLineCommandSettingsAdapter(getCommandType(), commandLine);
   }

@@ -12,7 +12,7 @@ public interface CommandSettings {
 
   ProcessBuilder getSQLPlusCommand();
 
-  String buildSQLPlusConnect(String password);
+  String getSQLPlusConnect(String password);
 
   boolean isForce();
 
@@ -26,7 +26,7 @@ public interface CommandSettings {
 
   boolean isApexIdAvailable();
 
-  Integer getApexId();
+  Integer getSourceApexId();
 
   LiquibaseParameter getLiquibaseParameter();
 

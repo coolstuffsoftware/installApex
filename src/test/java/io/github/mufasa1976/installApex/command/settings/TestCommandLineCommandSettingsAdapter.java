@@ -322,7 +322,7 @@ public class TestCommandLineCommandSettingsAdapter extends AbstractTestNGSpringC
 
   private Map<String, Object> prepareContext(CommandSettings commandSettings) {
     Map<String, Object> context = new HashMap<>();
-    context.put("sqlPlusConnect", commandSettings.buildSQLPlusConnect(password));
+    context.put("sqlPlusConnect", commandSettings.getSQLPlusConnect(password));
     return context;
   }
 
@@ -420,7 +420,7 @@ public class TestCommandLineCommandSettingsAdapter extends AbstractTestNGSpringC
         "100");
     //@formatter:on
     Assert.assertTrue(commandSettings.isApexIdAvailable());
-    Assert.assertEquals(commandSettings.getApexId(), new Integer(100));
+    Assert.assertEquals(commandSettings.getSourceApexId(), new Integer(100));
   }
 
 }

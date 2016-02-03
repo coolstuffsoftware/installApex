@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import io.github.mufasa1976.installApex.cli.CommandLineOption;
 import io.github.mufasa1976.installApex.command.CommandType;
 import io.github.mufasa1976.installApex.exception.CreateDirectoryException;
+import io.github.mufasa1976.installApex.exception.DataSourceCreationException;
 import io.github.mufasa1976.installApex.exception.EmptyCommandLineOptionException;
 import io.github.mufasa1976.installApex.exception.InvalidApexIdException;
 import io.github.mufasa1976.installApex.exception.NoDirectoryException;
@@ -149,7 +150,9 @@ public class CommandLineCommandSettingsAdapter implements CommandSettings {
         dataSource.setPassword(password);
       }
     } catch (SQLException e) {
-      throw new IllegalStateException(String.format("Can't create the DataSource. Reason: %s", e.getMessage()), e);
+      log.error("Error while creating DataSource to TNS {} with User {}. Reason: {}", databaseConnect, databaseUser,
+          e.getMessage(), e);
+      throw new DataSourceCreationException(databaseConnect, databaseUser, e);
     }
 
     return dataSource;
@@ -386,7 +389,7 @@ public class CommandLineCommandSettingsAdapter implements CommandSettings {
   }
 
   @Override
-  public String buildSQLPlusConnect(String password) {
+  public String getSQLPlusConnect(String password) {
     String databaseConnect = getValueByArgumentOf(CommandLineOption.DB_CONNECT);
     String databaseUser = getValueByArgumentOf(CommandLineOption.DB_USER);
 
@@ -427,7 +430,7 @@ public class CommandLineCommandSettingsAdapter implements CommandSettings {
   }
 
   @Override
-  public Integer getApexId() {
+  public Integer getSourceApexId() {
     String apexIdAsString = getValueByOptionalArgumentOf(CommandLineOption.APEX_SOURCE_ID);
     if (StringUtils.isBlank(apexIdAsString)) {
       return null;

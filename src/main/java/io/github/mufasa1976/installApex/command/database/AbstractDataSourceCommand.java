@@ -1,8 +1,5 @@
 package io.github.mufasa1976.installApex.command.database;
 
-import io.github.mufasa1976.installApex.command.AbstractCommand;
-import io.github.mufasa1976.installApex.exception.ConnectionCreationException;
-
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -10,12 +7,14 @@ import java.util.Locale;
 
 import javax.sql.DataSource;
 
-import jline.console.ConsoleReader;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
+
+import io.github.mufasa1976.installApex.command.AbstractCommand;
+import io.github.mufasa1976.installApex.exception.ConnectionCreationException;
+import jline.console.ConsoleReader;
 
 public abstract class AbstractDataSourceCommand extends AbstractCommand {
 
@@ -52,7 +51,8 @@ public abstract class AbstractDataSourceCommand extends AbstractCommand {
   }
 
   @Autowired
-  public void setConsoleReader(ConsoleReader consoleReader) {
+  void setConsoleReader(ConsoleReader consoleReader) {
     this.consoleReader = consoleReader;
   }
+
 }

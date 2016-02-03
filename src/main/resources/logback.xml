@@ -3,7 +3,7 @@
 
   <turboFilter class="ch.qos.logback.classic.turbo.DynamicThresholdFilter">
     <Key>thresholdFilter</Key>
-    <DefaultThreshold>${installApex.logLevel:-ERROR}</DefaultThreshold>
+    <DefaultThreshold>${installApex.logLevel:-FATAL}</DefaultThreshold>
    </turboFilter>
   
   <root level="TRACE">
