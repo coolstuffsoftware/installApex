@@ -20,7 +20,7 @@ public class InstallApexException extends RuntimeException {
 
   private Reason reason;
   private List<Object> arguments = new ArrayList<>();
-  private boolean printStackTrace = true;
+  private boolean printStackTrace = false;
   private int exitStatus = EXIT_STATUS_FAILURE;
 
   public InstallApexException(Reason reason, Object... arguments) {

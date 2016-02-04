@@ -1,8 +1,5 @@
 package io.github.mufasa1976.installApex.service.apex.parser;
 
-import io.github.mufasa1976.installApex.exception.InstallApexException;
-import io.github.mufasa1976.installApex.exception.InstallApexException.Reason;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -22,6 +19,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
+
+import io.github.mufasa1976.installApex.exception.InstallApexException;
+import io.github.mufasa1976.installApex.exception.InstallApexException.Reason;
 
 @Service
 public class ApexApplicationParserServiceImpl implements ApexApplicationParserService {
@@ -62,7 +62,7 @@ public class ApexApplicationParserServiceImpl implements ApexApplicationParserSe
     }
     String directoryName = baseDirectoryAsResource.getFilename();
     if (!baseDirectoryAsResource.exists()) {
-      throw new InstallApexException(Reason.NO_APEX_DIRECTORY_INCLUDED, directoryName);
+      throw new InstallApexException(Reason.NO_APEX_DIRECTORY_INCLUDED, "/" + directoryName);
     }
     try {
       Path baseDirectory = baseDirectoryAsResource.getFile().toPath();
@@ -145,8 +145,8 @@ public class ApexApplicationParserServiceImpl implements ApexApplicationParserSe
   private void parseApplicationFiles(Path file, ApexApplication apexApplication) {
     try (Scanner scanner = new Scanner(file)) {
       log.debug("Content of File {}", file);
-      scanner
-      .useDelimiter("[Ww][Ww][Vv]_[Ff][Ll][Oo][Ww]_[Aa][Pp][Ii]\\.[Cc][Rr][Ee][Aa][Tt][Ee]_[Ff][Ll][Oo][Ww]\\s*\\(");
+      scanner.useDelimiter(
+          "[Ww][Ww][Vv]_[Ff][Ll][Oo][Ww]_[Aa][Pp][Ii]\\.[Cc][Rr][Ee][Aa][Tt][Ee]_[Ff][Ll][Oo][Ww]\\s*\\(");
       if (scanner.hasNext()) {
         scanner.next(); // ignore the first Part
         scanner.useDelimiter("\n[Ee][Nn][Dd]\\;\n");
@@ -170,10 +170,9 @@ public class ApexApplicationParserServiceImpl implements ApexApplicationParserSe
 
   private void checkApplicationId(String installationBlock, ApexApplication apexApplication) {
     try (Scanner scanner = new Scanner(installationBlock)) {
-      scanner
-          .findWithinHorizon(
-              "[Ww][Ww][Vv]_[Ff][Ll][Oo][Ww]_[Aa][Pp][Pp][Ll][Ii][Cc][Aa][Tt][Ii][Oo][Nn]_[Ii][Nn][Ss][Tt][Aa][Ll][Ll]\\.[Gg][Ee][Tt]_[Aa][Pp][Pp][Ll][Ii][Cc][Aa][Tt][Ii][Oo][Nn]_[Ii][Dd]\\s*,\\s*(\\d+)\\)",
-              0);
+      scanner.findWithinHorizon(
+          "[Ww][Ww][Vv]_[Ff][Ll][Oo][Ww]_[Aa][Pp][Pp][Ll][Ii][Cc][Aa][Tt][Ii][Oo][Nn]_[Ii][Nn][Ss][Tt][Aa][Ll][Ll]\\.[Gg][Ee][Tt]_[Aa][Pp][Pp][Ll][Ii][Cc][Aa][Tt][Ii][Oo][Nn]_[Ii][Dd]\\s*,\\s*(\\d+)\\)",
+          0);
       MatchResult matchResult = scanner.match();
       if (matchResult.groupCount() >= 1) {
         int applicationId = Integer.parseInt(matchResult.group(1));
@@ -187,10 +186,9 @@ public class ApexApplicationParserServiceImpl implements ApexApplicationParserSe
 
   private void parseApplicationName(String installationBlock, ApexApplication apexApplication) {
     try (Scanner scanner = new Scanner(installationBlock)) {
-      scanner
-          .findWithinHorizon(
-              "[Ww][Ww][Vv]_[Ff][Ll][Oo][Ww]_[Aa][Pp][Pp][Ll][Ii][Cc][Aa][Tt][Ii][Oo][Nn]_[Ii][Nn][Ss][Tt][Aa][Ll][Ll]\\.[Gg][Ee][Tt]_[Aa][Pp][Pp][Ll][Ii][Cc][Aa][Tt][Ii][Oo][Nn]_[Nn][Aa][Mm][Ee]\\s*,\\s*'(.*)'\\)",
-              0);
+      scanner.findWithinHorizon(
+          "[Ww][Ww][Vv]_[Ff][Ll][Oo][Ww]_[Aa][Pp][Pp][Ll][Ii][Cc][Aa][Tt][Ii][Oo][Nn]_[Ii][Nn][Ss][Tt][Aa][Ll][Ll]\\.[Gg][Ee][Tt]_[Aa][Pp][Pp][Ll][Ii][Cc][Aa][Tt][Ii][Oo][Nn]_[Nn][Aa][Mm][Ee]\\s*,\\s*'(.*)'\\)",
+          0);
       MatchResult matchResult = scanner.match();
       if (matchResult.groupCount() >= 1) {
         apexApplication.setName(matchResult.group(1));
