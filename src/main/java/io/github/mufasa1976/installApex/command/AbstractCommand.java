@@ -1,16 +1,24 @@
 package io.github.mufasa1976.installApex.command;
 
+import io.github.mufasa1976.installApex.command.settings.CommandLineCommandSettingsAdapter;
+import io.github.mufasa1976.installApex.command.settings.CommandSettings;
+import io.github.mufasa1976.installApex.exception.InstallApexException;
+import io.github.mufasa1976.installApex.exception.InstallApexException.Reason;
+
+import java.io.IOException;
+import java.util.Locale;
+
 import javax.annotation.PostConstruct;
+
+import jline.console.ConsoleReader;
 
 import org.apache.commons.cli.CommandLine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
-
-import io.github.mufasa1976.installApex.command.settings.CommandLineCommandSettingsAdapter;
-import io.github.mufasa1976.installApex.command.settings.CommandSettings;
 
 public abstract class AbstractCommand implements Command {
 
@@ -21,6 +29,12 @@ public abstract class AbstractCommand implements Command {
 
   @Autowired
   private ResourceLoader resourceLoader;
+
+  @Autowired
+  private MessageSource messageSource;
+
+  @Autowired
+  private ConsoleReader consoleReader;
 
   private CommandSettings commandSettings;
 
@@ -42,6 +56,19 @@ public abstract class AbstractCommand implements Command {
 
   protected Resource getResource(String location) {
     return resourceLoader.getResource(location);
+  }
+
+  protected void printMessage(String messageKey, Object... arguments) {
+    String message = messageSource.getMessage(messageKey, arguments, Locale.getDefault());
+    print(message);
+  }
+
+  protected void print(String message) {
+    try {
+      consoleReader.print(message);
+    } catch (IOException e) {
+      throw new InstallApexException(Reason.CONSOLE_PROBLEM, e).setPrintStrackTrace(true);
+    }
   }
 
   @Override

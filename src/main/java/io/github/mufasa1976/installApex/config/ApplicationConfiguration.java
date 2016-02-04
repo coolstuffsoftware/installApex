@@ -1,7 +1,16 @@
 package io.github.mufasa1976.installApex.config;
 
+import io.github.mufasa1976.installApex.InstallApex;
+
 import java.io.IOException;
 import java.util.Properties;
+
+import jline.Terminal;
+import jline.TerminalFactory;
+import jline.console.ConsoleReader;
+import liquibase.database.DatabaseFactory;
+import liquibase.resource.ClassLoaderResourceAccessor;
+import liquibase.resource.ResourceAccessor;
 
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.GnuParser;
@@ -20,14 +29,6 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.core.io.ResourceEditor;
 import org.springframework.ui.velocity.VelocityEngineFactoryBean;
-
-import io.github.mufasa1976.installApex.InstallApex;
-import jline.Terminal;
-import jline.TerminalFactory;
-import jline.console.ConsoleReader;
-import liquibase.database.DatabaseFactory;
-import liquibase.resource.ClassLoaderResourceAccessor;
-import liquibase.resource.ResourceAccessor;
 
 @Configuration
 @ComponentScan(basePackageClasses = InstallApex.class)
@@ -106,7 +107,7 @@ public class ApplicationConfiguration {
     return DatabaseFactory.getInstance();
   }
 
-  @Bean
+  @Bean(destroyMethod = "shutdown")
   public ConsoleReader consoleReader() throws IOException {
     ConsoleReader consoleReader = new ConsoleReader();
     return consoleReader;

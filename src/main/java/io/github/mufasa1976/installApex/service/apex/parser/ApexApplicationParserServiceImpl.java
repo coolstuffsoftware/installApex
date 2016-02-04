@@ -17,7 +17,10 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -27,6 +30,18 @@ public class ApexApplicationParserServiceImpl implements ApexApplicationParserSe
 
   private static final String SQL_SUFFIX = ".sql";
   private static final Path CREATE_APPLICATION_PATH = Paths.get("application", "create_application.sql");
+
+  @Autowired
+  private ResourceLoader resourceLoader;
+
+  @Value("${apexApplicationParserService.apexResourceLocation}")
+  private String defaultLocation;
+
+  @Override
+  public List<ApexApplication> getCandidates() {
+    Resource baseDirectory = resourceLoader.getResource(defaultLocation);
+    return getCandidates(baseDirectory);
+  }
 
   @Override
   public List<ApexApplication> getCandidates(Resource baseDirectory) {

@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.test.context.ContextConfiguration;
@@ -26,6 +27,9 @@ public class TestApexApplicationParserService extends AbstractTestNGSpringContex
   @Autowired
   private ResourceLoader resourceLoader;
 
+  @Value("${apexApplicationParserService.apexResourceLocation}")
+  private String defaultLocation;
+
   @Test
   public void testParseApexDirectory() throws IOException {
     Resource apexPath = resourceLoader.getResource("classpath:/apex");
@@ -33,6 +37,16 @@ public class TestApexApplicationParserService extends AbstractTestNGSpringContex
     Assert.assertNotNull(candidates);
     Assert.assertEquals(candidates.size(), 2);
     compareList(candidates, apexPath.getFile().toPath());
+  }
+
+  @Test
+  public void testParseApexDefaultDirectory() throws IOException {
+    List<ApexApplication> candidates = parser.getCandidates();
+    Assert.assertNotNull(candidates);
+    Assert.assertEquals(candidates.size(), 2);
+
+    Resource defaultResource = resourceLoader.getResource(defaultLocation);
+    compareList(candidates, defaultResource.getFile().toPath());
   }
 
   private void compareList(List<ApexApplication> candidates, Path baseDirectory) {

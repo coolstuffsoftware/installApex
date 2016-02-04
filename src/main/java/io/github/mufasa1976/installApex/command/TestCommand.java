@@ -1,11 +1,13 @@
 package io.github.mufasa1976.installApex.command;
 
+import io.github.mufasa1976.installApex.service.liquibase.LiquibaseService;
+
 import javax.naming.OperationNotSupportedException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-import io.github.mufasa1976.installApex.service.liquibase.LiquibaseService;
-
+@Service
 public class TestCommand extends AbstractCommand {
 
   @Autowired
