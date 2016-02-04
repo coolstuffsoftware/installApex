@@ -21,9 +21,9 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ApexApplicationParserImpl implements ApexApplicationParser {
+public class ApexApplicationParserServiceImpl implements ApexApplicationParserService {
 
-  private static final Logger log = LoggerFactory.getLogger(ApexApplicationParserImpl.class);
+  private static final Logger log = LoggerFactory.getLogger(ApexApplicationParserServiceImpl.class);
 
   private static final String SQL_SUFFIX = ".sql";
   private static final Path CREATE_APPLICATION_PATH = Paths.get("application", "create_application.sql");

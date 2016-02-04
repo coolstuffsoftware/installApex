@@ -15,21 +15,16 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.testng.Assert;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 @ContextConfiguration(classes = TestApplicationConfiguration.class)
-public class TestApexApplicationParser extends AbstractTestNGSpringContextTests {
+public class TestApexApplicationParserService extends AbstractTestNGSpringContextTests {
 
-  private ApexApplicationParserImpl parser;
+  @Autowired
+  private ApexApplicationParserService parser;
 
   @Autowired
   private ResourceLoader resourceLoader;
-
-  @BeforeMethod
-  public void setUp() {
-    parser = new ApexApplicationParserImpl();
-  }
 
   @Test
   public void testParseApexDirectory() throws IOException {

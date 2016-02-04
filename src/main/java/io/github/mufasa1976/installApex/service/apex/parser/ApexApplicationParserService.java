@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.core.io.Resource;
 
-public interface ApexApplicationParser {
+public interface ApexApplicationParserService {
 
   List<ApexApplication> getCandidates(Resource baseDirectory);
 
