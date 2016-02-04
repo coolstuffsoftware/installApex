@@ -14,6 +14,8 @@ public class InstallApexException extends RuntimeException {
   public static final int EXIT_STATUS_SUCCESS = 0;
   public static final int EXIT_STATUS_FAILURE = 1;
 
+  private static final String PROPERTY_ALWAYS_PRINT_STACK_TRACE = "installApex.alwaysPrintStackTrace";
+
   private static final String PREFIX = "installApexException.";
   private static final String REASON_PREFIX = "reason.";
   private static final String MESSAGE = "message";
@@ -30,7 +32,13 @@ public class InstallApexException extends RuntimeException {
   public InstallApexException(Reason reason, Throwable cause, Object... arguments) {
     super(reason.getMessageKey(), cause);
     this.reason = reason;
+    printStackTrace = reason.isPrintStackTrace();
+    exitStatus = reason.getExitStatus();
     this.arguments.addAll(Arrays.asList(arguments));
+  }
+
+  public Reason getReason() {
+    return reason;
   }
 
   public InstallApexException setPrintStrackTrace(boolean printStackTrace) {
@@ -38,25 +46,20 @@ public class InstallApexException extends RuntimeException {
     return this;
   }
 
+  public int getExitStatus() {
+    return exitStatus;
+  }
+
   public InstallApexException setExitStatus(int exitStatus) {
     this.exitStatus = exitStatus;
     return this;
   }
 
-  public Reason getReason() {
-    return reason;
-  }
-
   public boolean isPrintStackTrace() {
+    if (Boolean.getBoolean(PROPERTY_ALWAYS_PRINT_STACK_TRACE)) {
+      return true;
+    }
     return printStackTrace;
-  }
-
-  protected List<Object> getArguments() {
-    return arguments;
-  }
-
-  public int getExitStatus() {
-    return exitStatus;
   }
 
   public String getMessage(MessageSource messageSource, Locale locale) {
@@ -66,7 +69,7 @@ public class InstallApexException extends RuntimeException {
 
   public static enum Reason {
 
-    UNKNOWN(99999, "unknown"),
+    UNKNOWN(99999, "unknown", true),
 
     CLI_ARGUMENT_NO_DIRECTORY(1, "noDirectoryByCLIArgument"),
     CLI_ENV_VARIABLE_NO_DIRECTORY(1, "noDirectoryBySystemPropertyOrEnvironmentVariable"),
@@ -83,16 +86,32 @@ public class InstallApexException extends RuntimeException {
     NO_APEX_DIRECTORY_INCLUDED(9, "noApexDirectoryIncluded"),
     ERROR_ON_APEX_DIRECTORY_ACCESS(10, "errorOnApexDirectoryAccess"),
     NO_APEX_APPLICATIONS_INCLUDED(11, "noApexApplicationsIncluded"),
-    APEX_PARSER_EXCEPTION(12, "apexParserException"),
+    APEX_PARSER_EXCEPTION(12, "apexParserException", true),
     WRONG_INTERNAL_APEX_ID(13, "wrongInternalApexId"),
-    CONSOLE_PROBLEM(14, "consoleProblem");
+    CONSOLE_PROBLEM(14, "consoleProblem", true);
 
     private int code;
     private String messageKey;
+    private boolean printStackTrace;
+    private int exitStatus;
 
     private Reason(int code, String messageKey) {
+      this(code, messageKey, false, EXIT_STATUS_FAILURE);
+    }
+
+    private Reason(int code, String messageKey, boolean printStackTrace) {
+      this(code, messageKey, printStackTrace, EXIT_STATUS_FAILURE);
+    }
+
+    private Reason(int code, String messageKey, int exitStatus) {
+      this(code, messageKey, false, exitStatus);
+    }
+
+    private Reason(int code, String messageKey, boolean printStackTrace, int exitStatus) {
       this.code = code;
       this.messageKey = messageKey;
+      this.printStackTrace = printStackTrace;
+      this.exitStatus = exitStatus;
     }
 
     public int getCode() {
@@ -101,6 +120,14 @@ public class InstallApexException extends RuntimeException {
 
     public String getMessageKey() {
       return PREFIX + REASON_PREFIX + messageKey;
+    }
+
+    public boolean isPrintStackTrace() {
+      return printStackTrace;
+    }
+
+    public int getExitStatus() {
+      return exitStatus;
     }
 
   }

@@ -3,10 +3,10 @@
 
   <turboFilter class="ch.qos.logback.classic.turbo.DynamicThresholdFilter">
     <Key>thresholdFilter</Key>
-    <DefaultThreshold>${installApex.logLevel:-FATAL}</DefaultThreshold>
+    <DefaultThreshold>${installApex.logLevel:-OFF}</DefaultThreshold>
    </turboFilter>
   
-  <root level="TRACE">
+  <root level="ALL">
   	<appender-ref ref="logback.springAppender" />
   </root>
 </configuration>

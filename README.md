@@ -114,3 +114,7 @@ All Logs will be redirected to Standard Output (stdout). If you want to redirect
 java -DinstallApex.logLevel=DEBUG -DinstallApex.logFile=logs.txt -cp $ORACLE_HOME/jdbc/lib/ojdbc7.jar -jar installApex.jar
 ```
 If the Log-File already exists the Content will simply appended.
+### print Stacktrace
+This Framework provides a single Exception-Class for Output: ```InstallApexException```. This keeps Error-Handling simple and effective because the Errors produced by this Framework are channeled through Reason-Codes with the Prefix ```INST-```.
+It depends on this Reason-Code if the thrown Exception will print an extended StackTrace. By setting the System-Property ```installApex.alwaysPrintStackTrace``` to true (```-DinstallApex.alwaysPrintStackTrace=true```) all thrown Exceptions will print
+its StackTrace
