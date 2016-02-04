@@ -22,11 +22,11 @@ The following File-Structure is recommended:
    └─ main
       └─ resources
          ├─ liquibase
-         |  ├─ db.changelog-master.xml
-         |  └─ plsql
-         |     ├─ db.changelog-plsql.xml
-         |     ├─ PKG_PACKAGE1.pks
-         |     ├─ PKG_PACKAGE1.pkb
+         │  ├─ db.changelog-master.xml
+         │  └─ plsql
+         │     ├─ db.changelog-plsql.xml
+         │     ├─ PKG_PACKAGE1.pks
+         │     ├─ PKG_PACKAGE1.pkb
          |     └─ ...
          └─ apex
             ├─ f100.sql

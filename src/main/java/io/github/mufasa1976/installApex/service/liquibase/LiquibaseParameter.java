@@ -1,4 +1,4 @@
-package io.github.mufasa1976.installApex.service;
+package io.github.mufasa1976.installApex.service.liquibase;
 
 import java.util.Collection;
 import java.util.HashSet;

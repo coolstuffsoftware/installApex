@@ -4,7 +4,7 @@ import javax.naming.OperationNotSupportedException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import io.github.mufasa1976.installApex.service.LiquibaseService;
+import io.github.mufasa1976.installApex.service.liquibase.LiquibaseService;
 
 public class TestCommand extends AbstractCommand {
 

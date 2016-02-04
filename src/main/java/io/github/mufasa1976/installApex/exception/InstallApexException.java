@@ -79,7 +79,12 @@ public class InstallApexException extends RuntimeException {
     CLI_ARGUMENT_FILE_WITHOUT_EXECUTION_PRIVS(7, "fileWithoutExecutionPrivilegeByOption"),
     CLI_ENV_VARIABLE_FILE_WITHOUT_EXECUTION_PRIVS(7,
         "fileWithoutExecutionPrivilegeBySystemPrivilegeOrEnvironmentVariable"),
-        APEX_ID_NOT_NUMERIC(8, "apexIdNotNumeric");
+    APEX_ID_NOT_NUMERIC(8, "apexIdNotNumeric"),
+    NO_APEX_DIRECTORY_INCLUDED(9, "noApexDirectoryIncluded"),
+    ERROR_ON_APEX_DIRECTORY_ACCESS(10, "errorOnApexDirectoryAccess"),
+    NO_APEX_APPLICATIONS_INCLUDED(11, "noApexApplicationsIncluded"),
+    APEX_PARSER_EXCEPTION(12, "apexParserException"),
+    WRONG_INTERNAL_APEX_ID(13, "wrongInternalApexId");
 
     private int code;
     private String messageKey;

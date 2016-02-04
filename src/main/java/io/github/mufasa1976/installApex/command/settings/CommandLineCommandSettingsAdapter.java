@@ -4,7 +4,8 @@ import io.github.mufasa1976.installApex.cli.CommandLineOption;
 import io.github.mufasa1976.installApex.command.CommandType;
 import io.github.mufasa1976.installApex.exception.InstallApexException;
 import io.github.mufasa1976.installApex.exception.InstallApexException.Reason;
-import io.github.mufasa1976.installApex.service.LiquibaseParameter;
+import io.github.mufasa1976.installApex.service.apex.ApexParameter;
+import io.github.mufasa1976.installApex.service.liquibase.LiquibaseParameter;
 
 import java.io.IOException;
 import java.nio.file.Files;
