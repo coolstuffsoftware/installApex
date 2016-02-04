@@ -231,6 +231,11 @@ public enum CommandLineOption {
       return commandType != null;
     }
 
+    @Override
+    public String toString() {
+      return getLongOption();
+    }
+
   }
 
 }

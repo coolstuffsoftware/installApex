@@ -18,12 +18,8 @@ import org.slf4j.LoggerFactory;
 
 import io.github.mufasa1976.installApex.cli.CommandLineOption;
 import io.github.mufasa1976.installApex.command.CommandType;
-import io.github.mufasa1976.installApex.exception.CreateDirectoryException;
-import io.github.mufasa1976.installApex.exception.DataSourceCreationException;
-import io.github.mufasa1976.installApex.exception.EmptyCommandLineOptionException;
-import io.github.mufasa1976.installApex.exception.InvalidApexIdException;
-import io.github.mufasa1976.installApex.exception.NoDirectoryException;
-import io.github.mufasa1976.installApex.exception.NoExecutableFileException;
+import io.github.mufasa1976.installApex.exception.InstallApexException;
+import io.github.mufasa1976.installApex.exception.InstallApexException.Reason;
 import io.github.mufasa1976.installApex.service.LiquibaseParameter;
 import oracle.jdbc.pool.OracleDataSource;
 
@@ -84,7 +80,7 @@ public class CommandLineCommandSettingsAdapter implements CommandSettings {
       return;
     }
     if (!Files.isDirectory(locationToCheck)) {
-      throw new NoDirectoryException(locationToCheck, option);
+      throw new InstallApexException(Reason.CLI_ARGUMENT_NO_DIRECTORY, option, locationToCheck);
     }
   }
 
@@ -103,12 +99,12 @@ public class CommandLineCommandSettingsAdapter implements CommandSettings {
       return;
     }
     if (!Files.isDirectory(locationToCheck)) {
-      throw new NoDirectoryException(locationToCheck, systemPropertyKey);
+      throw new InstallApexException(Reason.CLI_ENV_VARIABLE_NO_DIRECTORY, systemPropertyKey, locationToCheck);
     }
   }
 
   private void missingRequiredCommandLineOption(CommandLineOption option) {
-    throw new EmptyCommandLineOptionException(option, commandType);
+    throw new InstallApexException(Reason.CLI_MISSING_REQUIRED_OPTION, option, commandType);
   }
 
   private void createDirectoryIfAllowed(CommandLineOption option, Path directory, boolean createIfNotExists) {
@@ -122,7 +118,7 @@ public class CommandLineCommandSettingsAdapter implements CommandSettings {
       Files.createDirectory(directory);
       directory.toFile().deleteOnExit();
     } catch (IOException e) {
-      throw new CreateDirectoryException(e, option, directory);
+      throw new InstallApexException(Reason.CREATE_DIRECTORY_ERROR, e, directory, option, e.getMessage());
     }
   }
 
@@ -151,9 +147,7 @@ public class CommandLineCommandSettingsAdapter implements CommandSettings {
         dataSource.setPassword(password);
       }
     } catch (SQLException e) {
-      log.error("Error while creating DataSource to TNS {} with User {}. Reason: {}", databaseConnect, databaseUser,
-          e.getMessage(), e);
-      throw new DataSourceCreationException(databaseConnect, databaseUser, e);
+      throw new InstallApexException(Reason.CREATE_DATASOURCE_ERROR, e, databaseConnect, databaseUser, e.getMessage());
     }
 
     return dataSource;
@@ -252,8 +246,10 @@ public class CommandLineCommandSettingsAdapter implements CommandSettings {
     return oracleHome;
   }
 
-  private void missingRequiredCommandLineOption(CommandLineOption option, String string) {
-    throw new EmptyCommandLineOptionException(option, commandType);
+  private void missingRequiredCommandLineOption(CommandLineOption option,
+      String systemPropertyKeyOrEnvironmentVariable) {
+    throw new InstallApexException(Reason.CLI_OPTION_EVALUATION_ERROR, systemPropertyKeyOrEnvironmentVariable, option,
+        commandType);
   }
 
   private Path evaluateSQLPlusExecutable(Path oracleHome) {
