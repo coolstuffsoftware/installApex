@@ -1,7 +1,5 @@
 package io.github.mufasa1976.installApex.service.apex.parser;
 
-import io.github.mufasa1976.installApex.config.TestApplicationConfiguration;
-
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -13,13 +11,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-@ContextConfiguration(classes = TestApplicationConfiguration.class)
-public class TestApexApplicationParserService extends AbstractTestNGSpringContextTests {
+import io.github.mufasa1976.installApex.AbstractInstallApexTestWithContext;
+
+public class TestApexApplicationParserService extends AbstractInstallApexTestWithContext {
 
   @Autowired
   private ApexApplicationParserService parser;

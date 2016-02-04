@@ -15,15 +15,11 @@ import org.apache.commons.cli.UnrecognizedOptionException;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.testng.annotations.Test;
 
-import io.github.mufasa1976.installApex.cli.CommandLineOption;
-import io.github.mufasa1976.installApex.config.TestApplicationConfiguration;
+import io.github.mufasa1976.installApex.AbstractInstallApexTestWithContext;
 
-@ContextConfiguration(classes = TestApplicationConfiguration.class)
-public class TestCommandLineOption extends AbstractTestNGSpringContextTests {
+public class TestCommandLineOption extends AbstractInstallApexTestWithContext {
 
   @Autowired
   private CommandLineParser parser;
