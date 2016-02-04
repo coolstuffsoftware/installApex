@@ -1,5 +1,10 @@
 package io.github.mufasa1976.installApex.command.settings;
 
+import io.github.mufasa1976.installApex.cli.CommandLineOption;
+import io.github.mufasa1976.installApex.command.CommandType;
+import io.github.mufasa1976.installApex.config.TestApplicationConfiguration;
+import io.github.mufasa1976.installApex.exception.InstallApexException;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -36,11 +41,6 @@ import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.springframework.ui.velocity.VelocityEngineUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
-
-import io.github.mufasa1976.installApex.cli.CommandLineOption;
-import io.github.mufasa1976.installApex.command.CommandType;
-import io.github.mufasa1976.installApex.config.TestApplicationConfiguration;
-import io.github.mufasa1976.installApex.exception.NoDirectoryException;
 
 @ContextConfiguration(classes = TestApplicationConfiguration.class)
 public class TestCommandLineCommandSettingsAdapter extends AbstractTestNGSpringContextTests {
@@ -196,7 +196,8 @@ public class TestCommandLineCommandSettingsAdapter extends AbstractTestNGSpringC
     testConnectToOracle(connect, (Resource) null);
   }
 
-  @Test(expectedExceptions = NoDirectoryException.class)
+  @Test(expectedExceptions = InstallApexException.class,
+      expectedExceptionsMessageRegExp = "installApexException.reason.noDirectoryByCLIArgument")
   public void testConnectToOracleWithTNSAliasIsAFile() throws SQLException, IOException {
     String connect = environment.getRequiredProperty("testCommandLineCommandSettingsAdapter.connect.TNS.Alias.XETEST");
     Resource resource = resourceLoader.getResource("classpath:/test_application.properties");
@@ -221,8 +222,8 @@ public class TestCommandLineCommandSettingsAdapter extends AbstractTestNGSpringC
   @Test
   public void testSYSDBAConnect() throws SQLException {
     if (!environment.containsProperty("testCommandLineCommandSettingsAdapter.sydbaPassword")) {
-      System.err.println(
-          "Test would not run due to missing Property \"testCommandLineCommandSettingsAdapter.sydbaPassword\"");
+      System.err
+      .println("Test would not run due to missing Property \"testCommandLineCommandSettingsAdapter.sydbaPassword\"");
       return;
     }
 
@@ -282,8 +283,8 @@ public class TestCommandLineCommandSettingsAdapter extends AbstractTestNGSpringC
     testSQLPlus(connect, expectedExitStatus, tnsAdmin.getFile());
   }
 
-  private void testSQLPlus(String connect, int expectedExitStatus, File tnsAdmin)
-      throws IOException, InterruptedException {
+  private void testSQLPlus(String connect, int expectedExitStatus, File tnsAdmin) throws IOException,
+  InterruptedException {
     CommandSettings commandSettings;
     if (tnsAdmin == null) {
       //@formatter:off
@@ -326,8 +327,7 @@ public class TestCommandLineCommandSettingsAdapter extends AbstractTestNGSpringC
     return context;
   }
 
-  private void redirectStandardInputToScript(OutputStream outputStream, Map<String, Object> context)
-      throws IOException {
+  private void redirectStandardInputToScript(OutputStream outputStream, Map<String, Object> context) throws IOException {
     try (Writer output = new PrintWriter(outputStream)) {
       VelocityEngineUtils.mergeTemplate(velocityEngine, sqlplusScriptName, sqlplusScriptEncoding, context, output);
     }

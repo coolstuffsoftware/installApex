@@ -1,5 +1,11 @@
 package io.github.mufasa1976.installApex.command.settings;
 
+import io.github.mufasa1976.installApex.cli.CommandLineOption;
+import io.github.mufasa1976.installApex.command.CommandType;
+import io.github.mufasa1976.installApex.exception.InstallApexException;
+import io.github.mufasa1976.installApex.exception.InstallApexException.Reason;
+import io.github.mufasa1976.installApex.service.LiquibaseParameter;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -10,18 +16,13 @@ import java.util.Properties;
 
 import javax.sql.DataSource;
 
+import oracle.jdbc.pool.OracleDataSource;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import io.github.mufasa1976.installApex.cli.CommandLineOption;
-import io.github.mufasa1976.installApex.command.CommandType;
-import io.github.mufasa1976.installApex.exception.InstallApexException;
-import io.github.mufasa1976.installApex.exception.InstallApexException.Reason;
-import io.github.mufasa1976.installApex.service.LiquibaseParameter;
-import oracle.jdbc.pool.OracleDataSource;
 
 public class CommandLineCommandSettingsAdapter implements CommandSettings {
 
@@ -109,8 +110,9 @@ public class CommandLineCommandSettingsAdapter implements CommandSettings {
 
   private void createDirectoryIfAllowed(CommandLineOption option, Path directory, boolean createIfNotExists) {
     if (!createIfNotExists) {
-      throw new IllegalStateException(String.format("Not allowed to create Directory '%s' due to CommandLine Option %s",
-          directory.toAbsolutePath(), option.getLongOption()));
+      throw new IllegalStateException(String.format(
+          "Not allowed to create Directory '%s' due to CommandLine Option %s", directory.toAbsolutePath(),
+          option.getLongOption()));
     }
 
     try {
@@ -246,8 +248,7 @@ public class CommandLineCommandSettingsAdapter implements CommandSettings {
     return oracleHome;
   }
 
-  private void missingRequiredCommandLineOption(CommandLineOption option,
-      String systemPropertyKeyOrEnvironmentVariable) {
+  private void missingRequiredCommandLineOption(CommandLineOption option, String systemPropertyKeyOrEnvironmentVariable) {
     throw new InstallApexException(Reason.CLI_OPTION_EVALUATION_ERROR, systemPropertyKeyOrEnvironmentVariable, option,
         commandType);
   }
@@ -282,10 +283,11 @@ public class CommandLineCommandSettingsAdapter implements CommandSettings {
     }
 
     if (Files.isDirectory(path)) {
-      throw new NoExecutableFileException(path, environmentVariable, NoExecutableFileException.Reason.NO_FILE);
+      throw new InstallApexException(Reason.CLI_ENV_VARIABLE_NO_FILE, environmentVariable, path.toAbsolutePath());
     }
     if (!Files.isExecutable(path)) {
-      throw new NoExecutableFileException(path, environmentVariable, NoExecutableFileException.Reason.NO_EXEC_PRIVS);
+      throw new InstallApexException(Reason.CLI_ENV_VARIABLE_FILE_WITHOUT_EXECUTION_PRIVS, environmentVariable,
+          path.toAbsolutePath());
     }
 
   }
@@ -296,10 +298,10 @@ public class CommandLineCommandSettingsAdapter implements CommandSettings {
     }
 
     if (Files.isDirectory(path)) {
-      throw new NoExecutableFileException(path, option, NoExecutableFileException.Reason.NO_FILE);
+      throw new InstallApexException(Reason.CLI_ARGUMENT_NO_FILE, option, path.toAbsolutePath());
     }
     if (!Files.isExecutable(path)) {
-      throw new NoExecutableFileException(path, option, NoExecutableFileException.Reason.NO_EXEC_PRIVS);
+      throw new InstallApexException(Reason.CLI_ARGUMENT_FILE_WITHOUT_EXECUTION_PRIVS, option, path.toAbsolutePath());
     }
   }
 
@@ -435,7 +437,7 @@ public class CommandLineCommandSettingsAdapter implements CommandSettings {
     try {
       return Integer.parseInt(apexIdAsString);
     } catch (NumberFormatException e) {
-      throw new InvalidApexIdException(apexIdAsString, CommandLineOption.APEX_SOURCE_ID);
+      throw new InstallApexException(Reason.APEX_ID_NOT_NUMERIC, CommandLineOption.APEX_SOURCE_ID);
     }
   }
 

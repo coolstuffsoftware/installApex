@@ -28,7 +28,7 @@ public class InstallApexException extends RuntimeException {
   }
 
   public InstallApexException(Reason reason, Throwable cause, Object... arguments) {
-    super(PREFIX + MESSAGE, cause);
+    super(reason.getMessageKey(), cause);
     this.reason = reason;
     this.arguments.addAll(Arrays.asList(arguments));
   }
@@ -61,7 +61,7 @@ public class InstallApexException extends RuntimeException {
 
   public String getMessage(MessageSource messageSource, Locale locale) {
     String message = messageSource.getMessage(reason.getMessageKey(), arguments.toArray(), locale);
-    return messageSource.getMessage(super.getMessage(), new Object[] { reason.getCode(), message }, locale);
+    return messageSource.getMessage(PREFIX + MESSAGE, new Object[] { reason.getCode(), message }, locale);
   }
 
   public static enum Reason {
@@ -78,7 +78,8 @@ public class InstallApexException extends RuntimeException {
     CLI_ENV_VARIABLE_NO_FILE(6, "fileNotFoundBySystemPropertyOrEnvironmentVariable"),
     CLI_ARGUMENT_FILE_WITHOUT_EXECUTION_PRIVS(7, "fileWithoutExecutionPrivilegeByOption"),
     CLI_ENV_VARIABLE_FILE_WITHOUT_EXECUTION_PRIVS(7,
-        "fileWithoutExecutionPrivilegeBySystemPrivilegeOrEnvironmentVariable");
+        "fileWithoutExecutionPrivilegeBySystemPrivilegeOrEnvironmentVariable"),
+        APEX_ID_NOT_NUMERIC(8, "apexIdNotNumeric");
 
     private int code;
     private String messageKey;
