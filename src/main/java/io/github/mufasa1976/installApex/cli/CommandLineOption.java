@@ -1,5 +1,7 @@
 package io.github.mufasa1976.installApex.cli;
 
+import io.github.mufasa1976.installApex.command.CommandType;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -11,8 +13,6 @@ import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.cli.Options;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.context.MessageSource;
-
-import io.github.mufasa1976.installApex.command.CommandType;
 
 public enum CommandLineOption {
 
@@ -53,10 +53,10 @@ public enum CommandLineOption {
   APEX_TARGET_WORKSPACE(new Settings("targetWorkspace", 'w').setArgument("Workspace")),
   APEX_TARGET_PROXY(new Settings("targetProxy").setArgument("Proxy-Server")),
   APEX_TARGET_STATIC_APP_FILE_PREFIX(new Settings("targetStaticAppFilePrefix").setArgument("static App File Prefix")),
-  APEX_TARGET_STATIC_PLUGIN_FILE_PREFIX(
-      new Settings("targetStaticPluginFilePrefix").setArgument("static Plugin File Prefix")),
-  APEX_TARGET_STATIC_THEME_FILE_PREFIX(
-      new Settings("targetStaticThemeFilePrefix").setArgument("static Theme File Prefix")),
+  APEX_TARGET_STATIC_PLUGIN_FILE_PREFIX(new Settings("targetStaticPluginFilePrefix")
+      .setArgument("static Plugin File Prefix")),
+  APEX_TARGET_STATIC_THEME_FILE_PREFIX(new Settings("targetStaticThemeFilePrefix")
+      .setArgument("static Theme File Prefix")),
 
   TEMP_DIRECTORY(new Settings("tempDir").setArgument("Directory"));
 
@@ -121,8 +121,6 @@ public enum CommandLineOption {
     }
     options.addOptionGroup(commandGroup);
 
-    addSystemProperty(options, messageSource, locale);
-
     return options;
   }
 
@@ -159,15 +157,6 @@ public enum CommandLineOption {
     if (settings.isCommand()) {
       commandGroup.addOption(option);
     }
-  }
-
-  private static void addSystemProperty(Options options, MessageSource messageSource, Locale locale) {
-    OptionBuilder.withValueSeparator();
-    Option option = OptionBuilder.create('D');
-    option.setValueSeparator('=');
-    option.setArgName("key=value");
-    setDescription("systemProperty", option, messageSource, locale);
-    options.addOption(option);
   }
 
   public static List<CommandLineOption> getCommandOptions() {

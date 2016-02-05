@@ -1,18 +1,17 @@
 package io.github.mufasa1976.installApex.command;
 
-import java.util.Locale;
+import io.github.mufasa1976.installApex.InstallApex;
+import io.github.mufasa1976.installApex.cli.CommandLineOption;
+import io.github.mufasa1976.installApex.cli.CommandLineUtils;
 
-import jline.Terminal;
+import java.util.Locale;
 
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
-
-import io.github.mufasa1976.installApex.InstallApex;
-import io.github.mufasa1976.installApex.cli.CommandLineOption;
-import io.github.mufasa1976.installApex.cli.CommandLineUtils;
 
 @Service
 public class HelpCommand extends AbstractCommand {
@@ -24,13 +23,17 @@ public class HelpCommand extends AbstractCommand {
   private static final String EMPTY_MESSAGE = "!#{emptyMessage}#!";
   private static final String NEW_LINE = "\n";
 
+  @Autowired
   private HelpFormatter helpFormatter;
 
-  private Terminal terminal;
-
+  @Autowired
   private MessageSource messageSource;
 
-  private Locale locale = Locale.getDefault();
+  @Value("${applicationConfiguration.leftPadding}")
+  private int leftPadding;
+
+  @Value("${applicationConfiguration.descPadding}")
+  private int descPadding;
 
   @Override
   public void execute() {
@@ -39,11 +42,12 @@ public class HelpCommand extends AbstractCommand {
     String header = getMultiLineHelpMessage(HELP_HEADER_PREFIX, syntax);
     String footer = getMultiLineHelpMessage(HELP_FOOTER_PREFIX, syntax);
 
-    Options options = CommandLineOption.getOptions(messageSource, locale);
-    helpFormatter.printHelp(terminal.getWidth(), syntax, header, options, footer, true);
+    Options options = CommandLineOption.getOptions(messageSource, Locale.getDefault());
+    helpFormatter.printHelp(getPrintWriter(), getTerminalWidth(), syntax, header, options, leftPadding, descPadding,
+        footer, true);
 
     String examples = getMultiLineHelpMessage(HELP_EXAMPLES_PREFIX, syntax);
-    System.out.println(examples);
+    println(examples);
   }
 
   @Override
@@ -76,25 +80,6 @@ public class HelpCommand extends AbstractCommand {
     if (i > 1) {
       messages.append(NEW_LINE);
     }
-  }
-
-  @Autowired
-  public void setHelpFormatter(HelpFormatter helpFormatter) {
-    this.helpFormatter = helpFormatter;
-  }
-
-  @Autowired
-  public void setMessageSource(MessageSource messageSource) {
-    this.messageSource = messageSource;
-  }
-
-  @Autowired
-  public void setTerminal(Terminal terminal) {
-    this.terminal = terminal;
-  }
-
-  public void setLocale(Locale locale) {
-    this.locale = locale;
   }
 
 }

@@ -3,11 +3,11 @@ package io.github.mufasa1976.installApex.config;
 import io.github.mufasa1976.installApex.InstallApex;
 
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.Properties;
 
-import jline.Terminal;
-import jline.TerminalFactory;
 import jline.console.ConsoleReader;
+import jline.internal.Log;
 import liquibase.database.DatabaseFactory;
 import liquibase.resource.ClassLoaderResourceAccessor;
 import liquibase.resource.ResourceAccessor;
@@ -18,6 +18,7 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
@@ -29,6 +30,9 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.core.io.ResourceEditor;
 import org.springframework.ui.velocity.VelocityEngineFactoryBean;
+
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.OutputStreamAppender;
 
 @Configuration
 @ComponentScan(basePackageClasses = InstallApex.class)
@@ -46,6 +50,9 @@ public class ApplicationConfiguration {
 
   @Value("${applicationConfiguration.descPadding}")
   private int descPadding;
+
+  @Autowired
+  private OutputStreamAppender<ILoggingEvent> appender;
 
   @Bean
   public static PropertySourcesPlaceholderConfigurer propertyPlaceholderConfigurer() {
@@ -92,12 +99,6 @@ public class ApplicationConfiguration {
   }
 
   @Bean
-  public Terminal getTerminal() {
-    TerminalFactory.configure(terminal);
-    return TerminalFactory.create();
-  }
-
-  @Bean
   public ResourceAccessor resourceAccessor() {
     return new ClassLoaderResourceAccessor();
   }
@@ -109,6 +110,34 @@ public class ApplicationConfiguration {
 
   @Bean(destroyMethod = "shutdown")
   public ConsoleReader consoleReader() throws IOException {
+    if (!System.getProperties().contains("jline.WindowsTerminal.input.encoding")) {
+      if (System.getProperty("os.name").toLowerCase().startsWith("windows")) {
+        System.setProperty("jline.WindowsTerminal.input.encoding", "IBM00858");
+      } else {
+        System.setProperty("input.encoding", "UTF-8");
+      }
+    }
+
+    if (!System.getProperties().contains("jline.WindowsTerminal.output.encoding")) {
+      if (System.getProperty("os.name").toLowerCase().startsWith("windows")) {
+        System.setProperty("jline.WindowsTerminal.output.encoding", "IBM00858");
+      } else {
+        System.setProperty("jline.WindowsTerminal.output.encoding", "UTF-8");
+      }
+    }
+
+    if (System.getProperties().contains("installApex.logLevel")) {
+      String logLevel = System.getProperty("installApex.logLevel");
+      if ("DEBUG".equalsIgnoreCase(logLevel)) {
+        Log.setOutput(new PrintStream(appender.getOutputStream()));
+        System.setProperty("jline.internal.Log.debug", "true");
+      }
+      if ("TRACE".equalsIgnoreCase(logLevel)) {
+        Log.setOutput(new PrintStream(appender.getOutputStream()));
+        System.setProperty("jline.internal.Log.trace", "true");
+      }
+    }
+
     ConsoleReader consoleReader = new ConsoleReader();
     return consoleReader;
   }

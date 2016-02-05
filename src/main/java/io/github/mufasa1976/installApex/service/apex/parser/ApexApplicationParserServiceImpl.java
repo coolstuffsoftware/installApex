@@ -1,5 +1,8 @@
 package io.github.mufasa1976.installApex.service.apex.parser;
 
+import io.github.mufasa1976.installApex.exception.InstallApexException;
+import io.github.mufasa1976.installApex.exception.InstallApexException.Reason;
+
 import java.io.IOException;
 import java.net.JarURLConnection;
 import java.net.URI;
@@ -19,6 +22,7 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.regex.MatchResult;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,16 +32,13 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 
-import io.github.mufasa1976.installApex.exception.InstallApexException;
-import io.github.mufasa1976.installApex.exception.InstallApexException.Reason;
-
 @Service
 public class ApexApplicationParserServiceImpl implements ApexApplicationParserService {
 
   private static final Logger log = LoggerFactory.getLogger(ApexApplicationParserServiceImpl.class);
 
   private static final String SQL_SUFFIX = ".sql";
-  private static final Path CREATE_APPLICATION_PATH = Paths.get("application", "create_application.sql");
+  private static final String[] CREATE_APPLICATION_PATH = new String[] { "application", "create_application.sql" };
 
   @Autowired
   private ResourceLoader resourceLoader;
@@ -176,26 +177,40 @@ public class ApexApplicationParserServiceImpl implements ApexApplicationParserSe
     ApexApplication apexApplication = new ApexApplication(applicationId);
     apexApplication.setLocation(location);
     if (Files.isDirectory(location)) {
-      parseApplicationFiles(location.resolve(CREATE_APPLICATION_PATH), apexApplication);
+      Path createApplicationPath = getCreateApplicationPathBasedOnFileSystemOf(location);
+      parseApplicationFiles(location.resolve(createApplicationPath), apexApplication);
     } else {
       parseApplicationFiles(location, apexApplication);
     }
     apexApplications.add(apexApplication);
   }
 
+  private Path getCreateApplicationPathBasedOnFileSystemOf(Path location) {
+    String firstArgument = CREATE_APPLICATION_PATH[0];
+    String[] secondPlusArguments = (String[]) ArrayUtils.subarray(CREATE_APPLICATION_PATH, 1,
+        CREATE_APPLICATION_PATH.length);
+    FileSystem fileSystem = location.getFileSystem();
+    return fileSystem.getPath(firstArgument, secondPlusArguments);
+  }
+
   private int extractApplicationIdFromPath(Path location) {
-    String applicationIdAsString = location.getFileName().toString().substring(1);
+    Path fileName = location.getFileName();
+    log.debug("Extract ApplicationId from FileName {}", fileName);
+    String applicationIdAsString = fileName.toString().substring(1);
     if (Files.isRegularFile(location)) {
       applicationIdAsString = StringUtils.substring(applicationIdAsString, 0, SQL_SUFFIX.length() * -1);
+    } else if (applicationIdAsString.endsWith("/")) {
+      applicationIdAsString = StringUtils.substring(applicationIdAsString, 0, -1);
     }
+    log.debug("Try to parse extracted ApplicationId {} as Integer", applicationIdAsString);
     return Integer.parseInt(applicationIdAsString);
   }
 
   private void parseApplicationFiles(Path file, ApexApplication apexApplication) {
     try (Scanner scanner = new Scanner(file)) {
       log.debug("Content of File {}", file);
-      scanner.useDelimiter(
-          "[Ww][Ww][Vv]_[Ff][Ll][Oo][Ww]_[Aa][Pp][Ii]\\.[Cc][Rr][Ee][Aa][Tt][Ee]_[Ff][Ll][Oo][Ww]\\s*\\(");
+      scanner
+      .useDelimiter("[Ww][Ww][Vv]_[Ff][Ll][Oo][Ww]_[Aa][Pp][Ii]\\.[Cc][Rr][Ee][Aa][Tt][Ee]_[Ff][Ll][Oo][Ww]\\s*\\(");
       if (scanner.hasNext()) {
         scanner.next(); // ignore the first Part
         scanner.useDelimiter("\n[Ee][Nn][Dd]\\;\n");
@@ -219,7 +234,8 @@ public class ApexApplicationParserServiceImpl implements ApexApplicationParserSe
 
   private void checkApplicationId(String installationBlock, ApexApplication apexApplication) {
     try (Scanner scanner = new Scanner(installationBlock)) {
-      scanner.findWithinHorizon(
+      scanner
+      .findWithinHorizon(
           "[Ww][Ww][Vv]_[Ff][Ll][Oo][Ww]_[Aa][Pp][Pp][Ll][Ii][Cc][Aa][Tt][Ii][Oo][Nn]_[Ii][Nn][Ss][Tt][Aa][Ll][Ll]\\.[Gg][Ee][Tt]_[Aa][Pp][Pp][Ll][Ii][Cc][Aa][Tt][Ii][Oo][Nn]_[Ii][Dd]\\s*,\\s*(\\d+)\\)",
           0);
       MatchResult matchResult = scanner.match();
@@ -235,7 +251,8 @@ public class ApexApplicationParserServiceImpl implements ApexApplicationParserSe
 
   private void parseApplicationName(String installationBlock, ApexApplication apexApplication) {
     try (Scanner scanner = new Scanner(installationBlock)) {
-      scanner.findWithinHorizon(
+      scanner
+      .findWithinHorizon(
           "[Ww][Ww][Vv]_[Ff][Ll][Oo][Ww]_[Aa][Pp][Pp][Ll][Ii][Cc][Aa][Tt][Ii][Oo][Nn]_[Ii][Nn][Ss][Tt][Aa][Ll][Ll]\\.[Gg][Ee][Tt]_[Aa][Pp][Pp][Ll][Ii][Cc][Aa][Tt][Ii][Oo][Nn]_[Nn][Aa][Mm][Ee]\\s*,\\s*'(.*)'\\)",
           0);
       MatchResult matchResult = scanner.match();
@@ -260,7 +277,8 @@ public class ApexApplicationParserServiceImpl implements ApexApplicationParserSe
       return false;
     }
 
-    return isExistingAndReadableFile(path.resolve(CREATE_APPLICATION_PATH));
+    Path createApplicationPath = getCreateApplicationPathBasedOnFileSystemOf(path);
+    return isExistingAndReadableFile(path.resolve(createApplicationPath));
   }
 
   private void relativizePaths(Path baseDirectory, List<ApexApplication> apexApplications) {

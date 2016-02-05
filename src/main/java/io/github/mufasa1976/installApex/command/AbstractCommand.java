@@ -6,10 +6,12 @@ import io.github.mufasa1976.installApex.exception.InstallApexException;
 import io.github.mufasa1976.installApex.exception.InstallApexException.Reason;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Locale;
 
 import javax.annotation.PostConstruct;
 
+import jline.Terminal;
 import jline.console.ConsoleReader;
 
 import org.apache.commons.cli.CommandLine;
@@ -36,11 +38,14 @@ public abstract class AbstractCommand implements Command {
   @Autowired
   private ConsoleReader consoleReader;
 
+  private PrintWriter printWriter;
+
   private CommandSettings commandSettings;
 
   @PostConstruct
   protected void init() {
     commandRegistry.register(this);
+    printWriter = new PrintWriter(consoleReader.getOutput());
   }
 
   protected abstract CommandType getCommandType();
@@ -63,12 +68,41 @@ public abstract class AbstractCommand implements Command {
     print(message);
   }
 
+  protected void printlnMessage(String messageKey, Object... arguments) {
+    String message = messageSource.getMessage(messageKey, arguments, Locale.getDefault());
+    println(message);
+  }
+
   protected void print(String message) {
     try {
       consoleReader.print(message);
+      consoleReader.flush();
     } catch (IOException e) {
       throw new InstallApexException(Reason.CONSOLE_PROBLEM, e).setPrintStrackTrace(true);
     }
+  }
+
+  protected void println(String message) {
+    try {
+      consoleReader.println(message);
+      consoleReader.flush();
+    } catch (IOException e) {
+      throw new InstallApexException(Reason.CONSOLE_PROBLEM, e).setPrintStrackTrace(true);
+    }
+  }
+
+  protected int getTerminalWidth() {
+    Terminal terminal = consoleReader.getTerminal();
+    return terminal.getWidth();
+  }
+
+  protected int getTerminalHeight() {
+    Terminal terminal = consoleReader.getTerminal();
+    return terminal.getHeight();
+  }
+
+  protected PrintWriter getPrintWriter() {
+    return printWriter;
   }
 
   @Override

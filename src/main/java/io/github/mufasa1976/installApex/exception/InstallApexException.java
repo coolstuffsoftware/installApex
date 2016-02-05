@@ -6,11 +6,15 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
 
 public class InstallApexException extends RuntimeException {
 
   private static final long serialVersionUID = 6692580148429410706L;
+
+  private static final Logger log = LoggerFactory.getLogger(InstallApexException.class);
 
   public static final int EXIT_STATUS_SUCCESS = 0;
   public static final int EXIT_STATUS_FAILURE = 1;
@@ -36,6 +40,8 @@ public class InstallApexException extends RuntimeException {
     printStackTrace = reason.isPrintStackTrace();
     exitStatus = reason.getExitStatus();
     this.arguments.addAll(Arrays.asList(arguments));
+    log.error(String.format("%s occured with Reason: %s - StackTrace below",
+        InstallApexException.class.getSimpleName(), reason), this);
   }
 
   public Reason getReason() {

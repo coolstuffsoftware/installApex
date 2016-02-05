@@ -1,8 +1,12 @@
 package io.github.mufasa1976.installApex;
 
+import io.github.mufasa1976.installApex.cli.CommandLineOption;
+import io.github.mufasa1976.installApex.command.Command;
+import io.github.mufasa1976.installApex.command.CommandRegistry;
+import io.github.mufasa1976.installApex.config.ApplicationConfiguration;
+import io.github.mufasa1976.installApex.exception.InstallApexException;
+
 import java.util.Locale;
-import java.util.Map;
-import java.util.Properties;
 
 import javax.naming.OperationNotSupportedException;
 
@@ -13,15 +17,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.stereotype.Component;
-
-import io.github.mufasa1976.installApex.cli.CommandLineOption;
-import io.github.mufasa1976.installApex.command.Command;
-import io.github.mufasa1976.installApex.command.CommandRegistry;
-import io.github.mufasa1976.installApex.config.ApplicationConfiguration;
-import io.github.mufasa1976.installApex.exception.InstallApexException;
 
 @Component
 public class InstallApex {
@@ -33,6 +32,9 @@ public class InstallApex {
 
   @Autowired
   private MessageSource messageSource;
+
+  @Autowired
+  private ConfigurableApplicationContext applicationContext;
 
   private CommandLineParser commandLineParser;
 
@@ -79,21 +81,12 @@ public class InstallApex {
   public void process(String[] args) throws ParseException, OperationNotSupportedException {
     log.debug("parse the CommandLine");
     CommandLine commandLine = commandLineParser.parse(CommandLineOption.getOptions(messageSource), args);
-    registerSystemProperties(commandLine);
 
     log.debug("Get the Command based on the CommandLine");
     Command command = commandRegistry.prepareCommandBy(commandLine);
 
     log.debug("Command {} found", command);
     command.execute();
-  }
-
-  private void registerSystemProperties(CommandLine commandLine) {
-    Properties systemProperties = System.getProperties();
-    Properties optionProperties = commandLine.getOptionProperties("D");
-    for (Map.Entry<Object, Object> entry : optionProperties.entrySet()) {
-      systemProperties.put(entry.getKey(), entry.getValue());
-    }
   }
 
   private int printErrorAndUsage(Exception e) {
