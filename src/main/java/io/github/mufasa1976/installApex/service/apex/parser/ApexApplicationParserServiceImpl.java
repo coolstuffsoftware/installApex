@@ -95,8 +95,6 @@ public class ApexApplicationParserServiceImpl implements ApexApplicationParserSe
 
     // then create a new FileSystem for this JAR-Archive
     Map<String, String> env = new HashMap<>();
-    env.put("create", "true");
-
     return FileSystems.newFileSystem(jarFileURI, env);
   }
 
