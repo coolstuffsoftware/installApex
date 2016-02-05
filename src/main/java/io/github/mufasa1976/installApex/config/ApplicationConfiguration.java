@@ -1,16 +1,8 @@
 package io.github.mufasa1976.installApex.config;
 
-import io.github.mufasa1976.installApex.InstallApex;
-
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Properties;
-
-import jline.console.ConsoleReader;
-import jline.internal.Log;
-import liquibase.database.DatabaseFactory;
-import liquibase.resource.ClassLoaderResourceAccessor;
-import liquibase.resource.ResourceAccessor;
 
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.GnuParser;
@@ -29,10 +21,20 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.core.io.ResourceEditor;
+import org.springframework.jdbc.datasource.LazyConnectionDataSourceProxy;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import org.springframework.ui.velocity.VelocityEngineFactoryBean;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.OutputStreamAppender;
+import io.github.mufasa1976.installApex.InstallApex;
+import jline.console.ConsoleReader;
+import jline.internal.Log;
+import liquibase.database.DatabaseFactory;
+import liquibase.resource.ClassLoaderResourceAccessor;
+import liquibase.resource.ResourceAccessor;
 
 @Configuration
 @ComponentScan(basePackageClasses = InstallApex.class)
@@ -140,6 +142,13 @@ public class ApplicationConfiguration {
 
     ConsoleReader consoleReader = new ConsoleReader();
     return consoleReader;
+  }
+
+  @Bean
+  public LazyConnectionDataSourceProxy lazyConnectionDataSourceProxy() {
+    EmbeddedDatabase embeddedDatabase = new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.HSQL).build();
+    LazyConnectionDataSourceProxy lazyConnectionDataSourceProxy = new LazyConnectionDataSourceProxy(embeddedDatabase);
+    return lazyConnectionDataSourceProxy;
   }
 
 }
