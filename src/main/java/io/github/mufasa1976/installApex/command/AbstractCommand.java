@@ -1,18 +1,10 @@
 package io.github.mufasa1976.installApex.command;
 
-import io.github.mufasa1976.installApex.command.settings.CommandLineCommandSettingsAdapter;
-import io.github.mufasa1976.installApex.command.settings.CommandSettings;
-import io.github.mufasa1976.installApex.exception.InstallApexException;
-import io.github.mufasa1976.installApex.exception.InstallApexException.Reason;
-
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Locale;
 
 import javax.annotation.PostConstruct;
-
-import jline.Terminal;
-import jline.console.ConsoleReader;
 
 import org.apache.commons.cli.CommandLine;
 import org.slf4j.Logger;
@@ -21,6 +13,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
+
+import io.github.mufasa1976.installApex.command.settings.CommandLineCommandSettingsAdapter;
+import io.github.mufasa1976.installApex.command.settings.CommandSettings;
+import io.github.mufasa1976.installApex.exception.InstallApexException;
+import io.github.mufasa1976.installApex.exception.InstallApexException.Reason;
+import jline.Terminal;
+import jline.console.ConsoleReader;
 
 public abstract class AbstractCommand implements Command {
 
@@ -73,18 +72,18 @@ public abstract class AbstractCommand implements Command {
     println(message);
   }
 
-  protected void print(String message) {
+  protected void print(Object message) {
     try {
-      consoleReader.print(message);
+      consoleReader.print(message != null ? message.toString() : "null");
       consoleReader.flush();
     } catch (IOException e) {
       throw new InstallApexException(Reason.CONSOLE_PROBLEM, e).setPrintStrackTrace(true);
     }
   }
 
-  protected void println(String message) {
+  protected void println(Object message) {
     try {
-      consoleReader.println(message);
+      consoleReader.println(message != null ? message.toString() : "null");
       consoleReader.flush();
     } catch (IOException e) {
       throw new InstallApexException(Reason.CONSOLE_PROBLEM, e).setPrintStrackTrace(true);

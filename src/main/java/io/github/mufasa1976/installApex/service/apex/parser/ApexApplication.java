@@ -3,7 +3,7 @@ package io.github.mufasa1976.installApex.service.apex.parser;
 import java.nio.file.Path;
 import java.util.Objects;
 
-public class ApexApplication {
+public class ApexApplication implements Comparable<ApexApplication> {
 
   private final int id;
   private String name;
@@ -60,10 +60,14 @@ public class ApexApplication {
 
   @Override
   public String toString() {
-    return ApexApplication.class.getSimpleName() + "{id:" + id + ",name:"
-        + (name == null ? "null" : "\"" + name + "\"") + ",version:"
-        + (version == null ? "null" : "\"" + version + "\"") + ",location:"
+    return ApexApplication.class.getSimpleName() + "{id:" + id + ",name:" + (name == null ? "null" : "\"" + name + "\"")
+        + ",version:" + (version == null ? "null" : "\"" + version + "\"") + ",location:"
         + (location == null ? "null" : "\"" + location.toString() + "\"") + "}";
+  }
+
+  @Override
+  public int compareTo(ApexApplication o) {
+    return this.id - o.id;
   }
 
 }

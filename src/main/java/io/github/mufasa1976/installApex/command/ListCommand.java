@@ -1,15 +1,17 @@
 package io.github.mufasa1976.installApex.command;
 
-import io.github.mufasa1976.installApex.service.apex.parser.ApexApplication;
-import io.github.mufasa1976.installApex.service.apex.parser.ApexApplicationParserService;
-
+import java.util.Collections;
 import java.util.List;
 
 import javax.naming.OperationNotSupportedException;
 
+import org.fusesource.jansi.Ansi;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import io.github.mufasa1976.installApex.service.apex.parser.ApexApplication;
+import io.github.mufasa1976.installApex.service.apex.parser.ApexApplicationParserService;
 
 @Service
 public class ListCommand extends AbstractCommand {
@@ -31,11 +33,12 @@ public class ListCommand extends AbstractCommand {
       printMessage(NO_APPLICATIONS);
       return;
     }
+    Collections.sort(candidates);
 
     printlnMessage(HEADER, candidates.size());
     for (ApexApplication candidate : candidates) {
       String candidateList = String.format(format, candidate.getId(), candidate.getName(), candidate.getVersion());
-      println(candidateList);
+      println(Ansi.ansi().render(candidateList));
     }
     printlnMessage(FOOTER, candidates.size());
   }

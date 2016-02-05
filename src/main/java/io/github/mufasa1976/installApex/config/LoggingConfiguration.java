@@ -50,6 +50,7 @@ public class LoggingConfiguration {
     } else {
       log.debug("Configuring the consoleAppender");
       appender = new ConsoleAppender<>();
+      ((ConsoleAppender<ILoggingEvent>) appender).setWithJansi(true);
       appender.setName("consoleAppender");
     }
 
