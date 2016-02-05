@@ -1,16 +1,24 @@
 package io.github.mufasa1976.installApex.service.apex.parser;
 
-import java.io.File;
 import java.io.IOException;
+import java.net.JarURLConnection;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.DirectoryStream;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.regex.MatchResult;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,19 +52,23 @@ public class ApexApplicationParserServiceImpl implements ApexApplicationParserSe
   }
 
   @Override
-  public List<ApexApplication> getCandidates(Resource baseDirectory) {
-    checkBaseDirectory(baseDirectory);
-    List<ApexApplication> apexApplications = new ArrayList<>();
+  public List<ApexApplication> getCandidates(Resource baseDirectoryAsResource) {
+    checkBaseDirectoryResource(baseDirectoryAsResource);
+    FileSystem fileSystem = null;
     try {
-      parseApexApplications(baseDirectory.getFile(), apexApplications);
-    } catch (IOException e) {
-      throw new InstallApexException(Reason.ERROR_ON_APEX_DIRECTORY_ACCESS, e, baseDirectory.getFilename(),
+      fileSystem = createFileSystemFrom(baseDirectoryAsResource);
+      Path baseDirectory = convertToPathFrom(baseDirectoryAsResource);
+      checkBaseDirectory(baseDirectoryAsResource.getFilename(), baseDirectory);
+      return parseApexApplications(baseDirectoryAsResource.getURI());
+    } catch (Exception e) {
+      throw new InstallApexException(Reason.ERROR_ON_APEX_DIRECTORY_ACCESS, e, baseDirectoryAsResource.getFilename(),
           e.getMessage());
+    } finally {
+      closeOpenNonDefaultFileSystem(baseDirectoryAsResource, fileSystem);
     }
-    return apexApplications;
   }
 
-  private void checkBaseDirectory(Resource baseDirectoryAsResource) {
+  private void checkBaseDirectoryResource(Resource baseDirectoryAsResource) {
     if (baseDirectoryAsResource == null) {
       throw new IllegalStateException("baseDirectory Resource is null");
     }
@@ -64,15 +76,46 @@ public class ApexApplicationParserServiceImpl implements ApexApplicationParserSe
     if (!baseDirectoryAsResource.exists()) {
       throw new InstallApexException(Reason.NO_APEX_DIRECTORY_INCLUDED, "/" + directoryName);
     }
-    try {
-      Path baseDirectory = baseDirectoryAsResource.getFile().toPath();
-      checkBaseDirectory(directoryName, baseDirectory);
-    } catch (IOException e) {
-      throw new InstallApexException(Reason.ERROR_ON_APEX_DIRECTORY_ACCESS, e, directoryName, e.getMessage());
-    }
   }
 
-  private void checkBaseDirectory(String directoryName, Path baseDirectory) {
+  private FileSystem createFileSystemFrom(Resource baseDirectoryAsResource) throws IOException, URISyntaxException {
+    if (isNotInJar(baseDirectoryAsResource)) {
+      return FileSystems.getDefault();
+    }
+
+    // first get the URL of the JAR-Archive
+    URL jarURL = baseDirectoryAsResource.getURL();
+    JarURLConnection jarURLConnection = (JarURLConnection) jarURL.openConnection();
+    URL jarFileURL = jarURLConnection.getJarFileURL();
+    log.debug("URL of the JarFile: {}", jarFileURL);
+    Path jarFilePath = Paths.get(jarFileURL.toURI());
+    log.debug("Path of the JarFile: {}", jarFilePath);
+    URI jarFileURI = new URI("jar", jarFilePath.toUri().toString(), null);
+    log.debug("URI of the JarFile: {}", jarFileURI);
+
+    // then create a new FileSystem for this JAR-Archive
+    Map<String, String> env = new HashMap<>();
+    env.put("create", "true");
+
+    return FileSystems.newFileSystem(jarFileURI, env);
+  }
+
+  private boolean isNotInJar(Resource resource) throws IOException {
+    return !isInJar(resource);
+  }
+
+  private boolean isInJar(Resource resource) throws IOException {
+    URL baseDirectoryURL = resource.getURL();
+    String protocol = baseDirectoryURL.getProtocol();
+    return "jar".equals(protocol);
+  }
+
+  private Path convertToPathFrom(Resource baseDirectoryAsResource) throws IOException {
+    URI baseDirectoryURI = baseDirectoryAsResource.getURI();
+    return Paths.get(baseDirectoryURI);
+  }
+
+  private void checkBaseDirectory(String directoryName, Path baseDirectory) throws IOException {
     if (isNotExistingAndNotReadableDirectory(baseDirectory)) {
       throw new InstallApexException(Reason.NO_APEX_DIRECTORY_INCLUDED, directoryName);
     }
@@ -89,21 +132,29 @@ public class ApexApplicationParserServiceImpl implements ApexApplicationParserSe
     return Files.exists(path) && Files.isReadable(path) && Files.isDirectory(path);
   }
 
-  private boolean isEmptyDirectory(Path path) {
-    return ArrayUtils.isEmpty(path.toFile().listFiles());
+  private boolean isEmptyDirectory(Path path) throws IOException {
+    int numberOfEntries = 0;
+    try (DirectoryStream<Path> stream = Files.newDirectoryStream(path)) {
+      for (Iterator<Path> iterator = stream.iterator(); iterator.hasNext(); numberOfEntries++, iterator.next()) {}
+    }
+    return numberOfEntries == 0;
   }
 
-  private void parseApexApplications(File baseDirectory, List<ApexApplication> apexApplications) throws IOException {
-    for (File file : baseDirectory.listFiles()) {
-      Path path = file.toPath();
-      if (isSQLFile(path)) {
-        addApexApplication(path, apexApplications);
-      }
-      if (isApexDirectory(path)) {
-        addApexApplication(path, apexApplications);
+  private List<ApexApplication> parseApexApplications(URI uri) throws IOException {
+    Path baseDirectory = Paths.get(uri);
+    List<ApexApplication> apexApplications = new ArrayList<>();
+    try (DirectoryStream<Path> stream = Files.newDirectoryStream(baseDirectory)) {
+      for (Path path : stream) {
+        if (isSQLFile(path)) {
+          addApexApplication(path, apexApplications);
+        }
+        if (isApexDirectory(path)) {
+          addApexApplication(path, apexApplications);
+        }
       }
     }
-    relativizePaths(baseDirectory.toPath(), apexApplications);
+    relativizePaths(baseDirectory, apexApplications);
+    return apexApplications;
   }
 
   private boolean isSQLFile(Path path) {
@@ -219,6 +270,17 @@ public class ApexApplicationParserServiceImpl implements ApexApplicationParserSe
       Path location = apexApplication.getLocation();
       location = baseDirectory.relativize(location);
       apexApplication.setLocation(location);
+    }
+  }
+
+  private void closeOpenNonDefaultFileSystem(Resource baseDirectoryAsResource, FileSystem fileSystem) {
+    if (fileSystem != null && !FileSystems.getDefault().equals(fileSystem)) {
+      try {
+        fileSystem.close();
+      } catch (IOException e) {
+        throw new InstallApexException(Reason.ERROR_ON_APEX_DIRECTORY_ACCESS, e, baseDirectoryAsResource.getFilename(),
+            e.getMessage());
+      }
     }
   }
 
