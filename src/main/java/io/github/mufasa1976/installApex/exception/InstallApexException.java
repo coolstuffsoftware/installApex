@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Properties;
 
 import org.springframework.context.MessageSource;
 
@@ -56,7 +57,8 @@ public class InstallApexException extends RuntimeException {
   }
 
   public boolean isPrintStackTrace() {
-    if (Boolean.getBoolean(PROPERTY_ALWAYS_PRINT_STACK_TRACE)) {
+    Properties systemProperties = System.getProperties();
+    if (systemProperties.containsKey(PROPERTY_ALWAYS_PRINT_STACK_TRACE)) {
       return true;
     }
     return printStackTrace;

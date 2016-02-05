@@ -101,6 +101,10 @@ public enum CommandLineOption {
     return commandLine.getOptionValue(settings.getLongOption());
   }
 
+  public synchronized static Options getOptions(MessageSource messageSource) {
+    return getOptions(messageSource, Locale.getDefault());
+  }
+
   public synchronized static Options getOptions(MessageSource messageSource, Locale locale) {
     Options options = new Options();
 
@@ -110,12 +114,14 @@ public enum CommandLineOption {
     for (CommandLineOption commandLineOption : CommandLineOption.values()) {
       Settings settings = commandLineOption.getSettings();
       Option option = createOption(settings);
-      setDescription(settings, option, messageSource, locale);
+      setDescription(option, messageSource, locale);
       setArgument(settings, option);
       setOptionAsCommand(settings, option, commandGroup);
       options.addOption(option);
     }
     options.addOptionGroup(commandGroup);
+
+    addSystemProperty(options, messageSource, locale);
 
     return options;
   }
@@ -128,11 +134,15 @@ public enum CommandLineOption {
     return OptionBuilder.create();
   }
 
-  private static void setDescription(Settings settings, Option option, MessageSource messageSource, Locale locale) {
+  private static void setDescription(Option option, MessageSource messageSource, Locale locale) {
+    setDescription(option.getLongOpt(), option, messageSource, locale);
+  }
+
+  private static void setDescription(String messageKey, Option option, MessageSource messageSource, Locale locale) {
     final String PREFIX = "commandLineOption.option.";
-    String description = messageSource.getMessage(PREFIX + settings.getLongOption(), null, locale);
+    String description = messageSource.getMessage(PREFIX + messageKey, null, locale);
     if (StringUtils.isBlank(description)) {
-      option.setDescription("No value defined for message-Key " + PREFIX + settings.getLongOption());
+      option.setDescription("No value defined for message-Key " + PREFIX + messageKey);
     } else {
       option.setDescription(description);
     }
@@ -151,8 +161,13 @@ public enum CommandLineOption {
     }
   }
 
-  public synchronized static Options getOptions(MessageSource messageSource) {
-    return getOptions(messageSource, Locale.getDefault());
+  private static void addSystemProperty(Options options, MessageSource messageSource, Locale locale) {
+    OptionBuilder.withValueSeparator();
+    Option option = OptionBuilder.create('D');
+    option.setValueSeparator('=');
+    option.setArgName("key=value");
+    setDescription("systemProperty", option, messageSource, locale);
+    options.addOption(option);
   }
 
   public static List<CommandLineOption> getCommandOptions() {
