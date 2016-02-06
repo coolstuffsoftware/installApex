@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Properties;
 
+import javax.sql.DataSource;
+
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -21,10 +23,8 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.core.io.ResourceEditor;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.LazyConnectionDataSourceProxy;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import org.springframework.ui.velocity.VelocityEngineFactoryBean;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
@@ -146,9 +146,14 @@ public class ApplicationConfiguration {
 
   @Bean
   public LazyConnectionDataSourceProxy lazyConnectionDataSourceProxy() {
-    EmbeddedDatabase embeddedDatabase = new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.HSQL).build();
-    LazyConnectionDataSourceProxy lazyConnectionDataSourceProxy = new LazyConnectionDataSourceProxy(embeddedDatabase);
+    DataSource emptyDataSource = new EmptyDataSource();
+    LazyConnectionDataSourceProxy lazyConnectionDataSourceProxy = new LazyConnectionDataSourceProxy(emptyDataSource);
     return lazyConnectionDataSourceProxy;
+  }
+
+  @Bean
+  public JdbcTemplate jdbcTemplate() {
+    return new JdbcTemplate(lazyConnectionDataSourceProxy());
   }
 
 }

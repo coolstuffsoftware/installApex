@@ -1,10 +1,10 @@
-package io.github.mufasa1976.installApex.service.liquibase;
+package io.github.mufasa1976.installApex.service.upgrade;
 
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-public class LiquibaseParameter {
+public class UpgradeParameter {
 
   private String databaseChangeLogTableName;
   private String databaseChangeLogLockTableName;

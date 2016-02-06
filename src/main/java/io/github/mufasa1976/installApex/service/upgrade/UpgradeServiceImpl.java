@@ -1,6 +1,7 @@
-package io.github.mufasa1976.installApex.service.liquibase;
+package io.github.mufasa1976.installApex.service.upgrade;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -10,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import io.github.mufasa1976.installApex.exception.InstallApexException;
+import io.github.mufasa1976.installApex.exception.InstallApexException.Reason;
 import liquibase.Contexts;
 import liquibase.Liquibase;
 import liquibase.database.Database;
@@ -21,9 +24,9 @@ import liquibase.exception.LiquibaseException;
 import liquibase.resource.ResourceAccessor;
 
 @Service
-public class LiquibaseServiceImpl implements LiquibaseService {
+public class UpgradeServiceImpl implements UpgradeService {
 
-  private static final Logger log = LoggerFactory.getLogger(LiquibaseServiceImpl.class);
+  private static final Logger log = LoggerFactory.getLogger(UpgradeServiceImpl.class);
 
   private static final String DATABASE_CHANGELOG_FILENAME = "databaseChangeLogFileName";
   private static final String DATABASE_CHANGELOG_TABLE_NAME = "databaseChangeLogTableName";
@@ -42,18 +45,26 @@ public class LiquibaseServiceImpl implements LiquibaseService {
   private DatabaseFactory databaseFactory;
 
   @Override
-  public void update(Connection connection, LiquibaseParameter parameter) {
+  public void update(Connection connection, UpgradeParameter parameter) {
     try {
       Liquibase liquibase = getLiquibase(connection, parameter);
       Contexts contexts = convertToContexts(parameter.getApexApplications());
       liquibase.update(contexts);
     } catch (LiquibaseException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      try {
+        String upgradeSchema = parameter.getDefaultSchemaName();
+        if (StringUtils.isBlank(upgradeSchema)) {
+          upgradeSchema = connection.getSchema();
+        }
+        String connectionURL = connection.getSchema() + '@' + connection.getMetaData().getURL();
+        throw new InstallApexException(Reason.UPGRADE_ERROR, e, upgradeSchema, connectionURL);
+      } catch (SQLException eSub) {
+        throw new InstallApexException(Reason.UNKNOWN);
+      }
     }
   }
 
-  private Liquibase getLiquibase(Connection connection, LiquibaseParameter parameter) throws LiquibaseException {
+  private Liquibase getLiquibase(Connection connection, UpgradeParameter parameter) throws LiquibaseException {
     DatabaseConnection databaseConnection = getDatabaseConnection(connection);
     Database database = getDatabase(databaseConnection, parameter);
     Liquibase liquibase = new Liquibase(getDatabaseChangelogFileName(), resourceAccessor, database);
@@ -66,14 +77,14 @@ public class LiquibaseServiceImpl implements LiquibaseService {
     return new JdbcConnection(connection);
   }
 
-  private Database getDatabase(DatabaseConnection databaseConnection, LiquibaseParameter parameter)
+  private Database getDatabase(DatabaseConnection databaseConnection, UpgradeParameter parameter)
       throws DatabaseException {
     Database database = databaseFactory.findCorrectDatabaseImplementation(databaseConnection);
     setLiquibaseDatabaseProperties(database, parameter);
     return database;
   }
 
-  private void setLiquibaseDatabaseProperties(Database database, LiquibaseParameter paramter) throws DatabaseException {
+  private void setLiquibaseDatabaseProperties(Database database, UpgradeParameter paramter) throws DatabaseException {
     if (paramter == null) {
       return;
     }

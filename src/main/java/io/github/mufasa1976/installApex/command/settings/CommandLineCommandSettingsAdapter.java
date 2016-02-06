@@ -1,12 +1,5 @@
 package io.github.mufasa1976.installApex.command.settings;
 
-import io.github.mufasa1976.installApex.cli.CommandLineOption;
-import io.github.mufasa1976.installApex.command.CommandType;
-import io.github.mufasa1976.installApex.exception.InstallApexException;
-import io.github.mufasa1976.installApex.exception.InstallApexException.Reason;
-import io.github.mufasa1976.installApex.service.apex.ApexParameter;
-import io.github.mufasa1976.installApex.service.liquibase.LiquibaseParameter;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -17,13 +10,19 @@ import java.util.Properties;
 
 import javax.sql.DataSource;
 
-import oracle.jdbc.pool.OracleDataSource;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import io.github.mufasa1976.installApex.cli.CommandLineOption;
+import io.github.mufasa1976.installApex.command.CommandType;
+import io.github.mufasa1976.installApex.exception.InstallApexException;
+import io.github.mufasa1976.installApex.exception.InstallApexException.Reason;
+import io.github.mufasa1976.installApex.service.apex.ApexParameter;
+import io.github.mufasa1976.installApex.service.upgrade.UpgradeParameter;
+import oracle.jdbc.pool.OracleDataSource;
 
 public class CommandLineCommandSettingsAdapter implements CommandSettings {
 
@@ -82,7 +81,7 @@ public class CommandLineCommandSettingsAdapter implements CommandSettings {
       return;
     }
     if (!Files.isDirectory(locationToCheck)) {
-      throw new InstallApexException(Reason.CLI_ARGUMENT_NO_DIRECTORY, option, locationToCheck);
+      throw new InstallApexException(Reason.CLI_ARGUMENT_NO_DIRECTORY, option.getLongOption("--"), locationToCheck);
     }
   }
 
@@ -106,14 +105,14 @@ public class CommandLineCommandSettingsAdapter implements CommandSettings {
   }
 
   private void missingRequiredCommandLineOption(CommandLineOption option) {
-    throw new InstallApexException(Reason.CLI_MISSING_REQUIRED_OPTION, option, commandType);
+    throw new InstallApexException(Reason.CLI_MISSING_REQUIRED_OPTION, option.getLongOption("--"),
+        commandType.getLongOption("--"));
   }
 
   private void createDirectoryIfAllowed(CommandLineOption option, Path directory, boolean createIfNotExists) {
     if (!createIfNotExists) {
-      throw new IllegalStateException(String.format(
-          "Not allowed to create Directory '%s' due to CommandLine Option %s", directory.toAbsolutePath(),
-          option.getLongOption()));
+      throw new IllegalStateException(String.format("Not allowed to create Directory '%s' due to CommandLine Option %s",
+          directory.toAbsolutePath(), option.getLongOption()));
     }
 
     try {
@@ -121,7 +120,8 @@ public class CommandLineCommandSettingsAdapter implements CommandSettings {
       Files.createDirectory(directory);
       directory.toFile().deleteOnExit();
     } catch (IOException e) {
-      throw new InstallApexException(Reason.CREATE_DIRECTORY_ERROR, e, directory, option, e.getMessage());
+      throw new InstallApexException(Reason.CREATE_DIRECTORY_ERROR, e, directory, option.getLongOption("--"),
+          e.getMessage());
     }
   }
 
@@ -249,9 +249,10 @@ public class CommandLineCommandSettingsAdapter implements CommandSettings {
     return oracleHome;
   }
 
-  private void missingRequiredCommandLineOption(CommandLineOption option, String systemPropertyKeyOrEnvironmentVariable) {
-    throw new InstallApexException(Reason.CLI_OPTION_EVALUATION_ERROR, systemPropertyKeyOrEnvironmentVariable, option,
-        commandType);
+  private void missingRequiredCommandLineOption(CommandLineOption option,
+      String systemPropertyKeyOrEnvironmentVariable) {
+    throw new InstallApexException(Reason.CLI_OPTION_EVALUATION_ERROR, systemPropertyKeyOrEnvironmentVariable,
+        option.getLongOption(), commandType.getLongOption());
   }
 
   private Path evaluateSQLPlusExecutable(Path oracleHome) {
@@ -260,7 +261,7 @@ public class CommandLineCommandSettingsAdapter implements CommandSettings {
 
     if (sqlPlusExecutable == null) {
       sqlPlusExecutable = getPathByEnvironmentVariable("ORACLE_HOME", Paths.get("bin", getSQLPlusFileName()));
-      checkIsExecutableFile(sqlPlusExecutable, "ORACLE_HOME");
+      checkIsExecutableFile(sqlPlusExecutable, CommandLineOption.SQLPLUS_EXECUTABLE, "ORACLE_HOME");
     }
 
     if (sqlPlusExecutable == null) {
@@ -278,17 +279,18 @@ public class CommandLineCommandSettingsAdapter implements CommandSettings {
     return executableFileName;
   }
 
-  private void checkIsExecutableFile(Path path, String environmentVariable) {
+  private void checkIsExecutableFile(Path path, CommandLineOption option, String environmentVariable) {
     if (path == null) {
       return;
     }
 
     if (Files.isDirectory(path)) {
-      throw new InstallApexException(Reason.CLI_ENV_VARIABLE_NO_FILE, environmentVariable, path.toAbsolutePath());
+      throw new InstallApexException(Reason.CLI_ENV_VARIABLE_NO_FILE, environmentVariable, option.getLongOption("--"),
+          path.toAbsolutePath());
     }
     if (!Files.isExecutable(path)) {
       throw new InstallApexException(Reason.CLI_ENV_VARIABLE_FILE_WITHOUT_EXECUTION_PRIVS, environmentVariable,
-          path.toAbsolutePath());
+          option.getLongOption("--"), path.toAbsolutePath());
     }
 
   }
@@ -299,10 +301,11 @@ public class CommandLineCommandSettingsAdapter implements CommandSettings {
     }
 
     if (Files.isDirectory(path)) {
-      throw new InstallApexException(Reason.CLI_ARGUMENT_NO_FILE, option, path.toAbsolutePath());
+      throw new InstallApexException(Reason.CLI_ARGUMENT_NO_FILE, option.getLongOption("--"), path.toAbsolutePath());
     }
     if (!Files.isExecutable(path)) {
-      throw new InstallApexException(Reason.CLI_ARGUMENT_FILE_WITHOUT_EXECUTION_PRIVS, option, path.toAbsolutePath());
+      throw new InstallApexException(Reason.CLI_ARGUMENT_FILE_WITHOUT_EXECUTION_PRIVS, option.getLongOption("--"),
+          path.toAbsolutePath());
     }
   }
 
@@ -400,6 +403,11 @@ public class CommandLineCommandSettingsAdapter implements CommandSettings {
   }
 
   @Override
+  public String getSQLPlusConnect() {
+    return getSQLPlusConnect(null);
+  }
+
+  @Override
   public boolean isForce() {
     return isOptionSet(CommandLineOption.FORCE);
   }
@@ -443,8 +451,8 @@ public class CommandLineCommandSettingsAdapter implements CommandSettings {
   }
 
   @Override
-  public LiquibaseParameter getLiquibaseParameter() {
-    LiquibaseParameter liquibaseParameter = new LiquibaseParameter();
+  public UpgradeParameter getUpgradeParameter() {
+    UpgradeParameter liquibaseParameter = new UpgradeParameter();
     liquibaseParameter
         .setDatabaseChangeLogTableName(getValueByOptionalArgumentOf(CommandLineOption.CHANGELOG_TABLE_NAME));
     liquibaseParameter

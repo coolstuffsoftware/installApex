@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import io.github.mufasa1976.installApex.cli.CommandLineOption;
+import io.github.mufasa1976.installApex.command.settings.CommandLineCommandSettingsAdapter;
+import io.github.mufasa1976.installApex.command.settings.CommandSettings;
 
 @Service
 public class CommandRegistryImpl implements CommandRegistry {
@@ -33,7 +35,11 @@ public class CommandRegistryImpl implements CommandRegistry {
 
     AbstractCommand command = commands.get(commandType);
     checkCommandAvailability(command, commandType);
-    command.prepareCommand(commandLine);
+
+    log.debug("prepare the CommandSettings of Command {}", command);
+    CommandSettings commandSettings = new CommandLineCommandSettingsAdapter(commandType, commandLine);
+    command.setCommandSettings(commandSettings);
+
     return command;
   }
 

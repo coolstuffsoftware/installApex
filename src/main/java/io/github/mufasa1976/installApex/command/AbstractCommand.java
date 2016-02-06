@@ -6,7 +6,6 @@ import java.util.Locale;
 
 import javax.annotation.PostConstruct;
 
-import org.apache.commons.cli.CommandLine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +13,6 @@ import org.springframework.context.MessageSource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 
-import io.github.mufasa1976.installApex.command.settings.CommandLineCommandSettingsAdapter;
 import io.github.mufasa1976.installApex.command.settings.CommandSettings;
 import io.github.mufasa1976.installApex.exception.InstallApexException;
 import io.github.mufasa1976.installApex.exception.InstallApexException.Reason;
@@ -24,6 +22,8 @@ import jline.console.ConsoleReader;
 public abstract class AbstractCommand implements Command {
 
   private static final Logger log = LoggerFactory.getLogger(AbstractCommand.class);
+
+  private static final String KEY_PASSWORD_PROMPT = "abstractCommand.passwordPrompt";
 
   @Autowired
   private CommandRegistryImpl commandRegistry;
@@ -48,11 +48,6 @@ public abstract class AbstractCommand implements Command {
   }
 
   protected abstract CommandType getCommandType();
-
-  void prepareCommand(CommandLine commandLine) {
-    log.debug("prepare the CommandSettings of Command {}", this);
-    commandSettings = new CommandLineCommandSettingsAdapter(getCommandType(), commandLine);
-  }
 
   protected CommandSettings getSettings() {
     return commandSettings;
@@ -81,6 +76,17 @@ public abstract class AbstractCommand implements Command {
     }
   }
 
+  protected String readDatabasePasswordFromConsole() {
+    try {
+      String databaseConnect = commandSettings.getSQLPlusConnect();
+      String passwordPrompt = messageSource.getMessage(KEY_PASSWORD_PROMPT, new String[] { databaseConnect },
+          Locale.getDefault());
+      return consoleReader.readLine(passwordPrompt, '*');
+    } catch (IOException e) {
+      throw new InstallApexException(Reason.CONSOLE_PROBLEM, e).setPrintStrackTrace(true);
+    }
+  }
+
   protected void println(Object message) {
     try {
       consoleReader.println(message != null ? message.toString() : "null");
@@ -102,6 +108,10 @@ public abstract class AbstractCommand implements Command {
 
   protected PrintWriter getPrintWriter() {
     return printWriter;
+  }
+
+  void setCommandSettings(CommandSettings commandSettings) {
+    this.commandSettings = commandSettings;
   }
 
   @Override

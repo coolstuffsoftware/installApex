@@ -40,8 +40,8 @@ public class InstallApexException extends RuntimeException {
     printStackTrace = reason.isPrintStackTrace();
     exitStatus = reason.getExitStatus();
     this.arguments.addAll(Arrays.asList(arguments));
-    log.error(String.format("%s occured with Reason: %s - StackTrace below",
-        InstallApexException.class.getSimpleName(), reason), this);
+    log.error(String.format("%s occured with Reason: %s - StackTrace below", InstallApexException.class.getSimpleName(),
+        reason), this);
   }
 
   public Reason getReason() {
@@ -71,7 +71,7 @@ public class InstallApexException extends RuntimeException {
   }
 
   public String getMessage(MessageSource messageSource, Locale locale) {
-    String message = messageSource.getMessage(reason.getMessageKey(), arguments.toArray(), locale);
+    String message = messageSource.getMessage(super.getMessage(), arguments.toArray(), locale);
     return messageSource.getMessage(PREFIX + MESSAGE, new Object[] { reason.getCode(), message }, locale);
   }
 
@@ -89,14 +89,15 @@ public class InstallApexException extends RuntimeException {
     CLI_ENV_VARIABLE_NO_FILE(6, "fileNotFoundBySystemPropertyOrEnvironmentVariable"),
     CLI_ARGUMENT_FILE_WITHOUT_EXECUTION_PRIVS(7, "fileWithoutExecutionPrivilegeByOption"),
     CLI_ENV_VARIABLE_FILE_WITHOUT_EXECUTION_PRIVS(7,
-        "fileWithoutExecutionPrivilegeBySystemPrivilegeOrEnvironmentVariable"),
+        "fileWithoutExecutionPrivilegeBySystemPropertyOrEnvironmentVariable"),
     APEX_ID_NOT_NUMERIC(8, "apexIdNotNumeric"),
     NO_APEX_DIRECTORY_INCLUDED(9, "noApexDirectoryIncluded"),
     ERROR_ON_APEX_DIRECTORY_ACCESS(10, "errorOnApexDirectoryAccess"),
     NO_APEX_APPLICATIONS_INCLUDED(11, "noApexApplicationsIncluded"),
     APEX_PARSER_EXCEPTION(12, "apexParserException", true),
     WRONG_INTERNAL_APEX_ID(13, "wrongInternalApexId"),
-    CONSOLE_PROBLEM(14, "consoleProblem", true);
+    CONSOLE_PROBLEM(14, "consoleProblem", true),
+    UPGRADE_ERROR(15, "upgradeError", true);
 
     private int code;
     private String messageKey;

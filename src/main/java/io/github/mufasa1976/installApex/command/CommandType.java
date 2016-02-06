@@ -19,4 +19,8 @@ public enum CommandType {
     return longOption;
   }
 
+  public String getLongOption(String prefix) {
+    return prefix + longOption;
+  }
+
 }

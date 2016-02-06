@@ -5,7 +5,7 @@ import java.nio.file.Path;
 import javax.sql.DataSource;
 
 import io.github.mufasa1976.installApex.service.apex.ApexParameter;
-import io.github.mufasa1976.installApex.service.liquibase.LiquibaseParameter;
+import io.github.mufasa1976.installApex.service.upgrade.UpgradeParameter;
 
 public interface CommandSettings {
 
@@ -16,6 +16,8 @@ public interface CommandSettings {
   ProcessBuilder getSQLPlusCommand();
 
   String getSQLPlusConnect(String password);
+
+  String getSQLPlusConnect();
 
   boolean isForce();
 
@@ -31,7 +33,7 @@ public interface CommandSettings {
 
   Integer getSourceApexId();
 
-  LiquibaseParameter getLiquibaseParameter();
+  UpgradeParameter getUpgradeParameter();
 
   ApexParameter getApexParameter();
 
