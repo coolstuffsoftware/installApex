@@ -6,11 +6,13 @@
   <name>installApex</name>
   <description>Install any exising APEX Application</description>
   <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  	<sonar.language>java</sonar.language>
+
   	<spring.bom.version>2.0.1.RELEASE</spring.bom.version>
   	<oracle.version>12.1.0.2</oracle.version>
   	<logback.spring-ext.version>0.1.4</logback.spring-ext.version>
   	<logback.liquibase-ext.version>1.2.1</logback.liquibase-ext.version>
-  	<sonar.language>java</sonar.language>
   </properties>
   <dependencies>
   	<dependency>
