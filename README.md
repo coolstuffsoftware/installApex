@@ -54,8 +54,8 @@ Within the ```pom.xml``` define the following Dependencies and Plugins:
 <dependencies>
     ...
     <dependency>
-        <groupId>io.github.mufasa1976</groupId>
-        <artifactId>installApex</artifactId>
+        <groupId>software.coolstuff</groupId>
+        <artifactId>installapex</artifactId>
         <version>1.0.0</version>
     </dependency>
     <dependency>
@@ -84,7 +84,7 @@ Within the ```pom.xml``` define the following Dependencies and Plugins:
                         <finalName>${project.artifactId}</finalName>
                         <transformers>
                             <transformer implementation="org.apache.maven.plguins.shade.resource.ManifestResourceTransformer">
-                                <mainClass>io.github.mufasa1976.installApex.InstallApex</mainClass>
+                                <mainClass>software.coolstuff.installapex.InstallApex</mainClass>
                             </transformer>
                         </transformers>
                     </configuration>
@@ -100,7 +100,7 @@ Within the ```pom.xml``` define the following Dependencies and Plugins:
 Of course you have to install the requested Dependencies into your local Repository first:
 ```
 mvn install:install-file -Dfile=ojdbc7.jar -DgroupId=com.oracle -DartifactId=ojdbc7 -Dversion=12.1.0.2 -Dpackaging=jar
-mvn install:install-file -Dfile=installApex.jar -DgroupId=io.github.mufasa1976 -DartifactId=installApex -Dversion=1.0.0 -Dpackaging=jar
+mvn install:install-file -Dfile=installApex.jar -DgroupId=software.coolstuff -DartifactId=installapex -Dversion=1.0.0 -Dpackaging=jar
 ```
 Now you run ```mvn package``` and then you got the final JAR-Installer in your target Directory.
 ## Run the Install
