@@ -97,7 +97,8 @@ public class InstallApexException extends RuntimeException {
     APEX_PARSER_EXCEPTION(12, "apexParserException", true),
     WRONG_INTERNAL_APEX_ID(13, "wrongInternalApexId"),
     CONSOLE_PROBLEM(14, "consoleProblem", true),
-    UPGRADE_ERROR(15, "upgradeError", true);
+    UPGRADE_ERROR(15, "upgradeError", true),
+    NO_APEX_INSTALLED(16, "noApexInstalled", false);
 
     private int code;
     private String messageKey;

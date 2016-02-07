@@ -10,8 +10,6 @@ import org.springframework.context.annotation.PropertySources;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 
-import software.coolstuff.installapex.config.ApplicationConfiguration;
-
 @Configuration
 @Import(ApplicationConfiguration.class)
 //@formatter:off
@@ -24,7 +22,7 @@ public class TestApplicationConfiguration {
 
   @Bean
   public DataSource dataSource() {
-    return new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.HSQL).build();
+    return new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.HSQL).addDefaultScripts().build();
   }
 
 }
