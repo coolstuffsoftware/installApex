@@ -59,7 +59,7 @@ public class UpgradeServiceImpl implements UpgradeService {
         String connectionURL = connection.getSchema() + '@' + connection.getMetaData().getURL();
         throw new InstallApexException(Reason.UPGRADE_ERROR, e, upgradeSchema, connectionURL);
       } catch (SQLException eSub) {
-        throw new InstallApexException(Reason.UNKNOWN);
+        throw new InstallApexException(Reason.UNKNOWN, eSub);
       }
     }
   }

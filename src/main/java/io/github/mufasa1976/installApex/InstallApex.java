@@ -1,11 +1,5 @@
 package io.github.mufasa1976.installApex;
 
-import io.github.mufasa1976.installApex.cli.CommandLineOption;
-import io.github.mufasa1976.installApex.command.Command;
-import io.github.mufasa1976.installApex.command.CommandRegistry;
-import io.github.mufasa1976.installApex.config.ApplicationConfiguration;
-import io.github.mufasa1976.installApex.exception.InstallApexException;
-
 import java.util.Locale;
 
 import javax.naming.OperationNotSupportedException;
@@ -16,11 +10,16 @@ import org.apache.commons.cli.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.stereotype.Component;
+
+import io.github.mufasa1976.installApex.cli.CommandLineOption;
+import io.github.mufasa1976.installApex.command.Command;
+import io.github.mufasa1976.installApex.command.CommandRegistry;
+import io.github.mufasa1976.installApex.config.ApplicationConfiguration;
+import io.github.mufasa1976.installApex.exception.InstallApexException;
 
 @Component
 public class InstallApex {
@@ -33,9 +32,6 @@ public class InstallApex {
   @Autowired
   private MessageSource messageSource;
 
-  @Autowired
-  private ConfigurableApplicationContext applicationContext;
-
   private CommandLineParser commandLineParser;
 
   @Autowired
@@ -43,12 +39,18 @@ public class InstallApex {
 
   public static void main(String[] args) {
     log.debug("Initialize the Application Context");
-    @SuppressWarnings("resource")
-    ApplicationContext context = new AnnotationConfigApplicationContext(ApplicationConfiguration.class);
+    ConfigurableApplicationContext context = null;
+    try {
+      context = new AnnotationConfigApplicationContext(ApplicationConfiguration.class);
+      log.debug("Get the main Bean and execute");
+      InstallApex main = context.getBean(InstallApex.class);
+      System.exit(main.execute(args));
+    } finally {
+      if (context != null) {
+        context.close();
+      }
+    }
 
-    log.debug("Get the main Bean and execute");
-    InstallApex main = context.getBean(InstallApex.class);
-    System.exit(main.execute(args));
   }
 
   public int execute(String[] args) {
