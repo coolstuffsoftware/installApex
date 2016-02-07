@@ -157,6 +157,17 @@
 			<artifactId>sonar-maven-plugin</artifactId>
 			<version>2.6</version>
 		</plugin>
+		<plugin>
+			<groupId>org.codehaus.mojo</groupId>
+			<artifactId>cobertura-maven-plugin</artifactId>
+			<version>2.7</version>
+			<configuration>
+				<formats>
+					<format>html</format>
+					<format>xml</format>
+				</formats>
+			</configuration>
+		</plugin>
   	</plugins>
   </build>
   
@@ -174,6 +185,12 @@
 			<groupId>org.codehaus.mojo</groupId>
 			<artifactId>cobertura-maven-plugin</artifactId>
 			<version>2.7</version>
+			<configuration>
+				<formats>
+					<format>html</format>
+					<format>xml</format>
+				</formats>
+			</configuration>
 		</plugin>
   	</plugins>
   </reporting>
@@ -189,6 +206,7 @@
   		</dependency>
   	</dependencies>
   </dependencyManagement>
+  
   <scm>
   	<connection>scm:git:git@github.com:mufasa1976/installApex.git</connection>
   	<developerConnection>scm:git:git@github.com:mufasa1976/installApex.git</developerConnection>
