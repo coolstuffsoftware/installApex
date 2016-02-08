@@ -5,7 +5,6 @@ import java.util.List;
 
 import javax.naming.OperationNotSupportedException;
 
-import org.fusesource.jansi.Ansi;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -38,7 +37,7 @@ public class ListCommand extends AbstractCommand {
     printlnMessage(HEADER, candidates.size());
     for (ApexApplication candidate : candidates) {
       String candidateList = String.format(format, candidate.getId(), candidate.getName(), candidate.getVersion());
-      println(Ansi.ansi().render(candidateList));
+      println(candidateList);
     }
     printlnMessage(FOOTER, candidates.size());
   }

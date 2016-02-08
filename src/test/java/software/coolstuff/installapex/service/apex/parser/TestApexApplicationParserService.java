@@ -15,8 +15,6 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import software.coolstuff.installapex.AbstractInstallApexTestWithContext;
-import software.coolstuff.installapex.service.apex.parser.ApexApplication;
-import software.coolstuff.installapex.service.apex.parser.ApexApplicationParserService;
 
 public class TestApexApplicationParserService extends AbstractInstallApexTestWithContext {
 
@@ -79,7 +77,7 @@ public class TestApexApplicationParserService extends AbstractInstallApexTestWit
 
   @Test
   public void testParseWrongDirectory() {
-    Resource wrongPath = resourceLoader.getResource("classpath:/");
+    Resource wrongPath = resourceLoader.getResource("classpath:/tns_admin");
     List<ApexApplication> candidates = parser.getCandidates(wrongPath);
     Assert.assertNotNull(candidates);
     Assert.assertTrue(candidates.isEmpty());
