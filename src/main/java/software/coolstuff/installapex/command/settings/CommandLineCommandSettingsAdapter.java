@@ -433,48 +433,64 @@ public class CommandLineCommandSettingsAdapter implements CommandSettings {
   }
 
   @Override
-  public boolean isApexIdAvailable() {
-    return isOptionSet(CommandLineOption.APEX_SOURCE_ID);
+  public UpgradeParameter getUpgradeParameter() {
+    UpgradeParameter upgradeParameter = new UpgradeParameter();
+    upgradeParameter.setApexApplication(getIntegerByOptionalArgumentOf(CommandLineOption.APEX_SOURCE_ID));
+    upgradeParameter
+        .setDatabaseChangeLogTableName(getValueByOptionalArgumentOf(CommandLineOption.CHANGELOG_TABLE_NAME));
+    upgradeParameter
+        .setDatabaseChangeLogLockTableName(getValueByOptionalArgumentOf(CommandLineOption.CHANGELOG_LOCK_TABLE_NAME));
+    upgradeParameter.setDefaultSchemaName(getValueByOptionalArgumentOf(CommandLineOption.INSTALL_SCHEMA));
+    upgradeParameter.setLiquibaseSchemaName(getValueByOptionalArgumentOf(CommandLineOption.CHANGELOG_SCHEMA));
+    upgradeParameter
+        .setLiquibaseTablespaceName(getValueByOptionalArgumentOf(CommandLineOption.CHANGELOG_TABLESPACE_NAME));
+    return upgradeParameter;
   }
 
-  @Override
-  public Integer getSourceApexId() {
-    String apexIdAsString = getValueByOptionalArgumentOf(CommandLineOption.APEX_SOURCE_ID);
-    if (StringUtils.isBlank(apexIdAsString)) {
+  private Integer getIntegerByOptionalArgumentOf(CommandLineOption commandLineOption) {
+    String optionalValue = getValueByOptionalArgumentOf(commandLineOption);
+    if (StringUtils.isBlank(optionalValue)) {
       return null;
     }
-    try {
-      return Integer.parseInt(apexIdAsString);
-    } catch (NumberFormatException e) {
-      throw new InstallApexException(Reason.APEX_ID_NOT_NUMERIC, CommandLineOption.APEX_SOURCE_ID);
-    }
-  }
-
-  @Override
-  public UpgradeParameter getUpgradeParameter() {
-    UpgradeParameter liquibaseParameter = new UpgradeParameter();
-    liquibaseParameter
-        .setDatabaseChangeLogTableName(getValueByOptionalArgumentOf(CommandLineOption.CHANGELOG_TABLE_NAME));
-    liquibaseParameter
-        .setDatabaseChangeLogLockTableName(getValueByOptionalArgumentOf(CommandLineOption.CHANGELOG_LOCK_TABLE_NAME));
-    liquibaseParameter.setDefaultSchemaName(getValueByOptionalArgumentOf(CommandLineOption.INSTALL_SCHEMA));
-    liquibaseParameter.setLiquibaseSchemaName(getValueByOptionalArgumentOf(CommandLineOption.CHANGELOG_SCHEMA));
-    liquibaseParameter
-        .setLiquibaseTablespaceName(getValueByOptionalArgumentOf(CommandLineOption.CHANGELOG_TABLESPACE_NAME));
-    return liquibaseParameter;
+    return Integer.parseInt(optionalValue);
   }
 
   @Override
   public ApexParameter getApexParameter() {
     ApexParameter apexParameter = new ApexParameter();
+    apexParameter.setSourceId(getIntegerByOptionalArgumentOf(CommandLineOption.APEX_SOURCE_ID));
+    apexParameter.setGenerateTargetId(isOptionSet(CommandLineOption.APEX_TARGET_GENERATE_ID));
+    apexParameter.setTargetId(getIntegerByOptionalArgumentOf(CommandLineOption.APEX_TARGET_ID));
+    apexParameter.setKeepTargetOffset(isOptionSet(CommandLineOption.APEX_TARGET_KEEP_OFFSET));
+    apexParameter.setOffset(getLongByOptionalArgumentOf(CommandLineOption.APEX_TARGET_OFFSET));
+    apexParameter.setAlias(getValueByOptionalArgumentOf(CommandLineOption.APEX_TARGET_ALIAS));
+    apexParameter.setName(getValueByOptionalArgumentOf(CommandLineOption.APEX_TARGET_NAME));
+    apexParameter.setAutoInstallSupportingObjects(isOptionSet(CommandLineOption.APEX_TARGET_AUTO_INSTALL_SUP_OBJECT));
+    apexParameter.setImagePrefix(getValueByOptionalArgumentOf(CommandLineOption.APEX_TARGET_IMAGE_PREFIX));
+    apexParameter.setProxy(getValueByOptionalArgumentOf(CommandLineOption.APEX_TARGET_PROXY));
+    log.debug("Get the Installation Schema from the Settings");
     String installationSchema = getValueByOptionalArgumentOf(CommandLineOption.INSTALL_SCHEMA);
     if (StringUtils.isBlank(installationSchema)) {
       installationSchema = getValueByArgumentOf(CommandLineOption.DB_USER);
+      log.debug("No Installation Schema has been specified --> use the Logon User {}", installationSchema);
     }
     apexParameter.setSchema(installationSchema.toUpperCase());
     apexParameter.setWorkspace(getValueByOptionalArgumentOf(CommandLineOption.APEX_TARGET_WORKSPACE));
-    // TODO: implement me !!!
+    apexParameter
+        .setStaticAppFilePrefix(getValueByOptionalArgumentOf(CommandLineOption.APEX_TARGET_STATIC_APP_FILE_PREFIX));
+    apexParameter.setStaticPluginFilePrefix(
+        getValueByOptionalArgumentOf(CommandLineOption.APEX_TARGET_STATIC_PLUGIN_FILE_PREFIX));
+    apexParameter
+        .setStaticThemeFilePrefix(getValueByOptionalArgumentOf(CommandLineOption.APEX_TARGET_STATIC_THEME_FILE_PREFIX));
     return apexParameter;
+  }
+
+  private Long getLongByOptionalArgumentOf(CommandLineOption commandLineOption) {
+    String optionalValue = getValueByOptionalArgumentOf(commandLineOption);
+    if (StringUtils.isBlank(optionalValue)) {
+      return null;
+    }
+    return Long.parseLong(optionalValue);
   }
 
 }

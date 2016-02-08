@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -17,7 +17,7 @@ public class DatabaseCheckRepositoryImpl implements DatabaseCheckRepository {
   private static final Logger log = LoggerFactory.getLogger(DatabaseCheckRepositoryImpl.class);
 
   @Autowired
-  private JdbcTemplate jdbcTemplate;
+  private JdbcOperations operations;
 
   @Value("${databaseCheckRepository.queryApexVersion}")
   private String queryApexVersion;
@@ -25,23 +25,32 @@ public class DatabaseCheckRepositoryImpl implements DatabaseCheckRepository {
   @Value("${databaseCheckRepository.queryApexWorkspacesForSchema}")
   private String queryApexWorkspacesForSchema;
 
+  @Value("${databaseCheckRepository.queryExistsApexApplication}")
+  private String queryExistsApexApplication;
+
   @Override
   public String getApexVersion() {
     log.debug("Execute Query: {}", queryApexVersion);
-    return jdbcTemplate.queryForObject(queryApexVersion, String.class);
+    return operations.queryForObject(queryApexVersion, String.class);
   }
 
   @Override
   public List<ApexWorkspace> getApexWorkspacesFor(String targetSchema) {
     log.debug("Execute Query: {} with Parameter: 1:{}", queryApexWorkspacesForSchema, targetSchema);
-    return jdbcTemplate.query(queryApexWorkspacesForSchema, this::mapApexWorkspace, targetSchema);
+    return operations.query(queryApexWorkspacesForSchema, this::mapApexWorkspace, targetSchema);
   }
 
   private ApexWorkspace mapApexWorkspace(ResultSet rs, int rowNum) throws SQLException {
     ApexWorkspace apexWorkspace = new ApexWorkspace();
-    apexWorkspace.setId(rs.getInt("WORKSPACE_ID"));
+    apexWorkspace.setId(rs.getLong("WORKSPACE_ID"));
     apexWorkspace.setName(rs.getString("WORKSPACE_NAME"));
     return apexWorkspace;
+  }
+
+  @Override
+  public boolean existsApexApplication(int apexApplicationId) {
+    log.debug("Execute Query: {} with Parameter: 1:{}", queryExistsApexApplication, apexApplicationId);
+    return operations.queryForObject(queryExistsApexApplication, Boolean.class, apexApplicationId);
   }
 
 }

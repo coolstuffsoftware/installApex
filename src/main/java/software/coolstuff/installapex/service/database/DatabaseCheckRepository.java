@@ -8,4 +8,6 @@ public interface DatabaseCheckRepository {
 
   List<ApexWorkspace> getApexWorkspacesFor(String targetSchema);
 
+  boolean existsApexApplication(int apexApplicationId);
+
 }

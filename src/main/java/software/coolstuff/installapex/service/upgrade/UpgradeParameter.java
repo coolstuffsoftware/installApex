@@ -1,8 +1,6 @@
 package software.coolstuff.installapex.service.upgrade;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Objects;
 
 public class UpgradeParameter {
 
@@ -11,7 +9,7 @@ public class UpgradeParameter {
   private String defaultSchemaName;
   private String liquibaseSchemaName;
   private String liquibaseTablespaceName;
-  private Set<Integer> apexApplications = new HashSet<>();
+  private Integer apexApplication;
 
   public String getDatabaseChangeLogTableName() {
     return databaseChangeLogTableName;
@@ -53,28 +51,33 @@ public class UpgradeParameter {
     this.liquibaseTablespaceName = liquibaseTablespaceName;
   }
 
-  public void setApexApplications(Collection<Integer> apexApplications) {
-    this.apexApplications = new HashSet<>(apexApplications);
+  public void setApexApplication(Integer apexApplication) {
+    this.apexApplication = apexApplication;
   }
 
-  public void addApexApplications(Collection<Integer> apexApplications) {
-    this.apexApplications.addAll(apexApplications);
+  public Integer getApexApplication() {
+    return apexApplication;
   }
 
-  public void addApexApplication(int apexApplication) {
-    apexApplications.add(apexApplication);
+  @Override
+  public int hashCode() {
+    return Objects.hash(databaseChangeLogTableName, databaseChangeLogLockTableName, defaultSchemaName,
+        liquibaseSchemaName, liquibaseTablespaceName, apexApplication);
   }
 
-  public void removeApexApplication(int apexApplication) {
-    apexApplications.remove(apexApplication);
-  }
+  @Override
+  public boolean equals(Object obj) {
+    if (!(obj instanceof UpgradeParameter)) {
+      return false;
+    }
 
-  public void clearApexApplications() {
-    apexApplications.clear();
-  }
-
-  public Set<Integer> getApexApplications() {
-    return apexApplications;
+    UpgradeParameter otherObj = (UpgradeParameter) obj;
+    return Objects.equals(databaseChangeLogTableName, otherObj.databaseChangeLogTableName)
+        && Objects.equals(databaseChangeLogLockTableName, otherObj.databaseChangeLogLockTableName)
+        && Objects.equals(defaultSchemaName, otherObj.defaultSchemaName)
+        && Objects.equals(liquibaseSchemaName, otherObj.liquibaseSchemaName)
+        && Objects.equals(liquibaseTablespaceName, otherObj.liquibaseTablespaceName)
+        && Objects.equals(apexApplication, otherObj.apexApplication);
   }
 
 }

@@ -2,7 +2,6 @@ package software.coolstuff.installapex.service.upgrade;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -48,7 +47,7 @@ public class UpgradeServiceImpl implements UpgradeService {
   public void update(Connection connection, UpgradeParameter parameter) {
     try {
       Liquibase liquibase = getLiquibase(connection, parameter);
-      Contexts contexts = convertToContexts(parameter.getApexApplications());
+      Contexts contexts = convertToContexts(parameter.getApexApplication());
       liquibase.update(contexts);
     } catch (LiquibaseException e) {
       try {
@@ -133,9 +132,14 @@ public class UpgradeServiceImpl implements UpgradeService {
     }
   }
 
-  private Contexts convertToContexts(Set<Integer> apexApplications) {
-    // TODO Auto-generated method stub
-    return null;
+  private Contexts convertToContexts(Integer apexApplicationId) {
+    if (apexApplicationId == null) {
+      return null;
+    }
+
+    Contexts contexts = new Contexts();
+    contexts.add(apexApplicationId.toString());
+    return contexts;
   }
 
 }

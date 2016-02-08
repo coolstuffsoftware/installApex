@@ -2,21 +2,21 @@ package software.coolstuff.installapex.service.database;
 
 public class ApexWorkspace {
 
-  private int id;
+  private long id;
   private String name;
 
   public ApexWorkspace() {}
 
-  public ApexWorkspace(int id, String name) {
+  public ApexWorkspace(long id, String name) {
     this.id = id;
     this.name = name;
   }
 
-  public int getId() {
+  public long getId() {
     return id;
   }
 
-  public void setId(int id) {
+  public void setId(long id) {
     this.id = id;
   }
 

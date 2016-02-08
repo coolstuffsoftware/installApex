@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 
+import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.testng.Assert;
@@ -33,6 +34,8 @@ public class TestApexDatabaseCheckService extends AbstractInstallApexTestWithCon
     Mockito.when(databaseCheckRepository.getApexWorkspacesFor("OTHER")).thenReturn(
         Arrays.asList(new ApexWorkspace[] { new ApexWorkspace(1, "DEVELOPMENT"), new ApexWorkspace(2, "PRODUCTION") }));
     Mockito.when(databaseCheckRepository.getApexWorkspacesFor("NOT_REGISTERED")).thenReturn(new ArrayList<>());
+    Mockito.when(databaseCheckRepository.existsApexApplication(Matchers.anyInt())).thenReturn(false);
+    Mockito.when(databaseCheckRepository.existsApexApplication(103)).thenReturn(true);
   }
 
   @Test
@@ -50,32 +53,44 @@ public class TestApexDatabaseCheckService extends AbstractInstallApexTestWithCon
 
   @Test
   public void testGetWorkspacesForPublic() {
-    Map<String, Integer> mappedWorkspaces = apexDatabaseCheckService.getApexWorkspacesFor("PUBLIC");
+    Map<String, Long> mappedWorkspaces = apexDatabaseCheckService.getApexWorkspacesFor("PUBLIC");
     Assert.assertNotNull(mappedWorkspaces);
     Assert.assertFalse(mappedWorkspaces.isEmpty());
     Assert.assertEquals(mappedWorkspaces.size(), 1);
     Assert.assertTrue(mappedWorkspaces.containsKey("DEVELOPMENT"));
     Assert.assertFalse(mappedWorkspaces.containsKey("PRODUCTION"));
-    Assert.assertEquals(mappedWorkspaces.get("DEVELOPMENT"), Integer.valueOf(1));
+    Assert.assertEquals(mappedWorkspaces.get("DEVELOPMENT"), Long.valueOf(1));
   }
 
   @Test
   public void testGetWorkspacesForOther() {
-    Map<String, Integer> mappedWorkspaces = apexDatabaseCheckService.getApexWorkspacesFor("OTHER");
+    Map<String, Long> mappedWorkspaces = apexDatabaseCheckService.getApexWorkspacesFor("OTHER");
     Assert.assertNotNull(mappedWorkspaces);
     Assert.assertFalse(mappedWorkspaces.isEmpty());
     Assert.assertEquals(mappedWorkspaces.size(), 2);
     Assert.assertTrue(mappedWorkspaces.containsKey("DEVELOPMENT"));
     Assert.assertTrue(mappedWorkspaces.containsKey("PRODUCTION"));
-    Assert.assertEquals(mappedWorkspaces.get("DEVELOPMENT"), Integer.valueOf(1));
-    Assert.assertEquals(mappedWorkspaces.get("PRODUCTION"), Integer.valueOf(2));
+    Assert.assertEquals(mappedWorkspaces.get("DEVELOPMENT"), Long.valueOf(1));
+    Assert.assertEquals(mappedWorkspaces.get("PRODUCTION"), Long.valueOf(2));
   }
 
   @Test
   public void testGetWorkspacesForNotRegistered() {
-    Map<String, Integer> mappedWorkspaces = apexDatabaseCheckService.getApexWorkspacesFor("NOT_REGISTERED");
+    Map<String, Long> mappedWorkspaces = apexDatabaseCheckService.getApexWorkspacesFor("NOT_REGISTERED");
     Assert.assertNotNull(mappedWorkspaces);
     Assert.assertTrue(mappedWorkspaces.isEmpty());
+  }
+
+  @Test
+  public void testApplicationExists() {
+    boolean existsApexApplication = apexDatabaseCheckService.existsApexApplication(103);
+    Assert.assertTrue(existsApexApplication);
+  }
+
+  @Test
+  public void testApplicationNotExists() {
+    boolean existsApexApplication = apexDatabaseCheckService.existsApexApplication(104);
+    Assert.assertFalse(existsApexApplication);
   }
 
 }

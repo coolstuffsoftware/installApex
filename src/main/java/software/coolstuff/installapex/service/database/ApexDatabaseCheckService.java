@@ -6,6 +6,8 @@ public interface ApexDatabaseCheckService {
 
   String getApexVersion();
 
-  Map<String, Integer> getApexWorkspacesFor(String targetSchema);
+  Map<String, Long> getApexWorkspacesFor(String targetSchema);
+
+  boolean existsApexApplication(int apexApplicationId);
 
 }

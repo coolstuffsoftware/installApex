@@ -5,6 +5,7 @@ import java.util.List;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.datasource.DelegatingDataSource;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -56,6 +57,17 @@ public class TestDatabaseCheckRepository extends AbstractInstallApexTestWithCont
     List<ApexWorkspace> apexWorkspaces = repository.getApexWorkspacesFor("NOT_REGISTERED");
     Assert.assertNotNull(apexWorkspaces);
     Assert.assertTrue(apexWorkspaces.isEmpty());
+  }
+
+  @Test
+  public void testApplicationExists() {
+    boolean existsApexApplication = repository.existsApexApplication(103);
+    Assert.assertTrue(existsApexApplication);
+  }
+
+  @Test(expectedExceptions = EmptyResultDataAccessException.class)
+  public void testApplicationNotExists() {
+    repository.existsApexApplication(104);
   }
 
 }

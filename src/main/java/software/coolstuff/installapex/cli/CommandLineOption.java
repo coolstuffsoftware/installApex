@@ -32,31 +32,31 @@ public enum CommandLineOption {
   SYSDBA(new Settings("asSysdba")),
 
   ORACLE_HOME(new Settings("oracleHome", 'o').setArgument("Directory")),
-  TNS_ADMIN(new Settings("tnsAdmin").setArgument("TNS-Admin")),
+  TNS_ADMIN(new Settings("tnsAdmin").setArgument("Directory")),
   SQLPLUS_EXECUTABLE(new Settings("sqlplusExecutable").setArgument("File")),
   LIBPATH(new Settings("libraryPath", 'l').setArgument("Directory")),
   NLS(new Settings("nlsLang").setArgument("NLS_LANG")),
-  INSTALL_SCHEMA(new Settings("installSchema", 's')),
+  INSTALL_SCHEMA(new Settings("installSchema", 's').setArgument("Schema")),
 
-  CHANGELOG_SCHEMA(new Settings("changeLogSchemaName")),
-  CHANGELOG_TABLE_NAME(new Settings("changeLogTableName")),
-  CHANGELOG_LOCK_TABLE_NAME(new Settings("changeLogLockTableName")),
-  CHANGELOG_TABLESPACE_NAME(new Settings("changeLogTablespaceName")),
+  CHANGELOG_SCHEMA(new Settings("changeLogSchemaName").setArgument("Schema")),
+  CHANGELOG_TABLE_NAME(new Settings("changeLogTableName").setArgument("Table")),
+  CHANGELOG_LOCK_TABLE_NAME(new Settings("changeLogLockTableName").setArgument("Table")),
+  CHANGELOG_TABLESPACE_NAME(new Settings("changeLogTablespaceName").setArgument("Tablespace")),
 
   APEX_SOURCE_ID(new Settings("sourceId").setArgument("ID")),
   APEX_TARGET_ID(new Settings("targetId").setArgument("ID")),
+  APEX_TARGET_GENERATE_ID(new Settings("generateTargetId")),
   APEX_TARGET_ALIAS(new Settings("targetAlias").setArgument("Alias")),
-  APEX_TARGET_NAME(new Settings("targetName").setArgument("Application Name")),
+  APEX_TARGET_NAME(new Settings("targetName").setArgument("Name")),
   APEX_TARGET_AUTO_INSTALL_SUP_OBJECT(new Settings("targetAutoInstallSupObj")),
-  APEX_TARGET_IMAGE_PREFIX(new Settings("targetImagePrefix").setArgument("Image Prefix")),
+  APEX_TARGET_IMAGE_PREFIX(new Settings("targetImagePrefix").setArgument("Prefix")),
   APEX_TARGET_OFFSET(new Settings("targetOffset").setArgument("Offset")),
+  APEX_TARGET_KEEP_OFFSET(new Settings("targetKeepOffset")),
   APEX_TARGET_WORKSPACE(new Settings("targetWorkspace", 'w').setArgument("Workspace")),
-  APEX_TARGET_PROXY(new Settings("targetProxy").setArgument("Proxy-Server")),
-  APEX_TARGET_STATIC_APP_FILE_PREFIX(new Settings("targetStaticAppFilePrefix").setArgument("static App File Prefix")),
-  APEX_TARGET_STATIC_PLUGIN_FILE_PREFIX(new Settings("targetStaticPluginFilePrefix")
-      .setArgument("static Plugin File Prefix")),
-  APEX_TARGET_STATIC_THEME_FILE_PREFIX(new Settings("targetStaticThemeFilePrefix")
-      .setArgument("static Theme File Prefix")),
+  APEX_TARGET_PROXY(new Settings("targetProxy").setArgument("Proxy")),
+  APEX_TARGET_STATIC_APP_FILE_PREFIX(new Settings("targetStaticAppFilePrefix").setArgument("Prefix")),
+  APEX_TARGET_STATIC_PLUGIN_FILE_PREFIX(new Settings("targetStaticPluginFilePrefix").setArgument("Prefix")),
+  APEX_TARGET_STATIC_THEME_FILE_PREFIX(new Settings("targetStaticThemeFilePrefix").setArgument("Prefix")),
 
   TEMP_DIRECTORY(new Settings("tempDir").setArgument("Directory"));
 
@@ -93,6 +93,10 @@ public enum CommandLineOption {
     return settings.isCommand();
   }
 
+  public boolean equals(Option option) {
+    return option.hasLongOpt() && this.getLongOption().equals(option.getLongOpt());
+  }
+
   public CommandType getCommandType() {
     return settings.getCommandType();
   }
@@ -111,15 +115,25 @@ public enum CommandLineOption {
     final OptionGroup commandGroup = new OptionGroup();
     commandGroup.setRequired(true);
 
+    final OptionGroup targetIdGroup = new OptionGroup();
+    targetIdGroup.setRequired(false);
+
+    final OptionGroup targetOffsetGroup = new OptionGroup();
+    targetOffsetGroup.setRequired(false);
+
     for (CommandLineOption commandLineOption : CommandLineOption.values()) {
       Settings settings = commandLineOption.getSettings();
       Option option = createOption(settings);
       setDescription(option, messageSource, locale);
       setArgument(settings, option);
       setOptionAsCommand(settings, option, commandGroup);
+      setOptionAsTargetId(option, targetIdGroup);
+      setOptionAsTargetOffset(option, targetOffsetGroup);
       options.addOption(option);
     }
     options.addOptionGroup(commandGroup);
+    options.addOptionGroup(targetIdGroup);
+    options.addOptionGroup(targetOffsetGroup);
 
     return options;
   }
@@ -156,6 +170,19 @@ public enum CommandLineOption {
   private static void setOptionAsCommand(Settings settings, Option option, OptionGroup commandGroup) {
     if (settings.isCommand()) {
       commandGroup.addOption(option);
+    }
+  }
+
+  private static void setOptionAsTargetId(Option option, OptionGroup targetIdGroup) {
+    if (CommandLineOption.APEX_TARGET_GENERATE_ID.equals(option) || CommandLineOption.APEX_TARGET_ID.equals(option)) {
+      targetIdGroup.addOption(option);
+    }
+  }
+
+  private static void setOptionAsTargetOffset(Option option, OptionGroup targetOffsetGroup) {
+    if (CommandLineOption.APEX_TARGET_KEEP_OFFSET.equals(option)
+        || CommandLineOption.APEX_TARGET_OFFSET.equals(option)) {
+      targetOffsetGroup.addOption(option);
     }
   }
 

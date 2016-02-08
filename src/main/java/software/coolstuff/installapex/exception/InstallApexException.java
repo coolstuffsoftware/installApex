@@ -99,7 +99,8 @@ public class InstallApexException extends RuntimeException {
     CONSOLE_PROBLEM(14, "consoleProblem", true),
     UPGRADE_ERROR(15, "upgradeError", true),
     NO_APEX_INSTALLED(16, "noApexInstalled", false),
-    NO_WORKSPACE_ASSIGNED(17, "noWorkspaceAssigned", false);
+    NO_WORKSPACE_ASSIGNED(17, "noWorkspaceAssigned", false),
+    REQUESTED_WORKSPACE_NOT_ASSIGNED(18, "requestedWorkspaceNotAssigned", false);
 
     private int code;
     private String messageKey;

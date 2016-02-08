@@ -27,9 +27,9 @@ public class DatabaseCheckServiceImpl implements ApexDatabaseCheckService, Upgra
   }
 
   @Override
-  public Map<String, Integer> getApexWorkspacesFor(String targetSchema) {
+  public Map<String, Long> getApexWorkspacesFor(String targetSchema) {
     List<ApexWorkspace> apexWorkspaces = repository.getApexWorkspacesFor(targetSchema);
-    Map<String, Integer> mappedWorkspaces = new HashMap<>();
+    Map<String, Long> mappedWorkspaces = new HashMap<>();
     for (ApexWorkspace apexWorkspace : apexWorkspaces) {
       mappedWorkspaces.put(apexWorkspace.getName(), apexWorkspace.getId());
     }
@@ -38,6 +38,15 @@ public class DatabaseCheckServiceImpl implements ApexDatabaseCheckService, Upgra
 
   void setRepository(DatabaseCheckRepository repository) {
     this.repository = repository;
+  }
+
+  @Override
+  public boolean existsApexApplication(int apexApplicationId) {
+    try {
+      return repository.existsApexApplication(apexApplicationId);
+    } catch (EmptyResultDataAccessException e) {
+      return false;
+    }
   }
 
 }

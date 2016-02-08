@@ -29,10 +29,6 @@ public interface CommandSettings {
 
   String getPassword();
 
-  boolean isApexIdAvailable();
-
-  Integer getSourceApexId();
-
   UpgradeParameter getUpgradeParameter();
 
   ApexParameter getApexParameter();

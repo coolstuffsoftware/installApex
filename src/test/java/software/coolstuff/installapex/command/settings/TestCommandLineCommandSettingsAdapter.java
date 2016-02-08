@@ -38,9 +38,9 @@ import org.testng.annotations.Test;
 import software.coolstuff.installapex.AbstractInstallApexTestWithContext;
 import software.coolstuff.installapex.cli.CommandLineOption;
 import software.coolstuff.installapex.command.CommandType;
-import software.coolstuff.installapex.command.settings.CommandLineCommandSettingsAdapter;
-import software.coolstuff.installapex.command.settings.CommandSettings;
 import software.coolstuff.installapex.exception.InstallApexException;
+import software.coolstuff.installapex.service.apex.ApexParameter;
+import software.coolstuff.installapex.service.upgrade.UpgradeParameter;
 
 public class TestCommandLineCommandSettingsAdapter extends AbstractInstallApexTestWithContext {
 
@@ -412,15 +412,117 @@ public class TestCommandLineCommandSettingsAdapter extends AbstractInstallApexTe
   }
 
   @Test
-  public void testApexIdNumeric() {
+  public void testUpgradeParameter() {
+    UpgradeParameter expectedUpgradeParameter = new UpgradeParameter();
+    expectedUpgradeParameter.setApexApplication(103);
+    expectedUpgradeParameter.setDefaultSchemaName("OTHER");
+    expectedUpgradeParameter.setLiquibaseSchemaName("LIQUIBASE");
+    expectedUpgradeParameter.setLiquibaseTablespaceName("LB_TABLESPACE");
+    expectedUpgradeParameter.setDatabaseChangeLogLockTableName("DATABASECHANGELOGLOCK");
+    expectedUpgradeParameter.setDatabaseChangeLogTableName("DATABASECHANGELOG");
     //@formatter:off
     CommandSettings commandSettings = createCommandLine(
-        CommandLineOption.EXTRACT_APEX.getLongOption("--"),
-        CommandLineOption.APEX_SOURCE_ID.getLongOption("--"),
-        "100");
+        CommandLineOption.TEST.getLongOption("--"),
+        CommandLineOption.INSTALL_SCHEMA.getLongOption("--"), "OTHER",
+        CommandLineOption.APEX_SOURCE_ID.getLongOption("--"), "103",
+        CommandLineOption.CHANGELOG_TABLE_NAME.getLongOption("--"), "DATABASECHANGELOG",
+        CommandLineOption.CHANGELOG_SCHEMA.getLongOption("--"), "LIQUIBASE",
+        CommandLineOption.CHANGELOG_TABLESPACE_NAME.getLongOption("--"), "LB_TABLESPACE",
+        CommandLineOption.CHANGELOG_LOCK_TABLE_NAME.getLongOption("--"), "DATABASECHANGELOGLOCK");
     //@formatter:on
-    Assert.assertTrue(commandSettings.isApexIdAvailable());
-    Assert.assertEquals(commandSettings.getSourceApexId(), new Integer(100));
+    Assert.assertEquals(commandSettings.getUpgradeParameter(), expectedUpgradeParameter);
+  }
+
+  @Test
+  public void testApexParameterWithTargetIdAndOffset() {
+    ApexParameter expectedApexParameter = prepareApexParameter();
+    expectedApexParameter.setTargetId(113);
+    expectedApexParameter.setOffset(10034985L);
+    //@formatter:off
+    CommandSettings commandSettings = createCommandLine(
+        CommandLineOption.TEST.getLongOption("--"),
+        CommandLineOption.INSTALL_SCHEMA.getLongOption("--"), expectedApexParameter.getSchema(),
+        CommandLineOption.DB_USER.getLongOption("--"), "LOGON",
+        CommandLineOption.APEX_SOURCE_ID.getLongOption("--"), expectedApexParameter.getSourceId().toString(),
+        CommandLineOption.APEX_TARGET_AUTO_INSTALL_SUP_OBJECT.getLongOption("--"),
+        CommandLineOption.APEX_TARGET_ALIAS.getLongOption("--"), expectedApexParameter.getAlias(),
+        CommandLineOption.APEX_TARGET_ID.getLongOption("--"), expectedApexParameter.getTargetId().toString(),
+        CommandLineOption.APEX_TARGET_IMAGE_PREFIX.getLongOption("--"), expectedApexParameter.getImagePrefix(),
+        CommandLineOption.APEX_TARGET_NAME.getLongOption("--"), expectedApexParameter.getName(),
+        CommandLineOption.APEX_TARGET_OFFSET.getLongOption("--"), expectedApexParameter.getOffset().toString(),
+        CommandLineOption.APEX_TARGET_PROXY.getLongOption("--"), expectedApexParameter.getProxy(),
+        CommandLineOption.APEX_TARGET_STATIC_APP_FILE_PREFIX.getLongOption("--"), expectedApexParameter.getStaticAppFilePrefix(),
+        CommandLineOption.APEX_TARGET_STATIC_PLUGIN_FILE_PREFIX.getLongOption("--"), expectedApexParameter.getStaticPluginFilePrefix(),
+        CommandLineOption.APEX_TARGET_STATIC_THEME_FILE_PREFIX.getLongOption("--"), expectedApexParameter.getStaticThemeFilePrefix(),
+        CommandLineOption.APEX_TARGET_WORKSPACE.getLongOption("--"), expectedApexParameter.getWorkspace());
+    //@formatter:on
+    Assert.assertEquals(commandSettings.getApexParameter(), expectedApexParameter);
+  }
+
+  private ApexParameter prepareApexParameter() {
+    ApexParameter expectedApexParameter = new ApexParameter();
+    expectedApexParameter.setSchema("OTHER");
+    expectedApexParameter.setSourceId(103);
+    expectedApexParameter.setGenerateTargetId(false);
+    expectedApexParameter.setAutoInstallSupportingObjects(true);
+    expectedApexParameter.setKeepTargetOffset(false);
+    expectedApexParameter.setAlias("ALIAS");
+    expectedApexParameter.setImagePrefix("/i/");
+    expectedApexParameter.setName("NAME");
+    expectedApexParameter.setProxy("PROXY");
+    expectedApexParameter.setStaticAppFilePrefix("APP_FILE_PREFIX");
+    expectedApexParameter.setStaticPluginFilePrefix("PLUGIN_FILE_PREFIX");
+    expectedApexParameter.setStaticThemeFilePrefix("THEME_FILE_PREFIX");
+    expectedApexParameter.setWorkspace("WORKSPACE");
+    return expectedApexParameter;
+  }
+
+  @Test
+  public void testApexParameterWithGenerateTargetIdAndKeepOffset() {
+    ApexParameter expectedApexParameter = prepareApexParameter();
+    expectedApexParameter.setGenerateTargetId(true);
+    expectedApexParameter.setKeepTargetOffset(true);
+    //@formatter:off
+    CommandSettings commandSettings = createCommandLine(
+        CommandLineOption.TEST.getLongOption("--"),
+        CommandLineOption.INSTALL_SCHEMA.getLongOption("--"), expectedApexParameter.getSchema(),
+        CommandLineOption.DB_USER.getLongOption("--"), "LOGON",
+        CommandLineOption.APEX_SOURCE_ID.getLongOption("--"), expectedApexParameter.getSourceId().toString(),
+        CommandLineOption.APEX_TARGET_AUTO_INSTALL_SUP_OBJECT.getLongOption("--"),
+        CommandLineOption.APEX_TARGET_ALIAS.getLongOption("--"), expectedApexParameter.getAlias(),
+        CommandLineOption.APEX_TARGET_GENERATE_ID.getLongOption("--"),
+        CommandLineOption.APEX_TARGET_IMAGE_PREFIX.getLongOption("--"), expectedApexParameter.getImagePrefix(),
+        CommandLineOption.APEX_TARGET_NAME.getLongOption("--"), expectedApexParameter.getName(),
+        CommandLineOption.APEX_TARGET_KEEP_OFFSET.getLongOption("--"),
+        CommandLineOption.APEX_TARGET_PROXY.getLongOption("--"), expectedApexParameter.getProxy(),
+        CommandLineOption.APEX_TARGET_STATIC_APP_FILE_PREFIX.getLongOption("--"), expectedApexParameter.getStaticAppFilePrefix(),
+        CommandLineOption.APEX_TARGET_STATIC_PLUGIN_FILE_PREFIX.getLongOption("--"), expectedApexParameter.getStaticPluginFilePrefix(),
+        CommandLineOption.APEX_TARGET_STATIC_THEME_FILE_PREFIX.getLongOption("--"), expectedApexParameter.getStaticThemeFilePrefix(),
+        CommandLineOption.APEX_TARGET_WORKSPACE.getLongOption("--"), expectedApexParameter.getWorkspace());
+    //@formatter:on
+    Assert.assertEquals(commandSettings.getApexParameter(), expectedApexParameter);
+  }
+
+  @Test
+  public void testApexParameterWithNoInstallSchema() {
+    ApexParameter expectedApexParameter = prepareApexParameter();
+    expectedApexParameter.setSchema("LOGON");
+    //@formatter:off
+    CommandSettings commandSettings = createCommandLine(
+        CommandLineOption.TEST.getLongOption("--"),
+        CommandLineOption.DB_USER.getLongOption("--"), expectedApexParameter.getSchema(),
+        CommandLineOption.APEX_SOURCE_ID.getLongOption("--"), expectedApexParameter.getSourceId().toString(),
+        CommandLineOption.APEX_TARGET_AUTO_INSTALL_SUP_OBJECT.getLongOption("--"),
+        CommandLineOption.APEX_TARGET_ALIAS.getLongOption("--"), expectedApexParameter.getAlias(),
+        CommandLineOption.APEX_TARGET_IMAGE_PREFIX.getLongOption("--"), expectedApexParameter.getImagePrefix(),
+        CommandLineOption.APEX_TARGET_NAME.getLongOption("--"), expectedApexParameter.getName(),
+        CommandLineOption.APEX_TARGET_PROXY.getLongOption("--"), expectedApexParameter.getProxy(),
+        CommandLineOption.APEX_TARGET_STATIC_APP_FILE_PREFIX.getLongOption("--"), expectedApexParameter.getStaticAppFilePrefix(),
+        CommandLineOption.APEX_TARGET_STATIC_PLUGIN_FILE_PREFIX.getLongOption("--"), expectedApexParameter.getStaticPluginFilePrefix(),
+        CommandLineOption.APEX_TARGET_STATIC_THEME_FILE_PREFIX.getLongOption("--"), expectedApexParameter.getStaticThemeFilePrefix(),
+        CommandLineOption.APEX_TARGET_WORKSPACE.getLongOption("--"), expectedApexParameter.getWorkspace());
+    //@formatter:on
+    Assert.assertEquals(commandSettings.getApexParameter(), expectedApexParameter);
   }
 
 }
