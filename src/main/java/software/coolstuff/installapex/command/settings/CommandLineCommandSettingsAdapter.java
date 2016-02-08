@@ -397,9 +397,9 @@ public class CommandLineCommandSettingsAdapter implements CommandSettings {
     String databaseUser = getValueByArgumentOf(CommandLineOption.DB_USER);
 
     if (StringUtils.isBlank(password)) {
-      return databaseUser + "@" + databaseConnect;
+      return databaseUser.toUpperCase() + "@" + databaseConnect;
     }
-    return databaseUser + "/\"" + password + "\"@" + databaseConnect;
+    return databaseUser.toUpperCase() + "/\"" + password + "\"@" + databaseConnect;
   }
 
   @Override
@@ -467,6 +467,12 @@ public class CommandLineCommandSettingsAdapter implements CommandSettings {
   @Override
   public ApexParameter getApexParameter() {
     ApexParameter apexParameter = new ApexParameter();
+    String installationSchema = getValueByOptionalArgumentOf(CommandLineOption.INSTALL_SCHEMA);
+    if (StringUtils.isBlank(installationSchema)) {
+      installationSchema = getValueByArgumentOf(CommandLineOption.DB_USER);
+    }
+    apexParameter.setSchema(installationSchema.toUpperCase());
+    apexParameter.setWorkspace(getValueByOptionalArgumentOf(CommandLineOption.APEX_TARGET_WORKSPACE));
     // TODO: implement me !!!
     return apexParameter;
   }

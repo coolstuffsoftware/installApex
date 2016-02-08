@@ -25,6 +25,7 @@ public class TestDatabaseCheckRepository extends AbstractInstallApexTestWithCont
 
   @BeforeClass
   public void setUp() {
+    // replace the empty DataSource Implementation by the Test DataSource
     delegatingDataSource.setTargetDataSource(dataSource);
   }
 

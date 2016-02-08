@@ -13,17 +13,17 @@ import org.testng.annotations.Test;
 import software.coolstuff.installapex.AbstractInstallApexTestWithContext;
 import software.coolstuff.installapex.exception.InstallApexException;
 
-public class TestDatabaseCheckService extends AbstractInstallApexTestWithContext {
+public class TestApexDatabaseCheckService extends AbstractInstallApexTestWithContext {
 
-  private DatabaseCheckService databaseCheckService;
+  private ApexDatabaseCheckService apexDatabaseCheckService;
   private DatabaseCheckRepository databaseCheckRepository;
 
   @BeforeMethod
   public void setUp() {
-    databaseCheckService = new DatabaseCheckServiceImpl();
+    apexDatabaseCheckService = new DatabaseCheckServiceImpl();
     databaseCheckRepository = Mockito.mock(DatabaseCheckRepository.class);
     prepareDatabaseCheckRepository();
-    ((DatabaseCheckServiceImpl) databaseCheckService).setRepository(databaseCheckRepository);
+    ((DatabaseCheckServiceImpl) apexDatabaseCheckService).setRepository(databaseCheckRepository);
   }
 
   private void prepareDatabaseCheckRepository() {
@@ -37,7 +37,7 @@ public class TestDatabaseCheckService extends AbstractInstallApexTestWithContext
 
   @Test
   public void testGetApexVersion() {
-    String apexVersion = databaseCheckService.getApexVersion();
+    String apexVersion = apexDatabaseCheckService.getApexVersion();
     Assert.assertEquals(apexVersion, "5.0.1.00.06");
   }
 
@@ -45,12 +45,12 @@ public class TestDatabaseCheckService extends AbstractInstallApexTestWithContext
       expectedExceptionsMessageRegExp = "installApexException.reason.noApexInstalled")
   public void testNoApexInstalled() {
     Mockito.when(databaseCheckRepository.getApexVersion()).thenThrow(EmptyResultDataAccessException.class);
-    databaseCheckService.getApexVersion();
+    apexDatabaseCheckService.getApexVersion();
   }
 
   @Test
   public void testGetWorkspacesForPublic() {
-    Map<String, Integer> mappedWorkspaces = databaseCheckService.getApexWorkspacesFor("PUBLIC");
+    Map<String, Integer> mappedWorkspaces = apexDatabaseCheckService.getApexWorkspacesFor("PUBLIC");
     Assert.assertNotNull(mappedWorkspaces);
     Assert.assertFalse(mappedWorkspaces.isEmpty());
     Assert.assertEquals(mappedWorkspaces.size(), 1);
@@ -61,7 +61,7 @@ public class TestDatabaseCheckService extends AbstractInstallApexTestWithContext
 
   @Test
   public void testGetWorkspacesForOther() {
-    Map<String, Integer> mappedWorkspaces = databaseCheckService.getApexWorkspacesFor("OTHER");
+    Map<String, Integer> mappedWorkspaces = apexDatabaseCheckService.getApexWorkspacesFor("OTHER");
     Assert.assertNotNull(mappedWorkspaces);
     Assert.assertFalse(mappedWorkspaces.isEmpty());
     Assert.assertEquals(mappedWorkspaces.size(), 2);
@@ -73,7 +73,7 @@ public class TestDatabaseCheckService extends AbstractInstallApexTestWithContext
 
   @Test
   public void testGetWorkspacesForNotRegistered() {
-    Map<String, Integer> mappedWorkspaces = databaseCheckService.getApexWorkspacesFor("NOT_REGISTERED");
+    Map<String, Integer> mappedWorkspaces = apexDatabaseCheckService.getApexWorkspacesFor("NOT_REGISTERED");
     Assert.assertNotNull(mappedWorkspaces);
     Assert.assertTrue(mappedWorkspaces.isEmpty());
   }

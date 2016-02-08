@@ -23,8 +23,6 @@ public abstract class AbstractCommand implements Command {
 
   private static final Logger log = LoggerFactory.getLogger(AbstractCommand.class);
 
-  private static final String KEY_PASSWORD_PROMPT = "abstractCommand.passwordPrompt";
-
   @Autowired
   private CommandRegistryImpl commandRegistry;
 
@@ -71,17 +69,6 @@ public abstract class AbstractCommand implements Command {
     try {
       consoleReader.print(message != null ? message.toString() : "null");
       consoleReader.flush();
-    } catch (IOException e) {
-      throw new InstallApexException(Reason.CONSOLE_PROBLEM, e).setPrintStrackTrace(true);
-    }
-  }
-
-  protected String readDatabasePasswordFromConsole() {
-    try {
-      String databaseConnect = commandSettings.getSQLPlusConnect();
-      String passwordPrompt = messageSource.getMessage(KEY_PASSWORD_PROMPT, new String[] { databaseConnect },
-          Locale.getDefault());
-      return consoleReader.readLine(passwordPrompt, '*');
     } catch (IOException e) {
       throw new InstallApexException(Reason.CONSOLE_PROBLEM, e).setPrintStrackTrace(true);
     }

@@ -1,4 +1,4 @@
-INSERT INTO apex_release (
+INSERT INTO "APEX_RELEASE" (
   "VERSION_NO"
  ,"API_COMPATIBILITY"
  ,"PATCH_APPLIED"
@@ -7,7 +7,7 @@ INSERT INTO apex_release (
  ,'2013.01.01'
  ,NULL
 );
-INSERT INTO apex_workspace_schemas (
+INSERT INTO "APEX_WORKSPACE_SCHEMAS" (
   "WORKSPACE_ID"
  ,"WORKSPACE_NAME"
  ,"SCHEMA"
@@ -16,7 +16,7 @@ INSERT INTO apex_workspace_schemas (
  ,'DEVELOPMENT'
  ,'PUBLIC'
 );
-INSERT INTO apex_workspace_schemas (
+INSERT INTO "APEX_WORKSPACE_SCHEMAS" (
   "WORKSPACE_ID"
  ,"WORKSPACE_NAME"
  ,"SCHEMA"
@@ -25,7 +25,7 @@ INSERT INTO apex_workspace_schemas (
  ,'DEVELOPMENT'
  ,'OTHER'
 );
-INSERT INTO apex_workspace_schemas (
+INSERT INTO "APEX_WORKSPACE_SCHEMAS" (
   "WORKSPACE_ID"
  ,"WORKSPACE_NAME"
  ,"SCHEMA"

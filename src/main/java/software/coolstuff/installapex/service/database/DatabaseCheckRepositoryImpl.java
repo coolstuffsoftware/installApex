@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.jdbc.core.JdbcOperations;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -17,7 +17,7 @@ public class DatabaseCheckRepositoryImpl implements DatabaseCheckRepository {
   private static final Logger log = LoggerFactory.getLogger(DatabaseCheckRepositoryImpl.class);
 
   @Autowired
-  private JdbcOperations operations;
+  private JdbcTemplate jdbcTemplate;
 
   @Value("${databaseCheckRepository.queryApexVersion}")
   private String queryApexVersion;
@@ -28,13 +28,13 @@ public class DatabaseCheckRepositoryImpl implements DatabaseCheckRepository {
   @Override
   public String getApexVersion() {
     log.debug("Execute Query: {}", queryApexVersion);
-    return operations.queryForObject(queryApexVersion, String.class);
+    return jdbcTemplate.queryForObject(queryApexVersion, String.class);
   }
 
   @Override
   public List<ApexWorkspace> getApexWorkspacesFor(String targetSchema) {
     log.debug("Execute Query: {} with Parameter: 1:{}", queryApexWorkspacesForSchema, targetSchema);
-    return operations.query(queryApexWorkspacesForSchema, this::mapApexWorkspace, targetSchema);
+    return jdbcTemplate.query(queryApexWorkspacesForSchema, this::mapApexWorkspace, targetSchema);
   }
 
   private ApexWorkspace mapApexWorkspace(ResultSet rs, int rowNum) throws SQLException {

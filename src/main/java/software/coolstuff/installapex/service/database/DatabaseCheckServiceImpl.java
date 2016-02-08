@@ -12,7 +12,7 @@ import software.coolstuff.installapex.exception.InstallApexException;
 import software.coolstuff.installapex.exception.InstallApexException.Reason;
 
 @Service
-public class DatabaseCheckServiceImpl implements DatabaseCheckService {
+public class DatabaseCheckServiceImpl implements ApexDatabaseCheckService, UpgradeDatabaseCheckService {
 
   @Autowired
   private DatabaseCheckRepository repository;
