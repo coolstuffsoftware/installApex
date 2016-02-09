@@ -24,6 +24,9 @@ import java.util.logging.Logger;
 
 import javax.sql.DataSource;
 
+import net.sourceforge.cobertura.interaction.annotations.api.metrics.CoberturaIgnored;
+
+@CoberturaIgnored
 public class EmptyDataSource implements DataSource {
 
   @Override
