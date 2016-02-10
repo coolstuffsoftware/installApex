@@ -111,9 +111,9 @@ As mentioned above please refer to the richful Documentation of [Liquibase](http
 Creation of Liquibase Changelog-Files working correctly with this Framework
 #### use logical File Name
 You can also use the Liquibase Maven-Plugin to test your XML-Scripts within a Continuous Integration Landscape (Development - Test). As the Documentation of Liquibase tells:
-```
-  Each changeSet tag is uniquely identified by the combination of the “id” tag, the “author” tag, and the changelog file classpath name.
-```
+
+> Each changeSet tag is uniquely identified by the combination of the “id” tag, the “author” tag, and the changelog file classpath name.
+
 Taking the last part of this (the changelog file classpath name) the behaviour between Maven and a packaged Liquibase File differs a little by evaluating the classpath filename.
 Maybe I was wrong by the usage of the Maven-Plugin, but Maven tends to write the **Full Pathnames** while the packaged Liquibase use **relative Pathnames**. But Liquibase has another
 3rd version of calculating the classpath file name: the *logical File Name*. You can set the logical Filename as an attribute of the ```<databaseChangeLog>``` Tag.

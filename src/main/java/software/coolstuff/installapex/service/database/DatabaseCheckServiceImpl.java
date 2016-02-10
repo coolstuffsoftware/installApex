@@ -49,7 +49,7 @@ public class DatabaseCheckServiceImpl implements DatabaseCheckService {
     try {
       return repository.existsApexApplication(apexApplicationId);
     } catch (EmptyResultDataAccessException e) {
-      log.warn("APEX Application with ID {} has not been found", apexApplicationId);
+      log.warn("APEX Application with ID {} has not been found", e, apexApplicationId);
       return false;
     }
   }
