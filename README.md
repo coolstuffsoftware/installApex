@@ -49,7 +49,7 @@ All DDL and PL/SQL will be maintaned by [Liquibase](http://liquibase.org/). Plea
 By setting the Version of your APEX-Application to the Value ```${project.version}``` the maven-shade-plugin will substitute this String by the actual Version of your Project.
 ### Maven
 Within the ```pom.xml``` define the following Dependencies and Plugins:
-```
+```xml
 ...
 <dependencies>
     ...
@@ -67,6 +67,28 @@ Within the ```pom.xml``` define the following Dependencies and Plugins:
 </dependencies>
 ...
 <build>
+    ...
+    <resources>
+        <resource>
+            <directory>src/main/resources</directory>
+            <filtering>false</filtering>
+            <includes>
+                <include>**/*</include>
+            </includes>
+            <excludes>
+                <exclude>apex/f*/application/create_application.sql</exclude>
+                <exclude>apex/f*.sql</exclude>
+            </excludes>
+        </resource>
+        <resource>
+            <directory>src/main/resources</directory>
+            <filtering>true</filtering>
+            <includes>
+                <include>apex/f*/application/create_application.sql</include>
+                <include>apex/f*.sql</include>
+            </includes>
+        </resource>
+    </resources>
     ...
     <plugins>
         ...
@@ -149,6 +171,111 @@ be sure that the maven plugin and the packaged Application will work the same.
 #### using relativeToChangelogFile
 On the Tags ```<include>``` and ```<sqlFile>``` you can use the attribute ```relativeToChangelogFile```. To be sure that the maven-plugin and the packaged
 Application will have the same behaviour use ```relativeToChangelogFile``` **only with ```<include>```**.
+### additional Liquibase Parameter
+Liquibase has a powerful Feature: *Changelog Parameters*. By Default, no Changelog Parameters will be set by Liquibase itself. But the InstallAPEX Framework
+will set a handful of meaningful Changelog Parameters so that they can be used within the Liquibase Changelog Files:
+- ```databaseChangeLogFileName```<br/>The Name of the ChangeLog File
+- ```databaseChangeLogTableName```<br/>The Name of the requested ChangeLog Table (Value of the Command Line Option ```--changeLogTableName``` or the Default of Liquibase ```DATABASECHANGELOG```)
+- ```databaseChangeLogLockTableName```<br/>The Name of the requested Changelog Lock Table (Value of the Command Line Option ```--changeLogLockTableName``` or the Default of Liquibase ```DATABASECHANGELOGLOCK```)
+- ```defaultSchemaName```<br/>The Name of the default Schema (Value of the Command Line Option ```--installSchema```)
+- ```defaultSchemaNameWithDot```<br/>The Name of the default Schema followed by a . (Dot). If the Command Line Option ```--installSchema``` has not been set (as this is the Value of this Changelog Parameter) then an empty String will be injected instead.
+- ```liquibaseSchemaName```<br/>The Schema, where the Changelog Table should be created (Value of the Command Line Option ```--changeLogSchemaName```)
+- ```liquibaseTablespaceName```<br/>Tablespace, where the ChangeLog Table should be created (Value of the Command Line Option ```--changeLogTablespaceName```)
+
+For example, you can create the following SQL-File:
+```plsql
+CREATE OR REPLACE FUNCTION ${defaultSchemaName}.fct_hello_world IS
+BEGIN
+  RETURN 'Hello World';
+END fct_hello_world;
+```
+When you run the Installer, ```${defaultSchemaName}``` will be exchanged by the Value of the Command Line Option ```--installSchema```.<br/>
+**Caution:** A missing Command Line Option ```--installSchema``` will lead to a wrong SQL-Statement (```.fct_hello_world``` instead of ```fct_hello_world```).
+To bypass this Problem you should use ```${defaultSchemaNameWithDot}``` instead of ```${defaultSchemaName}```. So the Example above should look like the following:
+```plsql
+CREATE OR REPLACE FUNCTION ${defaultSchemaNameWithDot}fct_hello_world IS
+BEGIN
+  RETURN 'Hello World';
+END fct_hello_world;
+```
+### additional Liquibase Parameter with Liquibase Maven Plugin
+The Maven Plugin of Liquibase doesn't know anything about this Framework. So you have to simulate the automatically injected Changelog Parameters by using the Expression Values of the Liquibase Maven Plugin:
+```xml
+<project>
+    ...
+    <properties>
+        <jdbc.user.name>SCOTT</jdbc.user.name>
+    </properties>
+    ...
+    <build>
+        ...
+        <plugins>
+            ...
+            <plugin>
+                <groupId>org.liquibase</groupId>
+                <artifactId>liquibase-maven-plugin</artifactId>
+                <version>3.4.1</version>
+                <configuration>
+                    <expressionVariables>
+                        <defaultSchemaName>${jdbc.user.name}</defaultSchemaName>
+                        <defaultSchemaNameWithDot>${jdbc.user.name}.</defaultSchemaNameWithDot>
+                    </expressionVariables>
+                </configuration>
+                ...
+            </plugin>
+            ...
+        </plugins>
+        ...
+    </build>
+    ...
+</project>
+```
+### filtering Resources on Maven
+Maven will replace any known Variales (```${}```). This is for Java-Projects a good behaviour because any external Resources (like Configuration Files, ...) will be advantaged.
+But for PL/SQL Code this behaviour is a great disadvantage (for Example packaged JavaScript Code, etc).
+
+You can disable this Feature within the Maven ```pom.xml```:
+```xml
+<project>
+    ...
+    <build>
+        ...
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+                <includes>
+                    <include>**/*</include>
+                </includes>
+                <excludes>
+                    <exclude>apex/f*/application/create_application.sql</exclude>
+                    <exclude>apex/f*.sql</exclude>
+                </excludes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>apex/f*/application/create_application.sql</include>
+                    <include>apex/f*.sql</include>
+                </includes>
+            </resource>
+        </resources>
+        ...
+    </build>
+    ...
+</project>
+```
+Why would the Files ```apex/f*/application/create_application.sql``` and ```apex/f*.sql``` be filtered? Because, when you set the Value of the APEX-Application Version to ```${project.version}``` you want Maven to replace this by the Version of the Project (i.e. 1.0.0-SNAPSHOT). You might suggest that Variable Replacement for this is also not meaningful? So, you are right. I think, the best Way to store an APEX-Application within a Source Control is by its splitted kind. This is the Reason why ```apex/f*/application/create_application.sql``` is included by the Resource filtering of Maven. This File calls the stored Procedure ```WWV_FLOW_API.create_flow``` which creates the APEX-Application Basics with the Version (Parameter: ```p_flow_version```). So enabling filtering only to this File and disable filtering on all the other APEX Files will lead to the wished behaviour, that the Version will be maintained by Maven (or by the Release-Plugin of Maven). From this Point of View my recommendation is
+> Always Split the APEX File when you save it to the SCM.
+
+With a splitted APEX-Application you have the following Advantages:
+- Change Tracking by Pages/Plugins/...
+- reduced Review Activity (only focus on the changed Files instead of one large File)
+- Maven Resource filtering on only one File (```apex/f*/application/create_application.sql```, look above)
+- any SCM Tracking Tool within an Issuing System (GIT Plugin for JIRA, SVN Plugin for Bugzilla, etc) will reduce the Review Load
+(have you ever got an Error from the GIT Plugin that this File changes are too large to be loaded?)
+
 ## Run the Install
 ### Debugging
 You can set the Debug-Level by setting the System-Property ```installApex.logLevel``` to a valid SLF4J LogLevel (i.e. ```DEBUG```, ```ERROR```, ...)

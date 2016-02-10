@@ -1,5 +1,6 @@
 package software.coolstuff.installapex.service.upgrade;
 
+import java.io.Writer;
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -33,6 +34,7 @@ public class UpgradeServiceImpl implements UpgradeService {
   private static final String DATABASE_CHANGELOG_TABLE_NAME = "databaseChangeLogTableName";
   private static final String DATABASE_CHANGELOG_LOCK_TABLE_NAME = "databaseChangeLogLockTableName";
   private static final String DEFAULT_SCHEMA_NAME = "defaultSchemaName";
+  private static final String DEFAULT_SCHEMA_NAME_WITH_DOT = "defaultSchemaNameWithDot";
   private static final String LIQUIBASE_SCHEMA_NAME = "liquibaseSchemaName";
   private static final String LIQUIBASE_TABLESPACE_NAME = "liquibaseTablespaceName";
 
@@ -49,10 +51,11 @@ public class UpgradeServiceImpl implements UpgradeService {
   private DataSource dataSource;
 
   @Override
-  public void update(UpgradeParameter parameter) {
+  public void updateDatabase(UpgradeParameter parameter) {
     try (Connection connection = dataSource.getConnection()) {
       Liquibase liquibase = getLiquibase(connection, parameter);
       Contexts contexts = convertToContexts(parameter.getApexApplication());
+      liquibase.listUnrunChangeSets(contexts, null);
       liquibase.update(contexts);
     } catch (LiquibaseException e) {
       throw new InstallApexException(Reason.UPGRADE_ERROR, e, parameter.getLiquibaseSchemaNameDefaultedByDbUser(),
@@ -120,6 +123,11 @@ public class UpgradeServiceImpl implements UpgradeService {
     injectParameter(liquibase, DEFAULT_SCHEMA_NAME, database.getDefaultSchemaName());
     injectParameter(liquibase, LIQUIBASE_SCHEMA_NAME, database.getLiquibaseSchemaName());
     injectParameter(liquibase, LIQUIBASE_TABLESPACE_NAME, database.getLiquibaseTablespaceName());
+    if (StringUtils.isNotBlank(database.getDefaultSchemaName())) {
+      injectParameter(liquibase, LIQUIBASE_SCHEMA_NAME, database.getDefaultSchemaName() + '.');
+    } else {
+      injectParameter(liquibase, DEFAULT_SCHEMA_NAME_WITH_DOT, "");
+    }
 
     // the Filename must be injected at last because it causes liquibase to
     // parse the changelog. after the parsing no injection would be possible
@@ -140,6 +148,21 @@ public class UpgradeServiceImpl implements UpgradeService {
     Contexts contexts = new Contexts();
     contexts.add(apexApplicationId.toString());
     return contexts;
+  }
+
+  @Override
+  public void extractDDL(UpgradeParameter parameter, Writer writer) {
+    try (Connection connection = dataSource.getConnection()) {
+      Liquibase liquibase = getLiquibase(connection, parameter);
+      Contexts contexts = convertToContexts(parameter.getApexApplication());
+      liquibase.update(contexts, writer);
+    } catch (LiquibaseException e) {
+      throw new InstallApexException(Reason.UPGRADE_ERROR, e, parameter.getLiquibaseSchemaNameDefaultedByDbUser(),
+          parameter.getDbConnection());
+    } catch (SQLException e) {
+      throw new InstallApexException(Reason.UPGRADE_ERROR, e, parameter.getLiquibaseSchemaNameDefaultedByDbUser(),
+          parameter.getDbConnection());
+    }
   }
 
 }

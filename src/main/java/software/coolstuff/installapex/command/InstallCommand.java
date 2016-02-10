@@ -82,7 +82,7 @@ public class InstallCommand extends AbstractDataSourceCommand {
     printlnMessage(KEY_UPGRADE_DATABASE, getSettings().getSQLPlusConnect(), apexApplication.getId());
     UpgradeParameter upgradeParameter = getSettings().getUpgradeParameter();
     upgradeParameter.setApexApplication(apexApplication.getId());
-    upgradeService.update(upgradeParameter);
+    upgradeService.updateDatabase(upgradeParameter);
   }
 
   @Override

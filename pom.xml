@@ -98,12 +98,6 @@
   		<scope>test</scope>
   	</dependency>
   	<dependency>
-  		<groupId>org.fusesource.jansi</groupId>
-  		<artifactId>jansi</artifactId>
-  		<version>1.11</version>
-  		<scope>runtime</scope>
-  	</dependency>
-  	<dependency>
   		<groupId>
   			net.sourceforge.cobertura.interaction.annotations.api
   		</groupId>

@@ -34,7 +34,7 @@ public class TestUpgradeService extends AbstractInstallApexTestWithContext {
   @Test
   public void testWithDefaultParameters() {
     UpgradeParameter upgradeParameter = new UpgradeParameter();
-    upgradeService.update(upgradeParameter);
+    upgradeService.updateDatabase(upgradeParameter);
   }
 
   @Test(dependsOnMethods = { "testWithDefaultParameters" }, expectedExceptions = InstallApexException.class,
@@ -43,7 +43,7 @@ public class TestUpgradeService extends AbstractInstallApexTestWithContext {
     UpgradeParameter upgradeParameter = new UpgradeParameter();
     upgradeParameter.setLiquibaseSchemaName("TEST2_UPGRADE");
     prepareUpgradeParameter(upgradeParameter);
-    upgradeService.update(upgradeParameter);
+    upgradeService.updateDatabase(upgradeParameter);
   }
 
   @Test
@@ -51,7 +51,7 @@ public class TestUpgradeService extends AbstractInstallApexTestWithContext {
     UpgradeParameter upgradeParameter = new UpgradeParameter();
     upgradeParameter.setDefaultSchemaName("TEST3_DATA");
     prepareUpgradeParameter(upgradeParameter);
-    upgradeService.update(upgradeParameter);
+    upgradeService.updateDatabase(upgradeParameter);
   }
 
   @Test
@@ -60,7 +60,7 @@ public class TestUpgradeService extends AbstractInstallApexTestWithContext {
     upgradeParameter.setLiquibaseSchemaName("TEST4_UPGRADE");
     upgradeParameter.setDefaultSchemaName("TEST4_DATA");
     prepareUpgradeParameter(upgradeParameter);
-    upgradeService.update(upgradeParameter);
+    upgradeService.updateDatabase(upgradeParameter);
   }
 
   private void prepareUpgradeParameter(UpgradeParameter upgradeParameter) {
