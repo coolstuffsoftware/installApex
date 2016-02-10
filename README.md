@@ -103,6 +103,52 @@ mvn install:install-file -Dfile=ojdbc7.jar -DgroupId=com.oracle -DartifactId=ojd
 mvn install:install-file -Dfile=installApex.jar -DgroupId=software.coolstuff -DartifactId=installapex -Dversion=1.0.0 -Dpackaging=jar
 ```
 Now you run ```mvn package``` and then you got the final JAR-Installer in your target Directory.
+### Liquibase
+Liquibase will be used to version the Database-Scripts. Instead of writing Initial Install and afterwards Upgrade-Scripts (more or less a bloodcurling Piece of Work)
+you can write it with a nice XML-Editor (i.E. XML-Spy) and let Liquibase the Decision, which Statements to execute against the Target Database.
+
+As mentioned above please refer to the richful Documentation of [Liquibase](http://liquibase.org). But here are 3 rules, which will guide you through the
+Creation of Liquibase Changelog-Files working correctly with this Framework
+#### use logical File Name
+You can also use the Liquibase Maven-Plugin to test your XML-Scripts within a Continuous Integration Landscape (Development - Test). As the Documentation of Liquibase tells:
+```
+  Each changeSet tag is uniquely identified by the combination of the “id” tag, the “author” tag, and the changelog file classpath name.
+```
+Taking the last part of this (the changelog file classpath name) the behaviour between Maven and a packaged Liquibase File differs a little by evaluating the classpath filename.
+Maybe I was wrong by the usage of the Maven-Plugin, but Maven tends to write the **Full Pathnames** while the packaged Liquibase use **relative Pathnames**. But Liquibase has another
+3rd version of calculating the classpath file name: the *logical File Name*. You can set the logical Filename as an attribute of the ```<databaseChangeLog>``` Tag.
+```xml
+<databaseChangeLog
+  logicalFilePath="/2015/db.changelog-ddl.xml"
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="
+    http://www.liquibase.org/xml/ns/dbchangelog-ext
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
+    http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd
+  ">
+  ...
+</databaseChangeLog>
+```
+Now Liquibase calculates the classpath file name by this logical File Name and writes it to the Database ChangeLog Table.
+#### classpath references
+As you can see above, the Liquibase-Files must reside under the Directory ```liquibase```. To get the same behaviour between a Maven Build and the
+packaged Liquibase Application you should use classpath references when calling external SQL-Files.
+```
+<changeSet author="mufasa1976@some.where" id="something-to-install">
+    <sqlFile encoding="UTF8" splitStatements="false" path="liquibase/plsql/PRC_USE_THIS.prc" />
+    <rollback>
+        <dropProcedure procedureName="PRC_USE_THIS" />
+    </rollback>
+</changeSet>
+```
+By setting always the full Path from the beginning of the Classpath **without a leading Slash** (by only prefixing with ```liquibase/```) you can
+be sure that the maven plugin and the packaged Application will work the same.
+#### using relativeToChangelogFile
+On the Tags ```<include>``` and ```<sqlFile>``` you can use the attribute ```relativeToChangelogFile```. To be sure that the maven-plugin and the packaged
+Application will have the same behaviour use ```relativeToChangelogFile``` **only with ```<include>```**.
 ## Run the Install
 ### Debugging
 You can set the Debug-Level by setting the System-Property ```installApex.logLevel``` to a valid SLF4J LogLevel (i.e. ```DEBUG```, ```ERROR```, ...)
