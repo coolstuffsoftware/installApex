@@ -230,7 +230,11 @@ The Maven Plugin of Liquibase doesn't know anything about this Framework. So you
     ...
 </project>
 ```
-### filtering Resources on Maven
+### Application-ID as Liquibase Contexts
+You can set the Application-ID as a Liquibase Context so that some ChangeLogs will only be created when this Application will be installed (or the DDL will be extracted).
+The InstallAPEX Framework will automatically set the Application-ID specified by the Command Line Option ```--sourceId``` as a Liquibase Context. If only one APEX-Application has been
+packaged you can ommit this Command Line Option and the Application-ID will be also set.
+## filtering Resources on Maven
 Maven will replace any known Variales (```${}```). This is for Java-Projects a good behaviour because any external Resources (like Configuration Files, ...) will be advantaged.
 But for PL/SQL Code this behaviour is a great disadvantage (for Example packaged JavaScript Code, etc).
 
