@@ -2,8 +2,6 @@ package software.coolstuff.installapex;
 
 import java.util.Locale;
 
-import javax.naming.OperationNotSupportedException;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.ParseException;
@@ -57,7 +55,7 @@ public class InstallApex {
     try {
       process(preventEmptyArgs(args));
       return EXIT_STATUS_SUCCESS;
-    } catch (ParseException | OperationNotSupportedException e) {
+    } catch (ParseException e) {
       return printErrorAndUsage(e);
     } catch (InstallApexException e) {
       System.err.println(e.getMessage(messageSource, Locale.getDefault()));
@@ -80,7 +78,7 @@ public class InstallApex {
     return args == null || args.length == 0;
   }
 
-  public void process(String[] args) throws ParseException, OperationNotSupportedException {
+  public void process(String[] args) throws ParseException {
     log.debug("parse the CommandLine");
     CommandLine commandLine = commandLineParser.parse(CommandLineOption.getOptions(messageSource), args);
 
@@ -95,7 +93,7 @@ public class InstallApex {
     System.err.println(e.getMessage());
     try {
       process(preventEmptyArgs(null));
-    } catch (ParseException | OperationNotSupportedException ignored) {}
+    } catch (ParseException ignored) {}
     return EXIT_STATUS_ERROR;
   }
 

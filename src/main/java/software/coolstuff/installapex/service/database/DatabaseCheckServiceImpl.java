@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
@@ -12,7 +14,9 @@ import software.coolstuff.installapex.exception.InstallApexException;
 import software.coolstuff.installapex.exception.InstallApexException.Reason;
 
 @Service
-public class DatabaseCheckServiceImpl implements ApexDatabaseCheckService, UpgradeDatabaseCheckService {
+public class DatabaseCheckServiceImpl implements DatabaseCheckService {
+
+  private static final Logger log = LoggerFactory.getLogger(DatabaseCheckServiceImpl.class);
 
   @Autowired
   private DatabaseCheckRepository repository;
@@ -45,6 +49,7 @@ public class DatabaseCheckServiceImpl implements ApexDatabaseCheckService, Upgra
     try {
       return repository.existsApexApplication(apexApplicationId);
     } catch (EmptyResultDataAccessException e) {
+      log.warn("APEX Application with ID {} has not been found", apexApplicationId);
       return false;
     }
   }

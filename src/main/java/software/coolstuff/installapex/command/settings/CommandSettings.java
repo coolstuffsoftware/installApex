@@ -33,4 +33,8 @@ public interface CommandSettings {
 
   ApexParameter getApexParameter();
 
+  boolean isInstallInOtherSchema();
+
+  boolean isChangeLogInOtherSchema();
+
 }

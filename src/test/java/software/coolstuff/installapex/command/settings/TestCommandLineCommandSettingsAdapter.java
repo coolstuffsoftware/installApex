@@ -420,9 +420,13 @@ public class TestCommandLineCommandSettingsAdapter extends AbstractInstallApexTe
     expectedUpgradeParameter.setLiquibaseTablespaceName("LB_TABLESPACE");
     expectedUpgradeParameter.setDatabaseChangeLogLockTableName("DATABASECHANGELOGLOCK");
     expectedUpgradeParameter.setDatabaseChangeLogTableName("DATABASECHANGELOG");
+    expectedUpgradeParameter.setDbUser("LOGON");
+    expectedUpgradeParameter.setDbConnection("//localhost:1521/XE");
     //@formatter:off
     CommandSettings commandSettings = createCommandLine(
-        CommandLineOption.TEST.getLongOption("--"),
+        CommandLineOption.INSTALL.getLongOption("--"),
+        CommandLineOption.DB_USER.getLongOption("--"), "LOGON",
+        CommandLineOption.DB_CONNECT.getLongOption("--"), "//localhost:1521/XE",
         CommandLineOption.INSTALL_SCHEMA.getLongOption("--"), "OTHER",
         CommandLineOption.APEX_SOURCE_ID.getLongOption("--"), "103",
         CommandLineOption.CHANGELOG_TABLE_NAME.getLongOption("--"), "DATABASECHANGELOG",
@@ -440,7 +444,7 @@ public class TestCommandLineCommandSettingsAdapter extends AbstractInstallApexTe
     expectedApexParameter.setOffset(10034985L);
     //@formatter:off
     CommandSettings commandSettings = createCommandLine(
-        CommandLineOption.TEST.getLongOption("--"),
+        CommandLineOption.INSTALL.getLongOption("--"),
         CommandLineOption.INSTALL_SCHEMA.getLongOption("--"), expectedApexParameter.getSchema(),
         CommandLineOption.DB_USER.getLongOption("--"), "LOGON",
         CommandLineOption.APEX_SOURCE_ID.getLongOption("--"), expectedApexParameter.getSourceId().toString(),
@@ -484,7 +488,7 @@ public class TestCommandLineCommandSettingsAdapter extends AbstractInstallApexTe
     expectedApexParameter.setKeepTargetOffset(true);
     //@formatter:off
     CommandSettings commandSettings = createCommandLine(
-        CommandLineOption.TEST.getLongOption("--"),
+        CommandLineOption.INSTALL.getLongOption("--"),
         CommandLineOption.INSTALL_SCHEMA.getLongOption("--"), expectedApexParameter.getSchema(),
         CommandLineOption.DB_USER.getLongOption("--"), "LOGON",
         CommandLineOption.APEX_SOURCE_ID.getLongOption("--"), expectedApexParameter.getSourceId().toString(),
@@ -509,7 +513,7 @@ public class TestCommandLineCommandSettingsAdapter extends AbstractInstallApexTe
     expectedApexParameter.setSchema("LOGON");
     //@formatter:off
     CommandSettings commandSettings = createCommandLine(
-        CommandLineOption.TEST.getLongOption("--"),
+        CommandLineOption.INSTALL.getLongOption("--"),
         CommandLineOption.DB_USER.getLongOption("--"), expectedApexParameter.getSchema(),
         CommandLineOption.APEX_SOURCE_ID.getLongOption("--"), expectedApexParameter.getSourceId().toString(),
         CommandLineOption.APEX_TARGET_AUTO_INSTALL_SUP_OBJECT.getLongOption("--"),
@@ -523,6 +527,43 @@ public class TestCommandLineCommandSettingsAdapter extends AbstractInstallApexTe
         CommandLineOption.APEX_TARGET_WORKSPACE.getLongOption("--"), expectedApexParameter.getWorkspace());
     //@formatter:on
     Assert.assertEquals(commandSettings.getApexParameter(), expectedApexParameter);
+  }
+
+  @Test
+  public void testInstallAndChangeLogOnSameSchemaWithoutParameter() {
+    //@formatter:off
+    CommandSettings commandSettings = createCommandLine(
+        CommandLineOption.INSTALL.getLongOption("--"),
+        CommandLineOption.DB_USER.getLongOption("--"), "LOGON_SCHEMA");
+    //@formatter:on
+    Assert.assertFalse(commandSettings.isInstallInOtherSchema());
+    Assert.assertFalse(commandSettings.isChangeLogInOtherSchema());
+  }
+
+  @Test
+  public void testInstallAndChangeLogOnSameSchemaWithParameter() {
+    //@formatter:off
+    CommandSettings commandSettings = createCommandLine(
+        CommandLineOption.INSTALL.getLongOption("--"),
+        CommandLineOption.DB_USER.getLongOption("--"), "LOGON_SCHEMA",
+        CommandLineOption.INSTALL_SCHEMA.getLongOption("--"), "LOGON_SCHEMA",
+        CommandLineOption.CHANGELOG_SCHEMA.getLongOption("--"), "LOGON_SCHEMA");
+    //@formatter:on
+    Assert.assertFalse(commandSettings.isInstallInOtherSchema());
+    Assert.assertFalse(commandSettings.isChangeLogInOtherSchema());
+  }
+
+  @Test
+  public void testInstallAndChangeLogOnOtherSchema() {
+    //@formatter:off
+    CommandSettings commandSettings = createCommandLine(
+        CommandLineOption.INSTALL.getLongOption("--"),
+        CommandLineOption.DB_USER.getLongOption("--"), "LOGON_SCHEMA",
+        CommandLineOption.INSTALL_SCHEMA.getLongOption("--"), "INSTALL_SCHEMA",
+        CommandLineOption.CHANGELOG_SCHEMA.getLongOption("--"), "CHANGELOG_SCHEMA");
+    //@formatter:on
+    Assert.assertTrue(commandSettings.isInstallInOtherSchema());
+    Assert.assertTrue(commandSettings.isChangeLogInOtherSchema());
   }
 
 }

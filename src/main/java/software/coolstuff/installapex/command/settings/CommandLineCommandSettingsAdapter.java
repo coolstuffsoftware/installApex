@@ -444,6 +444,8 @@ public class CommandLineCommandSettingsAdapter implements CommandSettings {
     upgradeParameter.setLiquibaseSchemaName(getValueByOptionalArgumentOf(CommandLineOption.CHANGELOG_SCHEMA));
     upgradeParameter
         .setLiquibaseTablespaceName(getValueByOptionalArgumentOf(CommandLineOption.CHANGELOG_TABLESPACE_NAME));
+    upgradeParameter.setDbUser(getValueByArgumentOf(CommandLineOption.DB_USER));
+    upgradeParameter.setDbConnection(getValueByArgumentOf(CommandLineOption.DB_CONNECT));
     return upgradeParameter;
   }
 
@@ -491,6 +493,26 @@ public class CommandLineCommandSettingsAdapter implements CommandSettings {
       return null;
     }
     return Long.parseLong(optionalValue);
+  }
+
+  @Override
+  public boolean isInstallInOtherSchema() {
+    String installSchema = getValueByOptionalArgumentOf(CommandLineOption.INSTALL_SCHEMA);
+    return !validateLogonSchemaEquals(installSchema);
+  }
+
+  private boolean validateLogonSchemaEquals(String otherSchema) {
+    if (StringUtils.isBlank(otherSchema)) {
+      return true;
+    }
+    String logonSchema = getValueByArgumentOf(CommandLineOption.DB_USER);
+    return logonSchema.equalsIgnoreCase(otherSchema);
+  }
+
+  @Override
+  public boolean isChangeLogInOtherSchema() {
+    String changeLogSchema = getValueByOptionalArgumentOf(CommandLineOption.CHANGELOG_SCHEMA);
+    return !validateLogonSchemaEquals(changeLogSchema);
   }
 
 }

@@ -134,7 +134,9 @@ public class ApexApplicationParserServiceImpl implements ApexApplicationParserSe
   private boolean isEmptyDirectory(Path path) throws IOException {
     int numberOfEntries = 0;
     try (DirectoryStream<Path> stream = Files.newDirectoryStream(path)) {
-      for (Iterator<Path> iterator = stream.iterator(); iterator.hasNext(); numberOfEntries++, iterator.next()) {}
+      for (Iterator<Path> iterator = stream.iterator(); iterator.hasNext(); iterator.next()) {
+        numberOfEntries++;
+      }
     }
     return numberOfEntries == 0;
   }
@@ -209,8 +211,8 @@ public class ApexApplicationParserServiceImpl implements ApexApplicationParserSe
   private void parseApplicationFiles(Path file, ApexApplication apexApplication) {
     try (Scanner scanner = new Scanner(file)) {
       log.debug("Content of File {}", file);
-      scanner
-      .useDelimiter("[Ww][Ww][Vv]_[Ff][Ll][Oo][Ww]_[Aa][Pp][Ii]\\.[Cc][Rr][Ee][Aa][Tt][Ee]_[Ff][Ll][Oo][Ww]\\s*\\(");
+      scanner.useDelimiter(
+          "[Ww][Ww][Vv]_[Ff][Ll][Oo][Ww]_[Aa][Pp][Ii]\\.[Cc][Rr][Ee][Aa][Tt][Ee]_[Ff][Ll][Oo][Ww]\\s*\\(");
       if (scanner.hasNext()) {
         scanner.next(); // ignore the first Part
         scanner.useDelimiter("\n[Ee][Nn][Dd]\\;\n");
@@ -234,8 +236,7 @@ public class ApexApplicationParserServiceImpl implements ApexApplicationParserSe
 
   private void checkApplicationId(String installationBlock, ApexApplication apexApplication) {
     try (Scanner scanner = new Scanner(installationBlock)) {
-      scanner
-      .findWithinHorizon(
+      scanner.findWithinHorizon(
           "[Ww][Ww][Vv]_[Ff][Ll][Oo][Ww]_[Aa][Pp][Pp][Ll][Ii][Cc][Aa][Tt][Ii][Oo][Nn]_[Ii][Nn][Ss][Tt][Aa][Ll][Ll]\\.[Gg][Ee][Tt]_[Aa][Pp][Pp][Ll][Ii][Cc][Aa][Tt][Ii][Oo][Nn]_[Ii][Dd]\\s*,\\s*(\\d+)\\)",
           0);
       MatchResult matchResult = scanner.match();
@@ -251,8 +252,7 @@ public class ApexApplicationParserServiceImpl implements ApexApplicationParserSe
 
   private void parseApplicationName(String installationBlock, ApexApplication apexApplication) {
     try (Scanner scanner = new Scanner(installationBlock)) {
-      scanner
-      .findWithinHorizon(
+      scanner.findWithinHorizon(
           "[Ww][Ww][Vv]_[Ff][Ll][Oo][Ww]_[Aa][Pp][Pp][Ll][Ii][Cc][Aa][Tt][Ii][Oo][Nn]_[Ii][Nn][Ss][Tt][Aa][Ll][Ll]\\.[Gg][Ee][Tt]_[Aa][Pp][Pp][Ll][Ii][Cc][Aa][Tt][Ii][Oo][Nn]_[Nn][Aa][Mm][Ee]\\s*,\\s*'(.*)'\\)",
           0);
       MatchResult matchResult = scanner.match();
@@ -298,6 +298,11 @@ public class ApexApplicationParserServiceImpl implements ApexApplicationParserSe
             e.getMessage());
       }
     }
+  }
+
+  @Override
+  public String getDefaultLocation() {
+    return defaultLocation;
   }
 
 }

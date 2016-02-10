@@ -2,6 +2,8 @@ package software.coolstuff.installapex.service.upgrade;
 
 import java.util.Objects;
 
+import org.apache.commons.lang.StringUtils;
+
 public class UpgradeParameter {
 
   private String databaseChangeLogTableName;
@@ -10,6 +12,9 @@ public class UpgradeParameter {
   private String liquibaseSchemaName;
   private String liquibaseTablespaceName;
   private Integer apexApplication;
+
+  private String dbUser;
+  private String dbConnection;
 
   public String getDatabaseChangeLogTableName() {
     return databaseChangeLogTableName;
@@ -59,10 +64,33 @@ public class UpgradeParameter {
     return apexApplication;
   }
 
+  public void setDbUser(String dbUser) {
+    this.dbUser = dbUser;
+  }
+
+  public String getDbUser() {
+    return dbUser;
+  }
+
+  public String getLiquibaseSchemaNameDefaultedByDbUser() {
+    if (StringUtils.isNotBlank(liquibaseSchemaName)) {
+      return liquibaseSchemaName;
+    }
+    return dbUser;
+  }
+
+  public void setDbConnection(String dbConnection) {
+    this.dbConnection = dbConnection;
+  }
+
+  public String getDbConnection() {
+    return dbConnection;
+  }
+
   @Override
   public int hashCode() {
     return Objects.hash(databaseChangeLogTableName, databaseChangeLogLockTableName, defaultSchemaName,
-        liquibaseSchemaName, liquibaseTablespaceName, apexApplication);
+        liquibaseSchemaName, liquibaseTablespaceName, apexApplication, dbUser, dbConnection);
   }
 
   @Override
@@ -77,7 +105,8 @@ public class UpgradeParameter {
         && Objects.equals(defaultSchemaName, otherObj.defaultSchemaName)
         && Objects.equals(liquibaseSchemaName, otherObj.liquibaseSchemaName)
         && Objects.equals(liquibaseTablespaceName, otherObj.liquibaseTablespaceName)
-        && Objects.equals(apexApplication, otherObj.apexApplication);
+        && Objects.equals(apexApplication, otherObj.apexApplication) && Objects.equals(dbUser, otherObj.dbUser)
+        && Objects.equals(dbConnection, otherObj.dbConnection);
   }
 
 }

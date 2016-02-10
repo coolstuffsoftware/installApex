@@ -14,8 +14,6 @@ import org.testng.annotations.Test;
 
 import software.coolstuff.installapex.AbstractInstallApexTestWithContext;
 import software.coolstuff.installapex.exception.InstallApexException;
-import software.coolstuff.installapex.service.upgrade.UpgradeParameter;
-import software.coolstuff.installapex.service.upgrade.UpgradeService;
 
 public class TestUpgradeService extends AbstractInstallApexTestWithContext {
 
@@ -34,49 +32,43 @@ public class TestUpgradeService extends AbstractInstallApexTestWithContext {
   }
 
   @Test
-  public void testWithDefaultParameters() throws SQLException {
-    try (Connection connection = dataSource.getConnection()) {
-      UpgradeParameter upgradeParameter = new UpgradeParameter();
-      upgradeService.update(connection, upgradeParameter);
-    }
+  public void testWithDefaultParameters() {
+    UpgradeParameter upgradeParameter = new UpgradeParameter();
+    upgradeService.update(upgradeParameter);
   }
 
   @Test(dependsOnMethods = { "testWithDefaultParameters" }, expectedExceptions = InstallApexException.class,
       expectedExceptionsMessageRegExp = "installApexException.reason.upgradeError")
-  public void testWithChangeLogTableInAnotherSchema() throws SQLException {
-    try (Connection connection = dataSource.getConnection()) {
-      UpgradeParameter upgradeParameter = new UpgradeParameter();
-      upgradeParameter.setLiquibaseSchemaName("TEST2_UPGRADE");
-      prepareUpgradeParameter(upgradeParameter);
-      upgradeService.update(connection, upgradeParameter);
-    }
+  public void testWithChangeLogTableInAnotherSchema() {
+    UpgradeParameter upgradeParameter = new UpgradeParameter();
+    upgradeParameter.setLiquibaseSchemaName("TEST2_UPGRADE");
+    prepareUpgradeParameter(upgradeParameter);
+    upgradeService.update(upgradeParameter);
   }
 
   @Test
-  public void testWithUpgradeInAnotherSchema() throws SQLException {
-    try (Connection connection = dataSource.getConnection()) {
-      UpgradeParameter upgradeParameter = new UpgradeParameter();
-      upgradeParameter.setDefaultSchemaName("TEST3_DATA");
-      prepareUpgradeParameter(upgradeParameter);
-      upgradeService.update(connection, upgradeParameter);
-    }
+  public void testWithUpgradeInAnotherSchema() {
+    UpgradeParameter upgradeParameter = new UpgradeParameter();
+    upgradeParameter.setDefaultSchemaName("TEST3_DATA");
+    prepareUpgradeParameter(upgradeParameter);
+    upgradeService.update(upgradeParameter);
   }
 
   @Test
-  public void testWithChangeLogTableInAnotherSchemaAndWithUpgradeInAnotherSchema() throws SQLException {
-    try (Connection connection = dataSource.getConnection()) {
-      UpgradeParameter upgradeParameter = new UpgradeParameter();
-      upgradeParameter.setLiquibaseSchemaName("TEST4_UPGRADE");
-      upgradeParameter.setDefaultSchemaName("TEST4_DATA");
-      prepareUpgradeParameter(upgradeParameter);
-      upgradeService.update(connection, upgradeParameter);
-    }
+  public void testWithChangeLogTableInAnotherSchemaAndWithUpgradeInAnotherSchema() {
+    UpgradeParameter upgradeParameter = new UpgradeParameter();
+    upgradeParameter.setLiquibaseSchemaName("TEST4_UPGRADE");
+    upgradeParameter.setDefaultSchemaName("TEST4_DATA");
+    prepareUpgradeParameter(upgradeParameter);
+    upgradeService.update(upgradeParameter);
   }
 
-  private void prepareUpgradeParameter(UpgradeParameter upgradeParameter) throws SQLException {
+  private void prepareUpgradeParameter(UpgradeParameter upgradeParameter) {
     try (Connection connection = dataSource.getConnection()) {
       createSchema(connection, upgradeParameter.getLiquibaseSchemaName());
       createSchema(connection, upgradeParameter.getDefaultSchemaName());
+    } catch (SQLException e) {
+      throw new RuntimeException("Error while preparing the Schema", e);
     }
   }
 

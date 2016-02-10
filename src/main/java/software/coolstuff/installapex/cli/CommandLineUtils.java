@@ -33,8 +33,8 @@ public final class CommandLineUtils {
         return "java -cp " + jarFile + " " + clazz.getName();
       }
     } catch (MalformedURLException e) {
-      throw new IllegalArgumentException(String.format("Can't create the URL to read the own Manifest of Path %s",
-          manifestPath), e);
+      throw new IllegalArgumentException(
+          String.format("Can't create the URL to read the own Manifest of Path %s", manifestPath), e);
     } catch (IOException e) {
       throw new IllegalStateException(String.format("Can't open the own Manifest of Path %s", manifestPath), e);
     }

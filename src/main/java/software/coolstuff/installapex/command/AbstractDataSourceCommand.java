@@ -3,7 +3,6 @@ package software.coolstuff.installapex.command;
 import java.io.IOException;
 import java.util.Locale;
 
-import javax.naming.OperationNotSupportedException;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +15,7 @@ import software.coolstuff.installapex.exception.InstallApexException.Reason;
 
 public abstract class AbstractDataSourceCommand extends AbstractCommand {
 
-  private static final String KEY_PASSWORD_PROMPT = "abstractCommand.passwordPrompt";
+  private static final String KEY_PASSWORD_PROMPT = "abstractDataSourceCommand.passwordPrompt";
 
   @Autowired
   private DelegatingDataSource delegatingDataSource;
@@ -30,7 +29,7 @@ public abstract class AbstractDataSourceCommand extends AbstractCommand {
   private String password;
 
   @Override
-  public final void execute() throws OperationNotSupportedException {
+  public final void execute() {
     getPassword();
     setTargetDataSource();
     executeWithInitializedDataSource();
@@ -59,7 +58,7 @@ public abstract class AbstractDataSourceCommand extends AbstractCommand {
     delegatingDataSource.setTargetDataSource(dataSource);
   }
 
-  protected abstract void executeWithInitializedDataSource() throws OperationNotSupportedException;
+  protected abstract void executeWithInitializedDataSource();
 
   protected String getSQLPlusConnect() {
     return getSettings().getSQLPlusConnect(password);

@@ -28,6 +28,15 @@ public class DatabaseCheckRepositoryImpl implements DatabaseCheckRepository {
   @Value("${databaseCheckRepository.queryExistsApexApplication}")
   private String queryExistsApexApplication;
 
+  @Value("${databaseCheckRepository.querySessionPrivs}")
+  private String querySessionPrivs;
+
+  @Value("${databaseCheckRepository.queryExistsTableWithSchema}")
+  private String queryExistsTableWithSchema;
+
+  @Value("${databaseCheckRepository.queryExistsTableWithoutSchema}")
+  private String queryExistsTableWithoutSchema;
+
   @Override
   public String getApexVersion() {
     log.debug("Execute Query: {}", queryApexVersion);

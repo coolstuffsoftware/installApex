@@ -3,6 +3,8 @@ package software.coolstuff.installapex.service.upgrade;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+import javax.sql.DataSource;
+
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,23 +45,21 @@ public class UpgradeServiceImpl implements UpgradeService {
   @Autowired
   private DatabaseFactory databaseFactory;
 
+  @Autowired
+  private DataSource dataSource;
+
   @Override
-  public void update(Connection connection, UpgradeParameter parameter) {
-    try {
+  public void update(UpgradeParameter parameter) {
+    try (Connection connection = dataSource.getConnection()) {
       Liquibase liquibase = getLiquibase(connection, parameter);
       Contexts contexts = convertToContexts(parameter.getApexApplication());
       liquibase.update(contexts);
     } catch (LiquibaseException e) {
-      try {
-        String upgradeSchema = parameter.getDefaultSchemaName();
-        if (StringUtils.isBlank(upgradeSchema)) {
-          upgradeSchema = connection.getSchema();
-        }
-        String connectionURL = connection.getSchema() + '@' + connection.getMetaData().getURL();
-        throw new InstallApexException(Reason.UPGRADE_ERROR, e, upgradeSchema, connectionURL);
-      } catch (SQLException eSub) {
-        throw new InstallApexException(Reason.UNKNOWN, eSub);
-      }
+      throw new InstallApexException(Reason.UPGRADE_ERROR, e, parameter.getLiquibaseSchemaNameDefaultedByDbUser(),
+          parameter.getDbConnection());
+    } catch (SQLException e) {
+      throw new InstallApexException(Reason.UPGRADE_ERROR, e, parameter.getLiquibaseSchemaNameDefaultedByDbUser(),
+          parameter.getDbConnection());
     }
   }
 

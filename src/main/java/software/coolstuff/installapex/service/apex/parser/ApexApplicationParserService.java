@@ -10,4 +10,6 @@ public interface ApexApplicationParserService {
 
   List<ApexApplication> getCandidates(Resource baseDirectory);
 
+  String getDefaultLocation();
+
 }

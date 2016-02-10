@@ -2,7 +2,7 @@ package software.coolstuff.installapex.service.database;
 
 import java.util.Map;
 
-public interface ApexDatabaseCheckService {
+public interface DatabaseCheckService {
 
   String getApexVersion();
 

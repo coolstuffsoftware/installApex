@@ -16,15 +16,16 @@ import software.coolstuff.installapex.exception.InstallApexException;
 
 public class TestApexDatabaseCheckService extends AbstractInstallApexTestWithContext {
 
-  private ApexDatabaseCheckService apexDatabaseCheckService;
+  private DatabaseCheckService apexDatabaseCheckService;
   private DatabaseCheckRepository databaseCheckRepository;
 
   @BeforeMethod
   public void setUp() {
-    apexDatabaseCheckService = new DatabaseCheckServiceImpl();
+    DatabaseCheckServiceImpl databaseCheckService = new DatabaseCheckServiceImpl();
     databaseCheckRepository = Mockito.mock(DatabaseCheckRepository.class);
     prepareDatabaseCheckRepository();
-    ((DatabaseCheckServiceImpl) apexDatabaseCheckService).setRepository(databaseCheckRepository);
+    databaseCheckService.setRepository(databaseCheckRepository);
+    apexDatabaseCheckService = databaseCheckService;
   }
 
   private void prepareDatabaseCheckRepository() {

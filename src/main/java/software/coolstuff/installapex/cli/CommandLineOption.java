@@ -24,7 +24,6 @@ public enum CommandLineOption {
   INSTALL(new Settings(CommandType.INSTALL)),
   EXTRACT_DDL(new Settings(CommandType.EXTRACT_DDL)),
   EXTRACT_APEX(new Settings(CommandType.EXTRACT_APEX)),
-  TEST(new Settings(CommandType.TEST, 't')),
 
   DB_USER(new Settings("dbUser", 'u').setArgument("User")),
   DB_PASSWORD(new Settings("dbPassword", 'p').setArgument("Password")),
@@ -60,7 +59,7 @@ public enum CommandLineOption {
 
   TEMP_DIRECTORY(new Settings("tempDir").setArgument("Directory"));
 
-  private Settings settings;
+  private transient Settings settings;
 
   private CommandLineOption(Settings settings) {
     this.settings = settings;
@@ -93,8 +92,8 @@ public enum CommandLineOption {
     return settings.isCommand();
   }
 
-  public boolean equals(Option option) {
-    return option.hasLongOpt() && this.getLongOption().equals(option.getLongOpt());
+  public boolean equalsTo(Option option) {
+    return option != null && option.hasLongOpt() && this.getLongOption().equals(option.getLongOpt());
   }
 
   public CommandType getCommandType() {
@@ -174,14 +173,15 @@ public enum CommandLineOption {
   }
 
   private static void setOptionAsTargetId(Option option, OptionGroup targetIdGroup) {
-    if (CommandLineOption.APEX_TARGET_GENERATE_ID.equals(option) || CommandLineOption.APEX_TARGET_ID.equals(option)) {
+    if (CommandLineOption.APEX_TARGET_GENERATE_ID.equalsTo(option)
+        || CommandLineOption.APEX_TARGET_ID.equalsTo(option)) {
       targetIdGroup.addOption(option);
     }
   }
 
   private static void setOptionAsTargetOffset(Option option, OptionGroup targetOffsetGroup) {
-    if (CommandLineOption.APEX_TARGET_KEEP_OFFSET.equals(option)
-        || CommandLineOption.APEX_TARGET_OFFSET.equals(option)) {
+    if (CommandLineOption.APEX_TARGET_KEEP_OFFSET.equalsTo(option)
+        || CommandLineOption.APEX_TARGET_OFFSET.equalsTo(option)) {
       targetOffsetGroup.addOption(option);
     }
   }
