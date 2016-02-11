@@ -58,7 +58,7 @@ public enum CommandLineOption {
   APEX_TARGET_STATIC_THEME_FILE_PREFIX(new Settings("targetStaticThemeFilePrefix").setArgument("Prefix")),
 
   TEMP_DIRECTORY(new Settings("tempDir").setArgument("Directory")),
-  OUTPUT_FILE(new Settings("outputFile").setArgument("File"));
+  OUTPUT_LOCATION(new Settings("output", 'o').setArgument("File|Directory"));
 
   private transient Settings settings;
 

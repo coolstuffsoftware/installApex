@@ -1,6 +1,9 @@
 package software.coolstuff.installapex.command.settings;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -513,6 +516,55 @@ public class CommandLineCommandSettingsAdapter implements CommandSettings {
   public boolean isChangeLogInOtherSchema() {
     String changeLogSchema = getValueByOptionalArgumentOf(CommandLineOption.CHANGELOG_SCHEMA);
     return !validateLogonSchemaEquals(changeLogSchema);
+  }
+
+  @Override
+  public Writer getOutputFile(Writer consoleWriter) {
+    String outputLocation = getValueByOptionalArgumentOf(CommandLineOption.OUTPUT_LOCATION);
+    if (isOutputToConsole(outputLocation)) {
+      return consoleWriter;
+    }
+    File outputFile = new File(outputLocation);
+    try {
+      if (!outputFile.exists()) {
+        return new FileWriter(outputFile);
+      }
+      checkOutputFile(outputFile);
+      return new FileWriter(outputFile);
+    } catch (IOException e) {
+      throw new InstallApexException(Reason.CREATE_FILE_ERROR, e, outputFile.getAbsolutePath(),
+          commandType.getLongOption("--"), e.getMessage());
+    }
+  }
+
+  private boolean isOutputToConsole(String outputLocation) {
+    return StringUtils.isBlank(outputLocation) || "-".equals(outputLocation);
+  }
+
+  private void checkOutputFile(File outputFile) {
+    if (outputFile.isDirectory()) {
+      throw new InstallApexException(Reason.EXISTING_OUTPUT_IS_DIRECTORY, outputFile.getAbsolutePath());
+    }
+    if (isOptionNotSet(CommandLineOption.FORCE)) {
+      throw new InstallApexException(Reason.CANNOT_OVERWRITE_OUTPUT_FILE_WITHOUT_FORCE_FLAG,
+          outputFile.getAbsolutePath(), CommandLineOption.FORCE.getLongOption("--"));
+    }
+  }
+
+  @Override
+  public Path getOutputDirectory() {
+    String outputLocation = getValueByOptionalArgumentOf(CommandLineOption.OUTPUT_LOCATION);
+    if (StringUtils.isBlank(outputLocation)) {
+      return Paths.get(".");
+    }
+    File outputDirectory = new File(outputLocation);
+    if (!outputDirectory.exists()) {
+      outputDirectory.mkdirs();
+    }
+    if (!outputDirectory.isDirectory()) {
+      throw new InstallApexException(Reason.EXISTING_OUTPUT_IS_FILE, outputDirectory.getAbsolutePath());
+    }
+    return outputDirectory.toPath();
   }
 
 }

@@ -1,18 +1,9 @@
 package software.coolstuff.installapex.command;
 
-import java.util.List;
-
-import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import software.coolstuff.installapex.cli.CommandLineOption;
-import software.coolstuff.installapex.exception.InstallApexException;
-import software.coolstuff.installapex.exception.InstallApexException.Reason;
-import software.coolstuff.installapex.service.apex.ApexParameter;
 import software.coolstuff.installapex.service.apex.parser.ApexApplication;
-import software.coolstuff.installapex.service.apex.parser.ApexApplicationParserService;
 import software.coolstuff.installapex.service.database.DatabaseCheckService;
 import software.coolstuff.installapex.service.upgrade.UpgradeParameter;
 import software.coolstuff.installapex.service.upgrade.UpgradeService;
@@ -28,13 +19,7 @@ public class InstallCommand extends AbstractDataSourceCommand {
   private UpgradeService upgradeService;
 
   @Autowired
-  private ApexApplicationParserService apexApplicationParserService;
-
-  @Autowired
   private DatabaseCheckService databaseCheckService;
-
-  @Value("${apexApplicationParserService.apexResourceLocation}")
-  private String defaultLocation;
 
   @Override
   protected void executeWithInitializedDataSource() {
@@ -46,36 +31,6 @@ public class InstallCommand extends AbstractDataSourceCommand {
         apexApplication.getVersion());
 
     upgradeDatabase(apexApplication);
-  }
-
-  private ApexApplication getInstallationCandidate() {
-    List<ApexApplication> candidates = apexApplicationParserService.getCandidates();
-    if (CollectionUtils.isEmpty(candidates)) {
-      throw new InstallApexException(Reason.NO_APEX_APPLICATIONS_INCLUDED, defaultLocation);
-    }
-    ApexParameter apexParameter = getSettings().getApexParameter();
-    Integer requestedApplicationId = apexParameter.getSourceId();
-    if (requestedApplicationId == null) {
-      return getSingleApexApplication(candidates);
-    }
-    return findCandidate(candidates, requestedApplicationId);
-  }
-
-  private ApexApplication getSingleApexApplication(List<ApexApplication> candidates) {
-    if (candidates.size() == 1) {
-      return candidates.get(0);
-    }
-    throw new InstallApexException(Reason.CLI_MISSING_REQUIRED_OPTION,
-        CommandLineOption.APEX_SOURCE_ID.getLongOption("--"), getCommandType().getLongOption("--"));
-  }
-
-  private ApexApplication findCandidate(List<ApexApplication> candidates, Integer requestedApplicationId) {
-    for (ApexApplication candidate : candidates) {
-      if (candidate.getId() == requestedApplicationId) {
-        return candidate;
-      }
-    }
-    throw new InstallApexException(Reason.REQUESTED_APEX_ID_NOT_AVAILABLE, requestedApplicationId);
   }
 
   private void upgradeDatabase(ApexApplication apexApplication) {

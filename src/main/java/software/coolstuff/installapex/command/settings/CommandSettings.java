@@ -1,5 +1,6 @@
 package software.coolstuff.installapex.command.settings;
 
+import java.io.Writer;
 import java.nio.file.Path;
 
 import javax.sql.DataSource;
@@ -36,5 +37,9 @@ public interface CommandSettings {
   boolean isInstallInOtherSchema();
 
   boolean isChangeLogInOtherSchema();
+
+  Writer getOutputFile(Writer consoleWriter);
+
+  Path getOutputDirectory();
 
 }

@@ -2,10 +2,12 @@ package software.coolstuff.installapex.command;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.List;
 import java.util.Locale;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,9 +17,13 @@ import org.springframework.core.io.ResourceLoader;
 
 import jline.Terminal;
 import jline.console.ConsoleReader;
+import software.coolstuff.installapex.cli.CommandLineOption;
 import software.coolstuff.installapex.command.settings.CommandSettings;
 import software.coolstuff.installapex.exception.InstallApexException;
 import software.coolstuff.installapex.exception.InstallApexException.Reason;
+import software.coolstuff.installapex.service.apex.ApexParameter;
+import software.coolstuff.installapex.service.apex.parser.ApexApplication;
+import software.coolstuff.installapex.service.apex.parser.ApexApplicationParserService;
 
 public abstract class AbstractCommand implements Command {
 
@@ -34,6 +40,9 @@ public abstract class AbstractCommand implements Command {
 
   @Autowired
   private ConsoleReader consoleReader;
+
+  @Autowired
+  private ApexApplicationParserService apexApplicationParserService;
 
   private PrintWriter printWriter;
 
@@ -66,6 +75,9 @@ public abstract class AbstractCommand implements Command {
   }
 
   protected void print(Object message) {
+    if (getSettings().isQuiet()) {
+      return;
+    }
     try {
       consoleReader.print(message != null ? message.toString() : "null");
       consoleReader.flush();
@@ -75,6 +87,9 @@ public abstract class AbstractCommand implements Command {
   }
 
   protected void println(Object message) {
+    if (getSettings().isQuiet()) {
+      return;
+    }
     try {
       consoleReader.println(message != null ? message.toString() : "null");
       consoleReader.flush();
@@ -105,4 +120,36 @@ public abstract class AbstractCommand implements Command {
   public String toString() {
     return this.getClass().getName() + " {commandType: \"" + getCommandType() + "\"}";
   }
+
+  protected ApexApplication getInstallationCandidate() {
+    List<ApexApplication> candidates = apexApplicationParserService.getCandidates();
+    if (CollectionUtils.isEmpty(candidates)) {
+      throw new InstallApexException(Reason.NO_APEX_APPLICATIONS_INCLUDED,
+          apexApplicationParserService.getDefaultLocation());
+    }
+    ApexParameter apexParameter = getSettings().getApexParameter();
+    Integer requestedApplicationId = apexParameter.getSourceId();
+    if (requestedApplicationId == null) {
+      return getSingleApexApplication(candidates);
+    }
+    return findCandidate(candidates, requestedApplicationId);
+  }
+
+  protected ApexApplication getSingleApexApplication(List<ApexApplication> candidates) {
+    if (candidates.size() == 1) {
+      return candidates.get(0);
+    }
+    throw new InstallApexException(Reason.CLI_MISSING_REQUIRED_OPTION,
+        CommandLineOption.APEX_SOURCE_ID.getLongOption("--"), getCommandType().getLongOption("--"));
+  }
+
+  private ApexApplication findCandidate(List<ApexApplication> candidates, Integer requestedApplicationId) {
+    for (ApexApplication candidate : candidates) {
+      if (candidate.getId() == requestedApplicationId) {
+        return candidate;
+      }
+    }
+    throw new InstallApexException(Reason.REQUESTED_APEX_ID_NOT_AVAILABLE, requestedApplicationId);
+  }
+
 }
