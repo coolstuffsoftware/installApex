@@ -11,6 +11,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.MessageSource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
@@ -39,7 +40,8 @@ public abstract class AbstractCommand implements Command {
   private MessageSource messageSource;
 
   @Autowired
-  private ConsoleReader consoleReader;
+  @Qualifier("standard")
+  private ConsoleReader console;
 
   @Autowired
   private ApexApplicationParserService apexApplicationParserService;
@@ -51,7 +53,7 @@ public abstract class AbstractCommand implements Command {
   @PostConstruct
   protected void init() {
     commandRegistry.register(this);
-    printWriter = new PrintWriter(consoleReader.getOutput());
+    printWriter = new PrintWriter(console.getOutput());
   }
 
   protected abstract CommandType getCommandType();
@@ -79,8 +81,8 @@ public abstract class AbstractCommand implements Command {
       return;
     }
     try {
-      consoleReader.print(message != null ? message.toString() : "null");
-      consoleReader.flush();
+      console.print(message != null ? message.toString() : "null");
+      console.flush();
     } catch (IOException e) {
       throw new InstallApexException(Reason.CONSOLE_PROBLEM, e).setPrintStrackTrace(true);
     }
@@ -91,20 +93,20 @@ public abstract class AbstractCommand implements Command {
       return;
     }
     try {
-      consoleReader.println(message != null ? message.toString() : "null");
-      consoleReader.flush();
+      console.println(message != null ? message.toString() : "null");
+      console.flush();
     } catch (IOException e) {
       throw new InstallApexException(Reason.CONSOLE_PROBLEM, e).setPrintStrackTrace(true);
     }
   }
 
   protected int getTerminalWidth() {
-    Terminal terminal = consoleReader.getTerminal();
+    Terminal terminal = console.getTerminal();
     return terminal.getWidth();
   }
 
   protected int getTerminalHeight() {
-    Terminal terminal = consoleReader.getTerminal();
+    Terminal terminal = console.getTerminal();
     return terminal.getHeight();
   }
 

@@ -6,6 +6,7 @@ import java.util.Locale;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.MessageSource;
 import org.springframework.jdbc.datasource.DelegatingDataSource;
 
@@ -25,7 +26,8 @@ public abstract class AbstractDataSourceCommand extends AbstractCommand {
   private MessageSource messageSource;
 
   @Autowired
-  private ConsoleReader consoleReader;
+  @Qualifier("error")
+  private ConsoleReader errorConsole;
 
   private String password;
 
@@ -52,7 +54,7 @@ public abstract class AbstractDataSourceCommand extends AbstractCommand {
       String databaseConnect = getSettings().getSQLPlusConnect();
       String passwordPrompt = messageSource.getMessage(KEY_PASSWORD_PROMPT, new String[] { databaseConnect },
           Locale.getDefault());
-      return consoleReader.readLine(passwordPrompt, '*');
+      return errorConsole.readLine(passwordPrompt, '*');
     } catch (IOException e) {
       throw new InstallApexException(Reason.CONSOLE_PROBLEM, e).setPrintStrackTrace(true);
     }

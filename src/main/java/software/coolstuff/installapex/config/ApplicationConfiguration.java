@@ -13,6 +13,7 @@ import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
@@ -111,7 +112,13 @@ public class ApplicationConfiguration {
   }
 
   @Bean(destroyMethod = "shutdown")
-  public ConsoleReader consoleReader() throws IOException {
+  @Qualifier("standard")
+  public ConsoleReader standardConsoleReader() throws IOException {
+    setConsoleSystemParameter();
+    return new ConsoleReader(System.in, System.out);
+  }
+
+  private void setConsoleSystemParameter() {
     if (!System.getProperties().contains("jline.WindowsTerminal.input.encoding")) {
       if (System.getProperty("os.name").toLowerCase().startsWith("windows")) {
         System.setProperty("jline.WindowsTerminal.input.encoding", "IBM00858");
@@ -139,9 +146,13 @@ public class ApplicationConfiguration {
         System.setProperty("jline.internal.Log.trace", "true");
       }
     }
+  }
 
-    ConsoleReader consoleReader = new ConsoleReader();
-    return consoleReader;
+  @Bean(destroyMethod = "shutdown")
+  @Qualifier("error")
+  public ConsoleReader errorConsoleReader() throws IOException {
+    setConsoleSystemParameter();
+    return new ConsoleReader(System.in, System.err);
   }
 
   @Bean
