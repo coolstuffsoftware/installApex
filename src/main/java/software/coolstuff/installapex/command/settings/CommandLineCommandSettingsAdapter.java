@@ -520,10 +520,10 @@ public class CommandLineCommandSettingsAdapter implements CommandSettings {
 
   @Override
   public Writer getOutputFile(Writer consoleWriter) {
-    String outputLocation = getValueByOptionalArgumentOf(CommandLineOption.OUTPUT_LOCATION);
-    if (isOutputToConsole(outputLocation)) {
+    if (isOutputToConsole()) {
       return consoleWriter;
     }
+    String outputLocation = getValueByOptionalArgumentOf(CommandLineOption.OUTPUT_LOCATION);
     File outputFile = new File(outputLocation);
     try {
       if (!outputFile.exists()) {
@@ -535,10 +535,6 @@ public class CommandLineCommandSettingsAdapter implements CommandSettings {
       throw new InstallApexException(Reason.CREATE_FILE_ERROR, e, outputFile.getAbsolutePath(),
           commandType.getLongOption("--"), e.getMessage());
     }
-  }
-
-  private boolean isOutputToConsole(String outputLocation) {
-    return StringUtils.isBlank(outputLocation) || "-".equals(outputLocation);
   }
 
   private void checkOutputFile(File outputFile) {
@@ -565,6 +561,12 @@ public class CommandLineCommandSettingsAdapter implements CommandSettings {
       throw new InstallApexException(Reason.EXISTING_OUTPUT_IS_FILE, outputDirectory.getAbsolutePath());
     }
     return outputDirectory.toPath();
+  }
+
+  @Override
+  public boolean isOutputToConsole() {
+    String outputLocation = getValueByOptionalArgumentOf(CommandLineOption.OUTPUT_LOCATION);
+    return "-".equals(outputLocation);
   }
 
 }

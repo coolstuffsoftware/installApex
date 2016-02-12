@@ -26,26 +26,30 @@ public abstract class AbstractDataSourceCommand extends AbstractCommand {
   private MessageSource messageSource;
 
   @Autowired
-  @Qualifier("error")
-  private ConsoleReader errorConsole;
+  @Qualifier("standard")
+  private ConsoleReader standardConsole;
 
   private String password;
 
   @Override
   public final void execute() {
-    getPassword();
+    getPasswordFrom(getInputConsole());
     setTargetDataSource();
     executeWithInitializedDataSource();
   }
 
-  private void getPassword() {
+  private ConsoleReader getInputConsole() {
+    return standardConsole;
+  }
+
+  private void getPasswordFrom(ConsoleReader console) {
     password = getSettings().getPassword();
     if (getSettings().isPasswordNotAvailable()) {
-      password = readDatabasePasswordFromConsole();
+      password = readDatabasePasswordFrom(console);
     }
   }
 
-  protected String readDatabasePasswordFromConsole() {
+  private String readDatabasePasswordFrom(ConsoleReader console) {
     try {
       if (getSettings().isQuiet()) {
         throw new InstallApexException(Reason.CANNOT_QUIETLY_READ_PASSWORD_FROM_CONSOLE,
@@ -54,7 +58,7 @@ public abstract class AbstractDataSourceCommand extends AbstractCommand {
       String databaseConnect = getSettings().getSQLPlusConnect();
       String passwordPrompt = messageSource.getMessage(KEY_PASSWORD_PROMPT, new String[] { databaseConnect },
           Locale.getDefault());
-      return errorConsole.readLine(passwordPrompt, '*');
+      return console.readLine(passwordPrompt, '*');
     } catch (IOException e) {
       throw new InstallApexException(Reason.CONSOLE_PROBLEM, e).setPrintStrackTrace(true);
     }

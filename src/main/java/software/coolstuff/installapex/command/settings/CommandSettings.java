@@ -42,4 +42,6 @@ public interface CommandSettings {
 
   Path getOutputDirectory();
 
+  boolean isOutputToConsole();
+
 }
