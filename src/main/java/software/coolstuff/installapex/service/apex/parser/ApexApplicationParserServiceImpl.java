@@ -46,14 +46,13 @@ public class ApexApplicationParserServiceImpl implements ApexApplicationParserSe
   @Value("${apexApplicationParserService.apexResourceLocation}")
   private String defaultLocation;
 
-  @Override
-  public List<ApexApplication> getCandidates() {
-    Resource baseDirectory = resourceLoader.getResource(defaultLocation);
-    return getCandidates(baseDirectory);
+  void setDefaultLocation(String defaultLocation) {
+    this.defaultLocation = defaultLocation;
   }
 
   @Override
-  public List<ApexApplication> getCandidates(Resource baseDirectoryAsResource) {
+  public List<ApexApplication> getCandidates() {
+    Resource baseDirectoryAsResource = getBaseDirectory();
     checkBaseDirectoryResource(baseDirectoryAsResource);
     FileSystem fileSystem = null;
     try {
@@ -67,6 +66,11 @@ public class ApexApplicationParserServiceImpl implements ApexApplicationParserSe
     } finally {
       closeOpenNonDefaultFileSystem(baseDirectoryAsResource, fileSystem);
     }
+  }
+
+  private Resource getBaseDirectory() {
+    Resource baseDirectoryAsResource = resourceLoader.getResource(defaultLocation);
+    return baseDirectoryAsResource;
   }
 
   private void checkBaseDirectoryResource(Resource baseDirectoryAsResource) {
@@ -303,6 +307,25 @@ public class ApexApplicationParserServiceImpl implements ApexApplicationParserSe
   @Override
   public String getDefaultLocation() {
     return defaultLocation;
+  }
+
+  @Override
+  public Path extract(ApexApplication apexApplication, Path directory) {
+    Resource baseDirectoryAsResource = getBaseDirectory();
+    checkBaseDirectoryResource(baseDirectoryAsResource);
+    FileSystem fileSystem = null;
+    try {
+      fileSystem = createFileSystemFrom(baseDirectoryAsResource);
+      Path baseDirectory = convertToPathFrom(baseDirectoryAsResource);
+      checkBaseDirectory(baseDirectoryAsResource.getFilename(), baseDirectory);
+      // TODO: extract APEX Application
+      return null;
+    } catch (Exception e) {
+      throw new InstallApexException(Reason.ERROR_ON_APEX_DIRECTORY_ACCESS, e, baseDirectoryAsResource.getFilename(),
+          e.getMessage());
+    } finally {
+      closeOpenNonDefaultFileSystem(baseDirectoryAsResource, fileSystem);
+    }
   }
 
 }

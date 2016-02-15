@@ -19,7 +19,7 @@ import software.coolstuff.installapex.AbstractInstallApexTestWithContext;
 public class TestApexApplicationParserService extends AbstractInstallApexTestWithContext {
 
   @Autowired
-  private ApexApplicationParserService parser;
+  private ApexApplicationParserServiceImpl parser;
 
   @Autowired
   private ResourceLoader resourceLoader;
@@ -30,7 +30,8 @@ public class TestApexApplicationParserService extends AbstractInstallApexTestWit
   @Test
   public void testParseApexDirectory() throws IOException {
     Resource apexPath = resourceLoader.getResource("classpath:/apex");
-    List<ApexApplication> candidates = parser.getCandidates(apexPath);
+    parser.setDefaultLocation("classpath:/apex");
+    List<ApexApplication> candidates = parser.getCandidates();
     Assert.assertNotNull(candidates);
     Assert.assertEquals(candidates.size(), 2);
     compareList(candidates, apexPath.getFile().toPath());
@@ -77,8 +78,8 @@ public class TestApexApplicationParserService extends AbstractInstallApexTestWit
 
   @Test
   public void testParseWrongDirectory() {
-    Resource wrongPath = resourceLoader.getResource("classpath:/tns_admin");
-    List<ApexApplication> candidates = parser.getCandidates(wrongPath);
+    parser.setDefaultLocation("classpath:/tns_admin");
+    List<ApexApplication> candidates = parser.getCandidates();
     Assert.assertNotNull(candidates);
     Assert.assertTrue(candidates.isEmpty());
   }

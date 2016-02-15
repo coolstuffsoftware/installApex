@@ -1,15 +1,14 @@
 package software.coolstuff.installapex.service.apex.parser;
 
+import java.nio.file.Path;
 import java.util.List;
-
-import org.springframework.core.io.Resource;
 
 public interface ApexApplicationParserService {
 
   List<ApexApplication> getCandidates();
 
-  List<ApexApplication> getCandidates(Resource baseDirectory);
-
   String getDefaultLocation();
+
+  Path extract(ApexApplication apexApplication, Path directory);
 
 }
