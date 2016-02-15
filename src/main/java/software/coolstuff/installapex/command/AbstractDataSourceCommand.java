@@ -38,7 +38,7 @@ public abstract class AbstractDataSourceCommand extends AbstractCommand {
     executeWithInitializedDataSource();
   }
 
-  private ConsoleReader getInputConsole() {
+  protected ConsoleReader getInputConsole() {
     return standardConsole;
   }
 

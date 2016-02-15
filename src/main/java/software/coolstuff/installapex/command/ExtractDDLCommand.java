@@ -3,8 +3,10 @@ package software.coolstuff.installapex.command;
 import java.io.Writer;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import jline.console.ConsoleReader;
 import software.coolstuff.installapex.service.apex.parser.ApexApplication;
 import software.coolstuff.installapex.service.upgrade.UpgradeParameter;
 import software.coolstuff.installapex.service.upgrade.UpgradeService;
@@ -15,6 +17,10 @@ public class ExtractDDLCommand extends AbstractDataSourceCommand {
   @Autowired
   private UpgradeService upgradeService;
 
+  @Autowired
+  @Qualifier("error")
+  private ConsoleReader errorConsole;
+
   @Override
   protected void executeWithInitializedDataSource() {
     ApexApplication candidate = getInstallationCandidate();
@@ -22,6 +28,14 @@ public class ExtractDDLCommand extends AbstractDataSourceCommand {
     upgradeParameter.setApexApplication(candidate.getId());
     Writer outputWriter = getSettings().getOutputFile(getPrintWriter());
     upgradeService.extractDDL(upgradeParameter, outputWriter);
+  }
+
+  @Override
+  protected ConsoleReader getInputConsole() {
+    if (getSettings().isOutputToConsole()) {
+      return errorConsole;
+    }
+    return super.getInputConsole();
   }
 
   @Override
