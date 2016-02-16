@@ -9,6 +9,6 @@ public interface ApexApplicationParserService {
 
   String getDefaultLocation();
 
-  Path extract(ApexApplication apexApplication, Path directory);
+  Path extract(ApexApplication apexApplication, Path extractDirectory);
 
 }

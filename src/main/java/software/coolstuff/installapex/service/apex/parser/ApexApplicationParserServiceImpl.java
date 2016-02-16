@@ -11,6 +11,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -310,7 +311,7 @@ public class ApexApplicationParserServiceImpl implements ApexApplicationParserSe
   }
 
   @Override
-  public Path extract(ApexApplication apexApplication, Path directory) {
+  public Path extract(ApexApplication apexApplication, Path extractDirectory) {
     Resource baseDirectoryAsResource = getBaseDirectory();
     checkBaseDirectoryResource(baseDirectoryAsResource);
     FileSystem fileSystem = null;
@@ -318,14 +319,41 @@ public class ApexApplicationParserServiceImpl implements ApexApplicationParserSe
       fileSystem = createFileSystemFrom(baseDirectoryAsResource);
       Path baseDirectory = convertToPathFrom(baseDirectoryAsResource);
       checkBaseDirectory(baseDirectoryAsResource.getFilename(), baseDirectory);
-      // TODO: extract APEX Application
-      return null;
+      Path packageApexApplication = baseDirectory.resolve(apexApplication.getLocation());
+      return extract(packageApexApplication, extractDirectory);
     } catch (Exception e) {
       throw new InstallApexException(Reason.ERROR_ON_APEX_DIRECTORY_ACCESS, e, baseDirectoryAsResource.getFilename(),
           e.getMessage());
     } finally {
       closeOpenNonDefaultFileSystem(baseDirectoryAsResource, fileSystem);
     }
+  }
+
+  private Path extract(Path packagedApexApplication, Path extractDirectory) throws IOException {
+    Path fileName = packagedApexApplication.getFileName();
+    Path extractionLocation = extractDirectory.resolve(fileName.toString());
+    if (Files.isRegularFile(packagedApexApplication)) {
+      Files.copy(packagedApexApplication, extractionLocation, StandardCopyOption.REPLACE_EXISTING,
+          StandardCopyOption.COPY_ATTRIBUTES);
+      return extractionLocation;
+    }
+    return extractDirectory(packagedApexApplication, extractionLocation);
+  }
+
+  private Path extractDirectory(Path packagedApexApplication, Path extractionDirectory) throws IOException {
+    try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(packagedApexApplication)) {
+      Files.createDirectories(extractionDirectory);
+      for (Path path : directoryStream) {
+        Path pathExtension = packagedApexApplication.resolve(path);
+        Path extractionLocation = extractionDirectory.resolve(pathExtension.toString());
+        if (Files.isDirectory(path)) {
+          Files.createDirectories(extractionLocation);
+          continue;
+        }
+        Files.copy(path, extractionLocation, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
+      }
+    }
+    return extractionDirectory;
   }
 
 }
