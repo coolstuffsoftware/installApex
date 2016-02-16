@@ -26,7 +26,7 @@ public class InstallCommand extends AbstractDataSourceCommand {
     String apexVersion = databaseCheckService.getApexVersion();
     printlnMessage(KEY_SHOW_APEX_VERSION, apexVersion);
 
-    ApexApplication apexApplication = getInstallationCandidate();
+    ApexApplication apexApplication = getInstallationCandidate(true);
     printlnMessage(KEY_INSTALL_APEX_APPLICAITON, apexApplication.getName(), apexApplication.getId(),
         apexApplication.getVersion());
 

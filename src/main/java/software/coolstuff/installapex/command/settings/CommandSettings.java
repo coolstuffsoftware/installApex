@@ -32,7 +32,7 @@ public interface CommandSettings {
 
   UpgradeParameter getUpgradeParameter();
 
-  ApexParameter getApexParameter();
+  ApexParameter getApexParameter(boolean withDbUserAsFallback);
 
   boolean isInstallInOtherSchema();
 

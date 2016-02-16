@@ -8,18 +8,24 @@ import java.net.URL;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.function.Consumer;
 import java.util.regex.MatchResult;
+import java.util.stream.Stream;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -216,8 +222,8 @@ public class ApexApplicationParserServiceImpl implements ApexApplicationParserSe
   private void parseApplicationFiles(Path file, ApexApplication apexApplication) {
     try (Scanner scanner = new Scanner(file)) {
       log.debug("Content of File {}", file);
-      scanner.useDelimiter(
-          "[Ww][Ww][Vv]_[Ff][Ll][Oo][Ww]_[Aa][Pp][Ii]\\.[Cc][Rr][Ee][Aa][Tt][Ee]_[Ff][Ll][Oo][Ww]\\s*\\(");
+      scanner
+          .useDelimiter("[Ww][Ww][Vv]_[Ff][Ll][Oo][Ww]_[Aa][Pp][Ii]\\.[Cc][Rr][Ee][Aa][Tt][Ee]_[Ff][Ll][Oo][Ww]\\s*\\(");
       if (scanner.hasNext()) {
         scanner.next(); // ignore the first Part
         scanner.useDelimiter("\n[Ee][Nn][Dd]\\;\n");
@@ -229,7 +235,7 @@ public class ApexApplicationParserServiceImpl implements ApexApplicationParserSe
       throw reThrowable;
     } catch (Exception e) {
       throw new InstallApexException(Reason.APEX_PARSER_EXCEPTION, e, file, apexApplication.getId(), e.getMessage())
-          .setPrintStrackTrace(true);
+      .setPrintStrackTrace(true);
     }
   }
 
@@ -241,9 +247,10 @@ public class ApexApplicationParserServiceImpl implements ApexApplicationParserSe
 
   private void checkApplicationId(String installationBlock, ApexApplication apexApplication) {
     try (Scanner scanner = new Scanner(installationBlock)) {
-      scanner.findWithinHorizon(
-          "[Ww][Ww][Vv]_[Ff][Ll][Oo][Ww]_[Aa][Pp][Pp][Ll][Ii][Cc][Aa][Tt][Ii][Oo][Nn]_[Ii][Nn][Ss][Tt][Aa][Ll][Ll]\\.[Gg][Ee][Tt]_[Aa][Pp][Pp][Ll][Ii][Cc][Aa][Tt][Ii][Oo][Nn]_[Ii][Dd]\\s*,\\s*(\\d+)\\)",
-          0);
+      scanner
+          .findWithinHorizon(
+              "[Ww][Ww][Vv]_[Ff][Ll][Oo][Ww]_[Aa][Pp][Pp][Ll][Ii][Cc][Aa][Tt][Ii][Oo][Nn]_[Ii][Nn][Ss][Tt][Aa][Ll][Ll]\\.[Gg][Ee][Tt]_[Aa][Pp][Pp][Ll][Ii][Cc][Aa][Tt][Ii][Oo][Nn]_[Ii][Dd]\\s*,\\s*(\\d+)\\)",
+              0);
       MatchResult matchResult = scanner.match();
       if (matchResult.groupCount() >= 1) {
         int applicationId = Integer.parseInt(matchResult.group(1));
@@ -257,9 +264,10 @@ public class ApexApplicationParserServiceImpl implements ApexApplicationParserSe
 
   private void parseApplicationName(String installationBlock, ApexApplication apexApplication) {
     try (Scanner scanner = new Scanner(installationBlock)) {
-      scanner.findWithinHorizon(
-          "[Ww][Ww][Vv]_[Ff][Ll][Oo][Ww]_[Aa][Pp][Pp][Ll][Ii][Cc][Aa][Tt][Ii][Oo][Nn]_[Ii][Nn][Ss][Tt][Aa][Ll][Ll]\\.[Gg][Ee][Tt]_[Aa][Pp][Pp][Ll][Ii][Cc][Aa][Tt][Ii][Oo][Nn]_[Nn][Aa][Mm][Ee]\\s*,\\s*'(.*)'\\)",
-          0);
+      scanner
+          .findWithinHorizon(
+              "[Ww][Ww][Vv]_[Ff][Ll][Oo][Ww]_[Aa][Pp][Pp][Ll][Ii][Cc][Aa][Tt][Ii][Oo][Nn]_[Ii][Nn][Ss][Tt][Aa][Ll][Ll]\\.[Gg][Ee][Tt]_[Aa][Pp][Pp][Ll][Ii][Cc][Aa][Tt][Ii][Oo][Nn]_[Nn][Aa][Mm][Ee]\\s*,\\s*'(.*)'\\)",
+              0);
       MatchResult matchResult = scanner.match();
       if (matchResult.groupCount() >= 1) {
         apexApplication.setName(matchResult.group(1));
@@ -331,8 +339,10 @@ public class ApexApplicationParserServiceImpl implements ApexApplicationParserSe
 
   private Path extract(Path packagedApexApplication, Path extractDirectory) throws IOException {
     Path fileName = packagedApexApplication.getFileName();
-    Path extractionLocation = extractDirectory.resolve(fileName.toString());
+    Path extractionLocation = extractDirectory.resolve(fileName.toString()).normalize();
     if (Files.isRegularFile(packagedApexApplication)) {
+      log.debug("Extract APEX Application File {} to {}", packagedApexApplication.toAbsolutePath(),
+          extractionLocation.toAbsolutePath());
       Files.copy(packagedApexApplication, extractionLocation, StandardCopyOption.REPLACE_EXISTING,
           StandardCopyOption.COPY_ATTRIBUTES);
       return extractionLocation;
@@ -341,19 +351,53 @@ public class ApexApplicationParserServiceImpl implements ApexApplicationParserSe
   }
 
   private Path extractDirectory(Path packagedApexApplication, Path extractionDirectory) throws IOException {
-    try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(packagedApexApplication)) {
-      Files.createDirectories(extractionDirectory);
-      for (Path path : directoryStream) {
-        Path pathExtension = packagedApexApplication.resolve(path);
-        Path extractionLocation = extractionDirectory.resolve(pathExtension.toString());
-        if (Files.isDirectory(path)) {
-          Files.createDirectories(extractionLocation);
-          continue;
+    if (Files.exists(extractionDirectory)) {
+      log.debug("Remove existing Extraction Directory {}", extractionDirectory.toAbsolutePath());
+      FileUtils.deleteDirectory(extractionDirectory.toFile());
+      // Files.walkFileTree(extractionDirectory, new
+      // DeleteDirectoryFileVisitor());
+    }
+    log.debug("Create Extraction Directory {}", extractionDirectory.toAbsolutePath());
+    Files.createDirectories(extractionDirectory.toAbsolutePath());
+
+    try (Stream<Path> stream = Files.walk(packagedApexApplication)) {
+      Consumer<Path> pathConsumer = (path) -> {
+        try {
+          Path pathExtension = packagedApexApplication.toAbsolutePath().normalize().relativize(path);
+          Path extractionLocation = extractionDirectory.resolve(pathExtension.toString()).normalize();
+
+          if (Files.isDirectory(path)) {
+            log.debug("Create Directory {}", extractionLocation);
+            Files.createDirectories(extractionLocation);
+            return;
+          }
+
+          log.debug("Extract APEX Application File {} to {}", path, extractionLocation);
+          Files.copy(path, extractionLocation, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
+        } catch (Exception e) {
+          throw new InstallApexException(Reason.ERROR_ON_APEX_DIRECTORY_ACCESS, e, packagedApexApplication,
+              e.getMessage());
         }
-        Files.copy(path, extractionLocation, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
-      }
+      };
+      stream.forEach(pathConsumer);
     }
     return extractionDirectory;
+  }
+
+  private class DeleteDirectoryFileVisitor extends SimpleFileVisitor<Path> {
+
+    @Override
+    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+      Files.delete(file);
+      return FileVisitResult.CONTINUE;
+    }
+
+    @Override
+    public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+      Files.delete(dir);
+      return FileVisitResult.CONTINUE;
+    }
+
   }
 
 }
