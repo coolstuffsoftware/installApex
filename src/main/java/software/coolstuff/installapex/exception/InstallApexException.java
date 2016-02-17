@@ -107,7 +107,8 @@ public class InstallApexException extends RuntimeException {
     EXISTING_OUTPUT_IS_FILE(21, "existingOutputIsFile", false),
     CANNOT_OVERWRITE_OUTPUT_FILE_WITHOUT_FORCE_FLAG(22, "cannotOverwriteOutputFileWithoutForceFlag", false),
     CANNOT_OVERWRITE_OUTPUT_DIRECTORY_WITHOUT_FORCE_FLAG(22, "cannotOverwriteOutputDirectoryWithoutForceFlag", false),
-    CANNOT_QUIETLY_READ_PASSWORD_FROM_CONSOLE(23, "cannotQuietlyReadPasswordFromConsole", false);
+    CANNOT_QUIETLY_READ_PASSWORD_FROM_CONSOLE(23, "cannotQuietlyReadPasswordFromConsole", false),
+    ERROR_WHILE_INSTALL_WITH_SQLPLUS(24, "errorWhileInstallApplicationWithSQLPlus", true);
 
     private int code;
     private String messageKey;
