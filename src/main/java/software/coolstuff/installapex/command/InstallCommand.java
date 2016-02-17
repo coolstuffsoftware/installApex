@@ -70,7 +70,7 @@ public class InstallCommand extends AbstractDataSourceCommand {
 
     upgradeDatabase(apexApplication);
     try {
-      installApexApplication(apexApplication);
+      installApexApplication(apexApplication, workspace);
     } catch (IOException | InterruptedException e) {
       throw new InstallApexException(Reason.ERROR_WHILE_INSTALL_WITH_SQLPLUS, e, apexApplication.getId(),
           apexApplication.getName());
@@ -107,7 +107,8 @@ public class InstallCommand extends AbstractDataSourceCommand {
     upgradeService.updateDatabase(upgradeParameter);
   }
 
-  private void installApexApplication(ApexApplication apexApplication) throws IOException, InterruptedException {
+  private void installApexApplication(ApexApplication apexApplication, long workspace)
+      throws IOException, InterruptedException {
     Path temporaryDirectory = getSettings().getTemporaryDirectory(true);
     printlnMessage(KEY_EXTRACT_APEX_APPLICAITON, apexApplication.getId(), apexApplication.getName(),
         temporaryDirectory.toAbsolutePath());
@@ -115,7 +116,7 @@ public class InstallCommand extends AbstractDataSourceCommand {
     ProcessBuilder sqlPlusBuilder = getSettings().getSQLPlusCommand();
     setExecutionDirectory(extractionLocation, sqlPlusBuilder);
     Process sqlplus = sqlPlusBuilder.start();
-    Map<String, Object> context = prepareExecutionContext(apexApplication);
+    Map<String, Object> context = prepareExecutionContext(apexApplication, workspace);
     redirectStandardInputToScript(sqlplus.getOutputStream(), context);
     redirectStream(sqlplus.getInputStream(), System.out);
     redirectStream(sqlplus.getErrorStream(), System.out);
@@ -130,10 +131,13 @@ public class InstallCommand extends AbstractDataSourceCommand {
     }
   }
 
-  private Map<String, Object> prepareExecutionContext(ApexApplication apexApplication) {
+  private Map<String, Object> prepareExecutionContext(ApexApplication apexApplication, long workspace) {
     Map<String, Object> context = new HashMap<>();
     context.put("sqlPlusConnectWithoutPassword", getSettings().getSQLPlusConnect());
     context.put("sqlPlusConnect", getSQLPlusConnect());
+    context.put("workspaceId", workspace);
+    context.put("apexApplication", apexApplication);
+    context.put("apexParameter", getSettings().getApexParameter(true));
     return context;
   }
 

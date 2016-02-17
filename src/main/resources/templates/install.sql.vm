@@ -6,4 +6,12 @@ CONNECT ${sqlPlusConnect}
 PROMPT connected
 
 SET SERVEROUTPUT ON SIZE UNLIMITED FORMAT WRAPPED
+SET FEEDBACK OFF
+BEGIN
+  DBMS_OUTPUT.put_line ('set Installation Parameter');#if( ${apexParameter.alias} )
+  APEX_APPLICATION_INSTALL.set_application_alias('${applicationParameter.alias}');
+  DBMS_OUTPUT.put_line('  Application Alias: ' || APEX_APPLICATION_ALIAS.get_application_alias);#end
+END;
+/
+
 QUIT
