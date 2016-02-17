@@ -11,6 +11,10 @@ import software.coolstuff.installapex.service.apex.parser.ApexApplicationParserS
 @Service
 public class ExtractApexCommand extends AbstractCommand {
 
+  private static final String KEY_EXTRACT_FILE = "extractApexCommand.extractApexApplicationIntoFile";
+  private static final String KEY_EXTRACT_DIRECTORY = "extractApexCommand.extractApexApplicationIntoDirectory";
+  private static final String KEY_EXTRACT_DONE = "extractApexCommand.extractApexApplicationDone";
+
   @Autowired
   private ApexApplicationParserService parserService;
 
@@ -18,7 +22,15 @@ public class ExtractApexCommand extends AbstractCommand {
   public void execute() {
     ApexApplication candidate = getInstallationCandidate(false);
     Path outputDirectory = getSettings().getOutputDirectory();
+    Path applicationOutputLocation = outputDirectory.toAbsolutePath().normalize()
+        .resolve(candidate.getLocation().toString());
+    if (candidate.isLocationDirectory()) {
+      printMessage(KEY_EXTRACT_DIRECTORY, candidate.getId(), candidate.getName(), applicationOutputLocation);
+    } else {
+      printMessage(KEY_EXTRACT_FILE, candidate.getId(), candidate.getName(), applicationOutputLocation);
+    }
     parserService.extract(candidate, outputDirectory);
+    printlnMessage(KEY_EXTRACT_DONE);
   }
 
   @Override

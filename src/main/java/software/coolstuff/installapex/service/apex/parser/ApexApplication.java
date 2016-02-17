@@ -9,6 +9,7 @@ public class ApexApplication implements Comparable<ApexApplication> {
   private String name;
   private String version;
   private Path location;
+  private boolean locationIsDirectory;
 
   public ApexApplication(int id) {
     this.id = id;
@@ -42,6 +43,14 @@ public class ApexApplication implements Comparable<ApexApplication> {
     this.location = location;
   }
 
+  public void setLocationIsDirectory(boolean locationIsDirectory) {
+    this.locationIsDirectory = locationIsDirectory;
+  }
+
+  public boolean isLocationDirectory() {
+    return locationIsDirectory;
+  }
+
   @Override
   public int hashCode() {
     return Objects.hash(id);
@@ -60,8 +69,9 @@ public class ApexApplication implements Comparable<ApexApplication> {
 
   @Override
   public String toString() {
-    return ApexApplication.class.getSimpleName() + "{id:" + id + ",name:" + (name == null ? "null" : "\"" + name + "\"")
-        + ",version:" + (version == null ? "null" : "\"" + version + "\"") + ",location:"
+    return ApexApplication.class.getSimpleName() + "{id:" + id + ",name:"
+        + (name == null ? "null" : "\"" + name + "\"") + ",version:"
+        + (version == null ? "null" : "\"" + version + "\"") + ",location:"
         + (location == null ? "null" : "\"" + location.toString() + "\"") + "}";
   }
 

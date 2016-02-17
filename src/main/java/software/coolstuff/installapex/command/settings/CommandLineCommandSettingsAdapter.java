@@ -441,13 +441,13 @@ public class CommandLineCommandSettingsAdapter implements CommandSettings {
     UpgradeParameter upgradeParameter = new UpgradeParameter();
     upgradeParameter.setApexApplication(getIntegerByOptionalArgumentOf(CommandLineOption.APEX_SOURCE_ID));
     upgradeParameter
-        .setDatabaseChangeLogTableName(getValueByOptionalArgumentOf(CommandLineOption.CHANGELOG_TABLE_NAME));
+    .setDatabaseChangeLogTableName(getValueByOptionalArgumentOf(CommandLineOption.CHANGELOG_TABLE_NAME));
     upgradeParameter
-        .setDatabaseChangeLogLockTableName(getValueByOptionalArgumentOf(CommandLineOption.CHANGELOG_LOCK_TABLE_NAME));
+    .setDatabaseChangeLogLockTableName(getValueByOptionalArgumentOf(CommandLineOption.CHANGELOG_LOCK_TABLE_NAME));
     upgradeParameter.setDefaultSchemaName(getValueByOptionalArgumentOf(CommandLineOption.INSTALL_SCHEMA));
     upgradeParameter.setLiquibaseSchemaName(getValueByOptionalArgumentOf(CommandLineOption.CHANGELOG_SCHEMA));
     upgradeParameter
-        .setLiquibaseTablespaceName(getValueByOptionalArgumentOf(CommandLineOption.CHANGELOG_TABLESPACE_NAME));
+    .setLiquibaseTablespaceName(getValueByOptionalArgumentOf(CommandLineOption.CHANGELOG_TABLESPACE_NAME));
     upgradeParameter.setDbUser(getValueByArgumentOf(CommandLineOption.DB_USER));
     upgradeParameter.setDbConnection(getValueByArgumentOf(CommandLineOption.DB_CONNECT));
     return upgradeParameter;
@@ -480,14 +480,14 @@ public class CommandLineCommandSettingsAdapter implements CommandSettings {
       installationSchema = getValueByArgumentOf(CommandLineOption.DB_USER);
       log.debug("No Installation Schema has been specified --> use the Logon User {}", installationSchema);
     }
-    apexParameter.setSchema(installationSchema.toUpperCase());
+    apexParameter.setSchema(StringUtils.upperCase(installationSchema));
     apexParameter.setWorkspace(getValueByOptionalArgumentOf(CommandLineOption.APEX_TARGET_WORKSPACE));
     apexParameter
-        .setStaticAppFilePrefix(getValueByOptionalArgumentOf(CommandLineOption.APEX_TARGET_STATIC_APP_FILE_PREFIX));
+    .setStaticAppFilePrefix(getValueByOptionalArgumentOf(CommandLineOption.APEX_TARGET_STATIC_APP_FILE_PREFIX));
     apexParameter
-    .setStaticPluginFilePrefix(getValueByOptionalArgumentOf(CommandLineOption.APEX_TARGET_STATIC_PLUGIN_FILE_PREFIX));
+        .setStaticPluginFilePrefix(getValueByOptionalArgumentOf(CommandLineOption.APEX_TARGET_STATIC_PLUGIN_FILE_PREFIX));
     apexParameter
-        .setStaticThemeFilePrefix(getValueByOptionalArgumentOf(CommandLineOption.APEX_TARGET_STATIC_THEME_FILE_PREFIX));
+    .setStaticThemeFilePrefix(getValueByOptionalArgumentOf(CommandLineOption.APEX_TARGET_STATIC_THEME_FILE_PREFIX));
     return apexParameter;
   }
 
