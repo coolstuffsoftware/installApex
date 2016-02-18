@@ -1,5 +1,6 @@
-SET LINESIZE 100
+SET LINESIZE ${lineSize}
 WHENEVER SQLERROR EXIT SQL.SQLCODE ROLLBACK
+WHENEVER OSERROR EXIT FAILURE ROLLBACK
 
 PROMPT connecting to Database User ${sqlPlusConnectWithoutPassword} ...
 CONNECT ${sqlPlusConnect}
@@ -7,10 +8,33 @@ PROMPT connected
 
 SET SERVEROUTPUT ON SIZE UNLIMITED FORMAT WRAPPED
 SET FEEDBACK OFF
+DECLARE
+  v_workspace_display_name APEX_WORKSPACES."WORKSPACE_DISPLAY_NAME"%TYPE;
+  v_workspace_id           APEX_WORKSPACES."WORKSPACE_ID"%TYPE;
 BEGIN
-  DBMS_OUTPUT.put_line ('set Installation Parameter');#if( ${apexParameter.alias} )
+  DBMS_OUTPUT.put_line ('set Installation Parameter');#if ( ${apexParameter.generateTargetId} && !${apexParameter.targetId} )
+  APEX_APPLICATION_INSTALL.generate_application_id;
+  DBMS_OUTPUT.put_line ('  Application ID: ' || APEX_APPLICATION_INSTALL.get_application_id);#end#if ( ${apexParameter.targetId} )
+  APEX_APPLICATION_INSTALL.set_application_id (TO_NUMBER('${apexParameter.targetId}');
+  DBMS_OUTPUT.put_line ('  Application ID: ' || APEX_APPLICATION_INSTALL.get_application_id);#end#if ( !${apexParameter.keepTargetOffset} )
+  APEX_APPLICATION_INSTALL.generate_offset;
+  DBMS_OUTPUT.put_line ('  Offset: ' || APEX_APPLICATION_INSTALL.get_offset);#end#if ( ${apexParameter.offset} )
+  APEX_APPLICATION_INSTALL.set_offset ('${apexParameter.offset}');
+  DBMS_OUTPUT.put_line ('  Offset: ' || APEX_APPLICATION_INSTALL.get_offset);#end
+
+  SELECT "WORKSPACE_DISPLAY_NAME"
+        ,"WORKSPACE_ID"
+    INTO v_workspace_display_name
+        ,v_workspace_id
+    FROM "APEX_WORKSPACES"
+   WHERE "WORKSPACE_ID" = TO_NUMBER('${workspace}');
+  APEX_APPLICATION_INSTALL.set_workspace_id (v_workspace_id);
+  DBMS_OUTPUT.put_line ('  Workspace: ' || v_workspace_display_name || ' (ID: ' ||
+    APEX_APPLICATION_INSTALL.get_workspace_id || ')');#if( ${apexParameter.schema} )
+  APEX_APPLICATION_INSTALL.set_schema ('${apexParameter.schema}');
+  DBMS_OUTPUT.put_line ('  Schema: ' || APEX_APPLICATION_INSTALL.get_schema);#end#if( ${apexParameter.alias} )
   APEX_APPLICATION_INSTALL.set_application_alias('${applicationParameter.alias}');
-  DBMS_OUTPUT.put_line('  Application Alias: ' || APEX_APPLICATION_ALIAS.get_application_alias);#end
+  DBMS_OUTPUT.put_line ('  Application Alias: ' || APEX_APPLICATION_INSTALL.get_application_alias);#end
 END;
 /
 

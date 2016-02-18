@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.ui.velocity.VelocityEngineUtils;
 
 import software.coolstuff.installapex.cli.CommandLineOption;
+import software.coolstuff.installapex.command.settings.CommandSettings;
 import software.coolstuff.installapex.exception.InstallApexException;
 import software.coolstuff.installapex.exception.InstallApexException.Reason;
 import software.coolstuff.installapex.service.apex.ApexParameter;
@@ -112,11 +113,20 @@ public class InstallCommand extends AbstractDataSourceCommand {
     Path temporaryDirectory = getSettings().getTemporaryDirectory(true);
     printlnMessage(KEY_EXTRACT_APEX_APPLICAITON, apexApplication.getId(), apexApplication.getName(),
         temporaryDirectory.toAbsolutePath());
-    Path extractionLocation = parserService.extract(apexApplication, temporaryDirectory);
+    Path installationScript = parserService.extract(apexApplication, temporaryDirectory);
     ProcessBuilder sqlPlusBuilder = getSettings().getSQLPlusCommand();
-    setExecutionDirectory(extractionLocation, sqlPlusBuilder);
+    setExecutionDirectory(installationScript.getParent(), sqlPlusBuilder);
     Process sqlplus = sqlPlusBuilder.start();
-    Map<String, Object> context = prepareExecutionContext(apexApplication, workspace);
+    //@formatter:off
+    Map<String, Object> context = new ContextBuilder()
+        .setLineSize(getTerminalWidth())
+        .setCommandSettings(getSettings())
+        .setSqlPlusConnect(getSQLPlusConnect())
+        .setInstallationScript(installationScript)
+        .setApexApplication(apexApplication)
+        .setWorkspace(workspace)
+        .build();
+    //@formatter:on
     redirectStandardInputToScript(sqlplus.getOutputStream(), context);
     redirectStream(sqlplus.getInputStream(), System.out);
     redirectStream(sqlplus.getErrorStream(), System.out);
@@ -129,16 +139,6 @@ public class InstallCommand extends AbstractDataSourceCommand {
     } else {
       sqlPlusBuilder.directory(extractionLocation.getParent().toFile());
     }
-  }
-
-  private Map<String, Object> prepareExecutionContext(ApexApplication apexApplication, long workspace) {
-    Map<String, Object> context = new HashMap<>();
-    context.put("sqlPlusConnectWithoutPassword", getSettings().getSQLPlusConnect());
-    context.put("sqlPlusConnect", getSQLPlusConnect());
-    context.put("workspaceId", workspace);
-    context.put("apexApplication", apexApplication);
-    context.put("apexParameter", getSettings().getApexParameter(true));
-    return context;
   }
 
   private void redirectStandardInputToScript(OutputStream outputStream, Map<String, Object> context)
@@ -159,6 +159,61 @@ public class InstallCommand extends AbstractDataSourceCommand {
   @Override
   protected CommandType getCommandType() {
     return CommandType.INSTALL;
+  }
+
+  private class ContextBuilder {
+
+    private int lineSize;
+    private CommandSettings commandSettings;
+    private String sqlPlusConnect;
+    private long workspace;
+    private ApexApplication apexApplication;
+    private Path installationScript;
+
+    public ContextBuilder() {}
+
+    public ContextBuilder setLineSize(int lineSize) {
+      this.lineSize = lineSize;
+      return this;
+    }
+
+    public ContextBuilder setCommandSettings(CommandSettings commandSettings) {
+      this.commandSettings = commandSettings;
+      return this;
+    }
+
+    public ContextBuilder setSqlPlusConnect(String sqlPlusConnect) {
+      this.sqlPlusConnect = sqlPlusConnect;
+      return this;
+    }
+
+    public ContextBuilder setWorkspace(long workspace) {
+      this.workspace = workspace;
+      return this;
+    }
+
+    public ContextBuilder setApexApplication(ApexApplication apexApplication) {
+      this.apexApplication = apexApplication;
+      return this;
+    }
+
+    public ContextBuilder setInstallationScript(Path installationScript) {
+      this.installationScript = installationScript;
+      return this;
+    }
+
+    public Map<String, Object> build() {
+      Map<String, Object> context = new HashMap<>();
+      context.put("lineSize", lineSize);
+      context.put("sqlPlusConnectWithoutPassword", commandSettings.getSQLPlusConnect());
+      context.put("sqlPlusConnect", sqlPlusConnect);
+      context.put("workspaceId", workspace);
+      context.put("apexApplication", apexApplication);
+      context.put("apexParameter", commandSettings.getApexParameter(true));
+      context.put("installationScript", installationScript.getFileName());
+      return context;
+    }
+
   }
 
 }
