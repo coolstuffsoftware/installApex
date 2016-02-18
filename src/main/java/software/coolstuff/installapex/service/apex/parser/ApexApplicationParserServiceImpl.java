@@ -380,7 +380,7 @@ public class ApexApplicationParserServiceImpl implements ApexApplicationParserSe
       throw new InstallApexException(Reason.NO_APEX_INSTALLATION_SCRIPT_AVAILABLE, INSTALL_SCRIPT,
           extractionDirectory.toAbsolutePath());
     }
-    return extractionDirectory;
+    return installScript;
   }
 
 }

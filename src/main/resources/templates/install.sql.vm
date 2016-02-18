@@ -2,40 +2,84 @@ SET LINESIZE ${lineSize}
 WHENEVER SQLERROR EXIT SQL.SQLCODE ROLLBACK
 WHENEVER OSERROR EXIT FAILURE ROLLBACK
 
-PROMPT connecting to Database User ${sqlPlusConnectWithoutPassword} ...
 CONNECT ${sqlPlusConnect}
-PROMPT connected
+PROMPT connected to ${sqlPlusConnectWithoutPassword}
 
 SET SERVEROUTPUT ON SIZE UNLIMITED FORMAT WRAPPED
 SET FEEDBACK OFF
 DECLARE
+  c_left    CONSTANT VARCHAR2(2) := '  ';
+  c_padding CONSTANT NUMBER := 30;
+  
   v_workspace_display_name APEX_WORKSPACES."WORKSPACE_DISPLAY_NAME"%TYPE;
   v_workspace_id           APEX_WORKSPACES."WORKSPACE_ID"%TYPE;
 BEGIN
-  DBMS_OUTPUT.put_line ('set Installation Parameter');#if ( ${apexParameter.generateTargetId} && !${apexParameter.targetId} )
+  DBMS_OUTPUT.put_line ('set Installation Parameter');
+#if ( ${apexParameter.generateTargetId} && !${apexParameter.targetId} )
   APEX_APPLICATION_INSTALL.generate_application_id;
-  DBMS_OUTPUT.put_line ('  Application ID: ' || APEX_APPLICATION_INSTALL.get_application_id);#end#if ( ${apexParameter.targetId} )
-  APEX_APPLICATION_INSTALL.set_application_id (TO_NUMBER('${apexParameter.targetId}');
-  DBMS_OUTPUT.put_line ('  Application ID: ' || APEX_APPLICATION_INSTALL.get_application_id);#end#if ( !${apexParameter.keepTargetOffset} )
+  DBMS_OUTPUT.put_line (c_left || LPAD('Application ID: ', c_padding) || APEX_APPLICATION_INSTALL.get_application_id);
+#end
+#if ( ${apexParameter.targetId} )
+  APEX_APPLICATION_INSTALL.set_application_id (TO_NUMBER('${apexParameter.targetId}'));
+  DBMS_OUTPUT.put_line (c_left || LPAD('Application ID: ', c_padding) || APEX_APPLICATION_INSTALL.get_application_id);
+#end
+#if ( !${apexParameter.keepTargetOffset} )
   APEX_APPLICATION_INSTALL.generate_offset;
-  DBMS_OUTPUT.put_line ('  Offset: ' || APEX_APPLICATION_INSTALL.get_offset);#end#if ( ${apexParameter.offset} )
-  APEX_APPLICATION_INSTALL.set_offset ('${apexParameter.offset}');
-  DBMS_OUTPUT.put_line ('  Offset: ' || APEX_APPLICATION_INSTALL.get_offset);#end
+  DBMS_OUTPUT.put_line (c_left || LPAD('Offset: ', c_padding) || APEX_APPLICATION_INSTALL.get_offset);
+#end
+#if ( ${apexParameter.offset} )
+  APEX_APPLICATION_INSTALL.set_offset (TO_NUMBER('${apexParameter.offset}'));
+  DBMS_OUTPUT.put_line (c_left || LPAD('Offset: ', c_padding) || APEX_APPLICATION_INSTALL.get_offset);
+#end
 
   SELECT "WORKSPACE_DISPLAY_NAME"
         ,"WORKSPACE_ID"
     INTO v_workspace_display_name
         ,v_workspace_id
     FROM "APEX_WORKSPACES"
-   WHERE "WORKSPACE_ID" = TO_NUMBER('${workspace}');
+   WHERE "WORKSPACE_ID" = TO_NUMBER('${workspaceId}');
   APEX_APPLICATION_INSTALL.set_workspace_id (v_workspace_id);
-  DBMS_OUTPUT.put_line ('  Workspace: ' || v_workspace_display_name || ' (ID: ' ||
-    APEX_APPLICATION_INSTALL.get_workspace_id || ')');#if( ${apexParameter.schema} )
+  DBMS_OUTPUT.put_line (c_left || LPAD('Workspace: ', c_padding) || v_workspace_display_name || ' (ID: ' ||
+    APEX_APPLICATION_INSTALL.get_workspace_id || ')');
+#if( ${apexParameter.schema} )
   APEX_APPLICATION_INSTALL.set_schema ('${apexParameter.schema}');
-  DBMS_OUTPUT.put_line ('  Schema: ' || APEX_APPLICATION_INSTALL.get_schema);#end#if( ${apexParameter.alias} )
+  DBMS_OUTPUT.put_line (c_left || LPAD('Schema: ', c_padding) || APEX_APPLICATION_INSTALL.get_schema);
+#end
+#if ( ${apexParameter.name} )
+  APEX_APPLICATION_INSTALL.set_application_name ('${apexParameter.name}');
+  DBMS_OUTPUT.put_line (c_left || LPAD('Application Name: ', c_padding) || APEX_APPLICATION_INSTALL.get_application_name);
+#end
+#if ( ${apexParameter.alias} )
   APEX_APPLICATION_INSTALL.set_application_alias('${applicationParameter.alias}');
-  DBMS_OUTPUT.put_line ('  Application Alias: ' || APEX_APPLICATION_INSTALL.get_application_alias);#end
+  DBMS_OUTPUT.put_line (c_left || LPAD('Application Alias: ', c_padding) || APEX_APPLICATION_INSTALL.get_application_alias);
+#end
+#if ( ${apexParameter.autoInstallSupportingObjects} )
+  APEX_APPLICATION_INSTALL.set_auto_install_sup_obj (TRUE);
+  DBMS_OUTPUT.put_line (c_left || LPAD('install supporting Objects: ') || APEX_APPLICATION_INSTALL.get_auto_install_sup_obj);
+#end
+#if ( ${apexParameter.imagePrefix} )
+  APEX_APPLICATION_INSTALL.set_image_prefix ('${apexParameter.imagePrefix}');
+  DBMS_OUTPUT.put_line (c_left || LPAD('Image Prefix: ') || APEX_APPLICATION_INSTALL.get_image_prefix);
+#end
+#if ( ${apexParameter.proxy} )
+  APEX_APPLICATION_INSTALL.set_proxy ('${apexParameter.proxy}');
+  DBMS_OUTPUT.put_line (c_left || LPAD('Proxy: ') || APEX_APPLICATION_INSTALL.get_proxy);
+#end
+#if ( ${apexParameter.staticAppFilePrefix} )
+  APEX_APPLICATION_INSTALL.set_static_app_file_prefix ('${apexParameter.staticAppFilePrefix}');
+  DBMS_OUTPUT.put_line (c_left || LPAD('static Application File Prefix: ') || APEX_APPLICATION_INSTALL.get_static_app_file_prefix);
+#end
+#if ( ${apexParameter.staticPluginFilePrefix} )
+  APEX_APPLICATION_INSTALL.set_static_plugin_file_prefix ('${apexParameter.staticPluginFilePrefix}');
+  DBMS_OUTPUT.put_line (c_left || LPAD('static Plugin File Prefix: ') || APEX_APPLICATION_INSTALL.get_static_plugin_file_prefix);
+#end
+#if ( ${apexParameter.staticThemeFilePrefix} )
+  APEX_APPLICATION_INSTALL.set_static_theme_file_prefix ('${apexParameter.staticThemeFilePrefix}');
+  DBMS_OUTPUT.put_line (c_left || LPAD('static Theme File Prefix: ') || APEX_APPLICATION_INSTALL.get_static_theme_file_prefix);
+#end
 END;
 /
+
+@${installationScript}
 
 QUIT
