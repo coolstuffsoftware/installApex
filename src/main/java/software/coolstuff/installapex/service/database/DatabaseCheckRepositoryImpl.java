@@ -85,7 +85,7 @@ public class DatabaseCheckRepositoryImpl implements DatabaseCheckRepository {
 
   @CoberturaIgnored
   private CallableStatement queryApexInstallationSchema(Connection conn) throws SQLException {
-    CallableStatement callableStatement = conn.prepareCall("? := APEX_APPLICATION.g_flow_schema_owner");
+    CallableStatement callableStatement = conn.prepareCall("{? = call APEX_APPLICATION.g_flow_schema_owner}");
     callableStatement.registerOutParameter(1, Types.VARCHAR);
     return callableStatement;
   }
