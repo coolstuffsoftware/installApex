@@ -1,15 +1,21 @@
 package software.coolstuff.installapex.service.database;
 
+import java.sql.CallableStatement;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.stereotype.Repository;
+
+import net.sourceforge.cobertura.interaction.annotations.api.metrics.CoberturaIgnored;
 
 @Repository
 public class DatabaseCheckRepositoryImpl implements DatabaseCheckRepository {
@@ -28,14 +34,11 @@ public class DatabaseCheckRepositoryImpl implements DatabaseCheckRepository {
   @Value("${databaseCheckRepository.queryExistsApexApplication}")
   private String queryExistsApexApplication;
 
-  @Value("${databaseCheckRepository.querySessionPrivs}")
-  private String querySessionPrivs;
+  @Value("${databaseCheckRepository.querySessionRoles}")
+  private String querySessionRoles;
 
-  @Value("${databaseCheckRepository.queryExistsTableWithSchema}")
-  private String queryExistsTableWithSchema;
-
-  @Value("${databaseCheckRepository.queryExistsTableWithoutSchema}")
-  private String queryExistsTableWithoutSchema;
+  @Value("${databaseCheckRepository.queryCurrentSchema}")
+  private String queryCurrentSchema;
 
   @Override
   public String getApexVersion() {
@@ -60,6 +63,37 @@ public class DatabaseCheckRepositoryImpl implements DatabaseCheckRepository {
   public boolean existsApexApplication(int apexApplicationId) {
     log.debug("Execute Query: {} with Parameter: 1:{}", queryExistsApexApplication, apexApplicationId);
     return operations.queryForObject(queryExistsApexApplication, Boolean.class, apexApplicationId);
+  }
+
+  @Override
+  public List<String> getSessionRoles() {
+    log.debug("Execute Query: {}", querySessionRoles);
+    return operations.queryForList(querySessionRoles, String.class);
+  }
+
+  @Override
+  public String getCurrentSchema() {
+    log.debug("Execute Query {}", queryCurrentSchema);
+    return operations.queryForObject(queryCurrentSchema, String.class);
+  }
+
+  @Override
+  @CoberturaIgnored
+  public String getApexInstallationSchema() {
+    return operations.execute(this::queryApexInstallationSchema, this::mapApexInstallationSchema);
+  }
+
+  @CoberturaIgnored
+  private CallableStatement queryApexInstallationSchema(Connection conn) throws SQLException {
+    CallableStatement callableStatement = conn.prepareCall("? := APEX_APPLICATION.g_flow_schema_owner");
+    callableStatement.registerOutParameter(1, Types.VARCHAR);
+    return callableStatement;
+  }
+
+  @CoberturaIgnored
+  private String mapApexInstallationSchema(CallableStatement cs) throws SQLException, DataAccessException {
+    cs.executeUpdate();
+    return (String) cs.getObject(1);
   }
 
 }

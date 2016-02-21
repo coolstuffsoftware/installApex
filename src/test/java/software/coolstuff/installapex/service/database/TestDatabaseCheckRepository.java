@@ -70,4 +70,13 @@ public class TestDatabaseCheckRepository extends AbstractInstallApexTestWithCont
     repository.existsApexApplication(104);
   }
 
+  @Test
+  public void testSessionRoles() {
+    List<String> sessionRoles = repository.getSessionRoles();
+    Assert.assertNotNull(sessionRoles);
+    Assert.assertFalse(sessionRoles.isEmpty());
+    Assert.assertEquals(sessionRoles.size(), 1);
+    Assert.assertEquals(sessionRoles.get(0), "APEX_ADMINISTRATOR_ROLE");
+  }
+
 }

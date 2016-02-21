@@ -10,4 +10,10 @@ public interface DatabaseCheckRepository {
 
   boolean existsApexApplication(int apexApplicationId);
 
+  List<String> getSessionRoles();
+
+  String getCurrentSchema();
+
+  String getApexInstallationSchema();
+
 }

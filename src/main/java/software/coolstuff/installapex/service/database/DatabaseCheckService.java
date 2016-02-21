@@ -10,4 +10,6 @@ public interface DatabaseCheckService {
 
   boolean existsApexApplication(int apexApplicationId);
 
+  boolean isApexAdministrator();
+
 }
