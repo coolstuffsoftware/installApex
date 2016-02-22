@@ -380,22 +380,6 @@ public class TestCommandLineCommandSettingsAdapter extends AbstractInstallApexTe
   }
 
   @Test
-  public void testForceTrue() {
-    //@formatter:off
-    CommandSettings commandSettings = createCommandLine(
-        CommandLineOption.EXTRACT_DDL.getLongOption("--"),
-        CommandLineOption.FORCE.getLongOption("--"));
-    //@formatter:on
-    Assert.assertTrue(commandSettings.isForce());
-  }
-
-  @Test
-  public void testForceFalse() {
-    CommandSettings commandSettings = createCommandLine(CommandLineOption.EXTRACT_DDL.getLongOption("--"));
-    Assert.assertFalse(commandSettings.isForce());
-  }
-
-  @Test
   public void testQuietTrue() {
     //@formatter:off
     CommandSettings commandSettings = createCommandLine(

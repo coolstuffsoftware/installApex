@@ -20,8 +20,6 @@ public interface CommandSettings {
 
   String getSQLPlusConnect();
 
-  boolean isForce();
-
   boolean isQuiet();
 
   boolean isPasswordAvailable();

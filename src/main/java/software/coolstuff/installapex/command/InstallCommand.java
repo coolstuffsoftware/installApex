@@ -10,24 +10,17 @@ import java.io.PrintWriter;
 import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
-import javax.annotation.PostConstruct;
-
+import org.apache.commons.io.output.NullOutputStream;
 import org.apache.commons.lang.StringUtils;
 import org.apache.velocity.app.VelocityEngine;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.velocity.VelocityEngineUtils;
 
-import jline.console.ConsoleReader;
 import software.coolstuff.installapex.cli.CommandLineOption;
 import software.coolstuff.installapex.exception.InstallApexException;
 import software.coolstuff.installapex.exception.InstallApexException.Reason;
@@ -47,11 +40,6 @@ public class InstallCommand extends AbstractDataSourceCommand {
 
   private static final String KEY_EXTRACT_APEX_APPLICAITON = "installCommand.extractApexApplication";
 
-  private static final String KEY_INSTALL_ON_ADMIN_SCHEMA = "installCommand.confirm.installOnApexAdministratorSchema";
-  private static final String KEY_OVERWRITE_APPLICATION = "installCommand.confirm.overwriteExistingApexApplication";
-
-  private static final String KEY_CONFIRM_TRUE = "installCommand.confirm.true";
-
   @Autowired
   private UpgradeService upgradeService;
 
@@ -64,31 +52,17 @@ public class InstallCommand extends AbstractDataSourceCommand {
   @Autowired
   private VelocityEngine velocityEngine;
 
-  @Autowired
-  private MessageSource messageSource;
-
   @Value("${installCommand.sqlplus.scriptName}")
   private String sqlplusScriptName;
 
   @Value("${installCommand.sqlplus.scriptEncoding}")
   private String sqlplusScriptEncoding;
 
-  private List<String> trueAnswers = new ArrayList<>();
-
-  @Override
-  @PostConstruct
-  protected void init() {
-    super.init();
-    String possibleTrueAnswers = messageSource.getMessage(KEY_CONFIRM_TRUE, null, Locale.getDefault());
-    trueAnswers.addAll(Arrays.asList(possibleTrueAnswers.split("\\s*,\\s*")));
-  }
-
   @Override
   protected void executeWithInitializedDataSource() {
     String apexVersion = databaseCheckService.getApexVersion();
     printlnMessage(KEY_SHOW_APEX_VERSION, apexVersion);
 
-    checkApexPreconditions();
     long workspace = getInstallationWorkspace();
 
     ApexApplication apexApplication = getInstallationCandidate();
@@ -102,53 +76,6 @@ public class InstallCommand extends AbstractDataSourceCommand {
       throw new InstallApexException(Reason.ERROR_WHILE_INSTALL_WITH_SQLPLUS, e, apexApplication.getId(),
           apexApplication.getName());
     }
-  }
-
-  private void checkApexPreconditions() {
-    ApexParameter apexParameter = getSettings().getApexParameter();
-    checkExistingTargetId(apexParameter);
-    checkInstallOnApexAdministratorSchema(apexParameter);
-  }
-
-  private void checkExistingTargetId(ApexParameter apexParameter) {
-    if (isTargetIdSpecifiedAndExistsOnDatabase(apexParameter)) {
-      printMessage(KEY_OVERWRITE_APPLICATION, apexParameter.getTargetId());
-      if (notConfirmed()) {
-        throw new InstallApexException(Reason.INTERRUPTED_BY_USER);
-      }
-    }
-  }
-
-  private boolean isTargetIdSpecifiedAndExistsOnDatabase(ApexParameter apexParameter) {
-    return apexParameter.isTargetIdSpecified()
-        && databaseCheckService.existsApexApplication(apexParameter.getTargetId());
-  }
-
-  private boolean notConfirmed() {
-    return !confirmed();
-  }
-
-  private boolean confirmed() {
-    ConsoleReader inputConsole = getInputConsole();
-    try {
-      String confirmation = inputConsole.readLine();
-      return trueAnswers.contains(confirmation);
-    } catch (IOException e) {
-      throw new InstallApexException(Reason.UNKNOWN, e);
-    }
-  }
-
-  private void checkInstallOnApexAdministratorSchema(ApexParameter apexParameter) {
-    if (isApexAdministratorAndNoInstallSchemaSpecified(apexParameter)) {
-      printMessage(KEY_INSTALL_ON_ADMIN_SCHEMA, getSettings().getSQLPlusConnect());
-      if (notConfirmed()) {
-        throw new InstallApexException(Reason.INTERRUPTED_BY_USER);
-      }
-    }
-  }
-
-  private boolean isApexAdministratorAndNoInstallSchemaSpecified(ApexParameter apexParameter) {
-    return databaseCheckService.isApexAdministrator() && StringUtils.isBlank(apexParameter.getSchema());
   }
 
   private long getInstallationWorkspace() {
@@ -201,8 +128,9 @@ public class InstallCommand extends AbstractDataSourceCommand {
         .build();
     //@formatter:on
     redirectStandardInputToScript(sqlplus.getOutputStream(), context);
-    redirectStream(sqlplus.getInputStream(), System.out);
-    redirectStream(sqlplus.getErrorStream(), System.out);
+    PrintStream out = getOutputStream();
+    redirectStream(sqlplus.getInputStream(), out);
+    redirectStream(sqlplus.getErrorStream(), out);
     sqlplus.waitFor();
     if (sqlplus.exitValue() != 0) {
       throw new InstallApexException(Reason.INVALID_ERROR_CODE_BY_SQLPLUS, sqlplus.exitValue());
@@ -215,6 +143,13 @@ public class InstallCommand extends AbstractDataSourceCommand {
     } else {
       sqlPlusBuilder.directory(extractionLocation.getParent().toFile());
     }
+  }
+
+  private PrintStream getOutputStream() {
+    if (getSettings().isQuiet()) {
+      return new PrintStream(new NullOutputStream());
+    }
+    return System.out;
   }
 
   private void redirectStandardInputToScript(OutputStream outputStream, Map<String, Object> context)

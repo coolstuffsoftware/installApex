@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 
-import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.testng.Assert;
@@ -35,12 +34,6 @@ public class TestApexDatabaseCheckService extends AbstractInstallApexTestWithCon
     Mockito.when(databaseCheckRepository.getApexWorkspacesFor("OTHER")).thenReturn(
         Arrays.asList(new ApexWorkspace[] { new ApexWorkspace(1, "DEVELOPMENT"), new ApexWorkspace(2, "PRODUCTION") }));
     Mockito.when(databaseCheckRepository.getApexWorkspacesFor("NOT_REGISTERED")).thenReturn(new ArrayList<>());
-    Mockito.when(databaseCheckRepository.existsApexApplication(Matchers.anyInt())).thenReturn(false);
-    Mockito.when(databaseCheckRepository.existsApexApplication(103)).thenReturn(true);
-    Mockito.when(databaseCheckRepository.getApexInstallationSchema()).thenReturn("APEX_050000");
-    Mockito.when(databaseCheckRepository.getSessionRoles())
-        .thenReturn(Arrays.asList(new String[] { "APEX_ADMINISTRATOR_ROLE", "CONNECT" }));
-    Mockito.when(databaseCheckRepository.getCurrentSchema()).thenReturn("SCOTT");
   }
 
   @Test
@@ -84,45 +77,6 @@ public class TestApexDatabaseCheckService extends AbstractInstallApexTestWithCon
     Map<String, Long> mappedWorkspaces = apexDatabaseCheckService.getApexWorkspacesFor("NOT_REGISTERED");
     Assert.assertNotNull(mappedWorkspaces);
     Assert.assertTrue(mappedWorkspaces.isEmpty());
-  }
-
-  @Test
-  public void testApplicationExists() {
-    boolean existsApexApplication = apexDatabaseCheckService.existsApexApplication(103);
-    Assert.assertTrue(existsApexApplication);
-  }
-
-  @Test
-  public void testApplicationNotExists() {
-    boolean existsApexApplication = apexDatabaseCheckService.existsApexApplication(104);
-    Assert.assertFalse(existsApexApplication);
-  }
-
-  @Test
-  public void testIsApexAdministrator() {
-    boolean apexAdministrator = apexDatabaseCheckService.isApexAdministrator();
-    Assert.assertTrue(apexAdministrator);
-  }
-
-  @Test
-  public void testIsNoApexAdministrator() {
-    Mockito.when(databaseCheckRepository.getSessionRoles()).thenReturn(Arrays.asList(new String[] { "CONNECT" }));
-    boolean apexAdministrator = apexDatabaseCheckService.isApexAdministrator();
-    Assert.assertFalse(apexAdministrator);
-  }
-
-  @Test
-  public void testIsApexAdministratorByApexSchemaOwner() {
-    Mockito.when(databaseCheckRepository.getCurrentSchema()).thenReturn("APEX_050000");
-    boolean apexAdministrator = apexDatabaseCheckService.isApexAdministrator();
-    Assert.assertTrue(apexAdministrator);
-  }
-
-  @Test
-  public void testIsApexAdministratorBySystemUser() {
-    Mockito.when(databaseCheckRepository.getCurrentSchema()).thenReturn("SYSTEM");
-    boolean apexAdministrator = apexDatabaseCheckService.isApexAdministrator();
-    Assert.assertTrue(apexAdministrator);
   }
 
 }

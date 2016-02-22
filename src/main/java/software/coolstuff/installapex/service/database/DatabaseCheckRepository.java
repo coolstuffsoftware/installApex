@@ -8,14 +8,4 @@ public interface DatabaseCheckRepository {
 
   List<ApexWorkspace> getApexWorkspacesFor(String targetSchema);
 
-  boolean existsApexApplication(int apexApplicationId);
-
-  List<String> getSessionRoles();
-
-  String getCurrentSchema();
-
-  String getApexInstallationSchema();
-
-  List<String> getSessionPrivs();
-
 }

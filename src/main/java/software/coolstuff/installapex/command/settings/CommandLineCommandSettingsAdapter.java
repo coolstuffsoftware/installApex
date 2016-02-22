@@ -411,11 +411,6 @@ public class CommandLineCommandSettingsAdapter implements CommandSettings {
   }
 
   @Override
-  public boolean isForce() {
-    return isOptionSet(CommandLineOption.FORCE);
-  }
-
-  @Override
   public boolean isQuiet() {
     return isOptionSet(CommandLineOption.QUIET);
   }

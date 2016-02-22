@@ -8,10 +8,4 @@ public interface DatabaseCheckService {
 
   Map<String, Long> getApexWorkspacesFor(String targetSchema);
 
-  boolean existsApexApplication(int apexApplicationId);
-
-  boolean isApexAdministrator();
-
-  boolean isLoggedOnUserAllowedToModifyOtherUser();
-
 }
