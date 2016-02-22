@@ -11,7 +11,6 @@ import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
@@ -22,7 +21,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.ui.velocity.VelocityEngineUtils;
 
 import software.coolstuff.installapex.cli.CommandLineOption;
-import software.coolstuff.installapex.command.settings.CommandSettings;
 import software.coolstuff.installapex.exception.InstallApexException;
 import software.coolstuff.installapex.exception.InstallApexException.Reason;
 import software.coolstuff.installapex.service.apex.ApexParameter;
@@ -65,7 +63,7 @@ public class InstallCommand extends AbstractDataSourceCommand {
     printlnMessage(KEY_SHOW_APEX_VERSION, apexVersion);
     long workspace = getInstallationWorkspace();
 
-    ApexApplication apexApplication = getInstallationCandidate(true);
+    ApexApplication apexApplication = getInstallationCandidate();
     printlnMessage(KEY_INSTALL_APEX_APPLICAITON, apexApplication.getName(), apexApplication.getId(),
         apexApplication.getVersion());
 
@@ -79,7 +77,7 @@ public class InstallCommand extends AbstractDataSourceCommand {
   }
 
   private long getInstallationWorkspace() {
-    ApexParameter apexParameter = getSettings().getApexParameter(true);
+    ApexParameter apexParameter = getSettings().getApexParameter();
     Map<String, Long> workspaces = databaseCheckService.getApexWorkspacesFor(apexParameter.getSchema());
     if (workspaces.isEmpty()) {
       throw new InstallApexException(Reason.NO_WORKSPACE_ASSIGNED, apexParameter.getSchema());
@@ -118,7 +116,7 @@ public class InstallCommand extends AbstractDataSourceCommand {
     setExecutionDirectory(installationScript.getParent(), sqlPlusBuilder);
     Process sqlplus = sqlPlusBuilder.start();
     //@formatter:off
-    Map<String, Object> context = new ContextBuilder()
+    Map<String, Object> context = new InstallContextBuilder()
         .setLineSize(getTerminalWidth())
         .setCommandSettings(getSettings())
         .setSqlPlusConnect(getSQLPlusConnect())
@@ -159,61 +157,6 @@ public class InstallCommand extends AbstractDataSourceCommand {
   @Override
   protected CommandType getCommandType() {
     return CommandType.INSTALL;
-  }
-
-  private class ContextBuilder {
-
-    private int lineSize;
-    private CommandSettings commandSettings;
-    private String sqlPlusConnect;
-    private long workspace;
-    private ApexApplication apexApplication;
-    private Path installationScript;
-
-    public ContextBuilder() {}
-
-    public ContextBuilder setLineSize(int lineSize) {
-      this.lineSize = lineSize;
-      return this;
-    }
-
-    public ContextBuilder setCommandSettings(CommandSettings commandSettings) {
-      this.commandSettings = commandSettings;
-      return this;
-    }
-
-    public ContextBuilder setSqlPlusConnect(String sqlPlusConnect) {
-      this.sqlPlusConnect = sqlPlusConnect;
-      return this;
-    }
-
-    public ContextBuilder setWorkspace(long workspace) {
-      this.workspace = workspace;
-      return this;
-    }
-
-    public ContextBuilder setApexApplication(ApexApplication apexApplication) {
-      this.apexApplication = apexApplication;
-      return this;
-    }
-
-    public ContextBuilder setInstallationScript(Path installationScript) {
-      this.installationScript = installationScript;
-      return this;
-    }
-
-    public Map<String, Object> build() {
-      Map<String, Object> context = new HashMap<>();
-      context.put("lineSize", lineSize);
-      context.put("sqlPlusConnectWithoutPassword", commandSettings.getSQLPlusConnect());
-      context.put("sqlPlusConnect", sqlPlusConnect);
-      context.put("workspaceId", workspace);
-      context.put("apexApplication", apexApplication);
-      context.put("apexParameter", commandSettings.getApexParameter(true));
-      context.put("installationScript", installationScript.getFileName());
-      return context;
-    }
-
   }
 
 }

@@ -129,8 +129,7 @@ Now you run ```mvn package``` and then you got the final JAR-Installer in your t
 Liquibase will be used to version the Database-Scripts. Instead of writing Initial Install and afterwards Upgrade-Scripts (more or less a bloodcurling Piece of Work)
 you can write it with a nice XML-Editor (i.E. XML-Spy) and let Liquibase the Decision, which Statements to execute against the Target Database.
 
-As mentioned above please refer to the richful Documentation of [Liquibase](http://liquibase.org). But here are 3 rules, which will guide you through the
-Creation of Liquibase Changelog-Files working correctly with this Framework
+As mentioned above please refer to the richful Documentation of [Liquibase](http://liquibase.org). But here are some rules, which will guide you through the Creation of Liquibase Changelog-Files working correctly with this Framework
 #### use logical File Name
 You can also use the Liquibase Maven-Plugin to test your XML-Scripts within a Continuous Integration Landscape (Development - Test). As the Documentation of Liquibase tells:
 
@@ -171,6 +170,8 @@ be sure that the maven plugin and the packaged Application will work the same.
 #### using relativeToChangelogFile
 On the Tags ```<include>``` and ```<sqlFile>``` you can use the attribute ```relativeToChangelogFile```. To be sure that the maven-plugin and the packaged
 Application will have the same behaviour use ```relativeToChangelogFile``` **only with ```<include>```**.
+### Liquibase ChangeLog Table
+By Default Liquibase will create a Table name ```DATABASECHANGELOG``` within the Schema you're logged on. While this behaviour is what you want in 80% chances are good you want something other. When you set another Installation-Schema by the Command-Line Option ```--installSchema``` (or simply ```-s```) the Liquibase Changelog Table (and the Changelog Lock Table) will be created within this Schema. But you can also create the Table within a completly other Schema by setting the Command-Line Option ```--changeLogSchemaName```. The the Liquibase ChangeLog Table and the Liquibase ChangeLog Lock Table will be created within this Database Schema.
 ### additional Liquibase Parameter
 Liquibase has a powerful Feature: *Changelog Parameters*. By Default, no Changelog Parameters will be set by Liquibase itself. But the InstallAPEX Framework
 will set a handful of meaningful Changelog Parameters so that they can be used within the Liquibase Changelog Files:

@@ -221,8 +221,8 @@ public class TestCommandLineCommandSettingsAdapter extends AbstractInstallApexTe
   @Test
   public void testSYSDBAConnect() throws SQLException {
     if (!environment.containsProperty("testCommandLineCommandSettingsAdapter.sydbaPassword")) {
-      System.err
-          .println("Test would not run due to missing Property \"testCommandLineCommandSettingsAdapter.sydbaPassword\"");
+      System.err.println(
+          "Test would not run due to missing Property \"testCommandLineCommandSettingsAdapter.sydbaPassword\"");
       return;
     }
 
@@ -282,8 +282,8 @@ public class TestCommandLineCommandSettingsAdapter extends AbstractInstallApexTe
     testSQLPlus(connect, expectedExitStatus, tnsAdmin.getFile());
   }
 
-  private void testSQLPlus(String connect, int expectedExitStatus, File tnsAdmin) throws IOException,
-      InterruptedException {
+  private void testSQLPlus(String connect, int expectedExitStatus, File tnsAdmin)
+      throws IOException, InterruptedException {
     CommandSettings commandSettings;
     if (tnsAdmin == null) {
       //@formatter:off
@@ -326,7 +326,8 @@ public class TestCommandLineCommandSettingsAdapter extends AbstractInstallApexTe
     return context;
   }
 
-  private void redirectStandardInputToScript(OutputStream outputStream, Map<String, Object> context) throws IOException {
+  private void redirectStandardInputToScript(OutputStream outputStream, Map<String, Object> context)
+      throws IOException {
     try (Writer output = new PrintWriter(outputStream)) {
       VelocityEngineUtils.mergeTemplate(velocityEngine, sqlplusScriptName, sqlplusScriptEncoding, context, output);
     }
@@ -459,7 +460,7 @@ public class TestCommandLineCommandSettingsAdapter extends AbstractInstallApexTe
         CommandLineOption.APEX_TARGET_STATIC_THEME_FILE_PREFIX.getLongOption("--"), expectedApexParameter.getStaticThemeFilePrefix(),
         CommandLineOption.APEX_TARGET_WORKSPACE.getLongOption("--"), expectedApexParameter.getWorkspace());
     //@formatter:on
-    Assert.assertEquals(commandSettings.getApexParameter(true), expectedApexParameter);
+    Assert.assertEquals(commandSettings.getApexParameter(), expectedApexParameter);
   }
 
   private ApexParameter prepareApexParameter() {
@@ -503,7 +504,7 @@ public class TestCommandLineCommandSettingsAdapter extends AbstractInstallApexTe
         CommandLineOption.APEX_TARGET_STATIC_THEME_FILE_PREFIX.getLongOption("--"), expectedApexParameter.getStaticThemeFilePrefix(),
         CommandLineOption.APEX_TARGET_WORKSPACE.getLongOption("--"), expectedApexParameter.getWorkspace());
     //@formatter:on
-    Assert.assertEquals(commandSettings.getApexParameter(true), expectedApexParameter);
+    Assert.assertEquals(commandSettings.getApexParameter(), expectedApexParameter);
   }
 
   @Test
@@ -525,7 +526,7 @@ public class TestCommandLineCommandSettingsAdapter extends AbstractInstallApexTe
         CommandLineOption.APEX_TARGET_STATIC_THEME_FILE_PREFIX.getLongOption("--"), expectedApexParameter.getStaticThemeFilePrefix(),
         CommandLineOption.APEX_TARGET_WORKSPACE.getLongOption("--"), expectedApexParameter.getWorkspace());
     //@formatter:on
-    Assert.assertEquals(commandSettings.getApexParameter(true), expectedApexParameter);
+    Assert.assertEquals(commandSettings.getApexParameter(), expectedApexParameter);
   }
 
   @Test

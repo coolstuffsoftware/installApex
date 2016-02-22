@@ -2,12 +2,11 @@ package software.coolstuff.installapex.command;
 
 import java.io.Writer;
 
-import jline.console.ConsoleReader;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import jline.console.ConsoleReader;
 import software.coolstuff.installapex.service.apex.parser.ApexApplication;
 import software.coolstuff.installapex.service.upgrade.UpgradeParameter;
 import software.coolstuff.installapex.service.upgrade.UpgradeService;
@@ -24,7 +23,7 @@ public class ExtractDDLCommand extends AbstractDataSourceCommand {
 
   @Override
   protected void executeWithInitializedDataSource() {
-    ApexApplication candidate = getInstallationCandidate(false);
+    ApexApplication candidate = getInstallationCandidate();
     UpgradeParameter upgradeParameter = getSettings().getUpgradeParameter();
     upgradeParameter.setApexApplication(candidate.getId());
     Writer outputWriter = getSettings().getOutputFile(getPrintWriter());

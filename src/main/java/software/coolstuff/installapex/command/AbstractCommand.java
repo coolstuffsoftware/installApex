@@ -7,9 +7,6 @@ import java.util.Locale;
 
 import javax.annotation.PostConstruct;
 
-import jline.Terminal;
-import jline.console.ConsoleReader;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +16,8 @@ import org.springframework.context.MessageSource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 
+import jline.Terminal;
+import jline.console.ConsoleReader;
 import software.coolstuff.installapex.cli.CommandLineOption;
 import software.coolstuff.installapex.command.settings.CommandSettings;
 import software.coolstuff.installapex.exception.InstallApexException;
@@ -124,13 +123,13 @@ public abstract class AbstractCommand implements Command {
     return this.getClass().getName() + " {commandType: \"" + getCommandType() + "\"}";
   }
 
-  protected ApexApplication getInstallationCandidate(boolean withDbUserAsFallback) {
+  protected ApexApplication getInstallationCandidate() {
     List<ApexApplication> candidates = apexApplicationParserService.getCandidates();
     if (CollectionUtils.isEmpty(candidates)) {
       throw new InstallApexException(Reason.NO_APEX_APPLICATIONS_INCLUDED,
           apexApplicationParserService.getDefaultLocation());
     }
-    ApexParameter apexParameter = getSettings().getApexParameter(withDbUserAsFallback);
+    ApexParameter apexParameter = getSettings().getApexParameter();
     Integer requestedApplicationId = apexParameter.getSourceId();
     if (requestedApplicationId == null) {
       return getSingleApexApplication(candidates);

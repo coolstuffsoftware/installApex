@@ -13,14 +13,13 @@ import java.util.Properties;
 
 import javax.sql.DataSource;
 
-import oracle.jdbc.pool.OracleDataSource;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import oracle.jdbc.pool.OracleDataSource;
 import software.coolstuff.installapex.cli.CommandLineOption;
 import software.coolstuff.installapex.command.CommandType;
 import software.coolstuff.installapex.exception.InstallApexException;
@@ -115,9 +114,8 @@ public class CommandLineCommandSettingsAdapter implements CommandSettings {
 
   private void createDirectoryIfAllowed(CommandLineOption option, Path directory, boolean createIfNotExists) {
     if (!createIfNotExists) {
-      throw new IllegalStateException(String.format(
-          "Not allowed to create Directory '%s' due to CommandLine Option %s", directory.toAbsolutePath(),
-          option.getLongOption()));
+      throw new IllegalStateException(String.format("Not allowed to create Directory '%s' due to CommandLine Option %s",
+          directory.toAbsolutePath(), option.getLongOption()));
     }
 
     try {
@@ -254,7 +252,8 @@ public class CommandLineCommandSettingsAdapter implements CommandSettings {
     return oracleHome;
   }
 
-  private void missingRequiredCommandLineOption(CommandLineOption option, String systemPropertyKeyOrEnvironmentVariable) {
+  private void missingRequiredCommandLineOption(CommandLineOption option,
+      String systemPropertyKeyOrEnvironmentVariable) {
     throw new InstallApexException(Reason.CLI_OPTION_EVALUATION_ERROR, systemPropertyKeyOrEnvironmentVariable,
         option.getLongOption(), commandType.getLongOption());
   }
@@ -441,13 +440,20 @@ public class CommandLineCommandSettingsAdapter implements CommandSettings {
     UpgradeParameter upgradeParameter = new UpgradeParameter();
     upgradeParameter.setApexApplication(getIntegerByOptionalArgumentOf(CommandLineOption.APEX_SOURCE_ID));
     upgradeParameter
-    .setDatabaseChangeLogTableName(getValueByOptionalArgumentOf(CommandLineOption.CHANGELOG_TABLE_NAME));
+        .setDatabaseChangeLogTableName(getValueByOptionalArgumentOf(CommandLineOption.CHANGELOG_TABLE_NAME));
     upgradeParameter
-    .setDatabaseChangeLogLockTableName(getValueByOptionalArgumentOf(CommandLineOption.CHANGELOG_LOCK_TABLE_NAME));
-    upgradeParameter.setDefaultSchemaName(getValueByOptionalArgumentOf(CommandLineOption.INSTALL_SCHEMA));
-    upgradeParameter.setLiquibaseSchemaName(getValueByOptionalArgumentOf(CommandLineOption.CHANGELOG_SCHEMA));
+        .setDatabaseChangeLogLockTableName(getValueByOptionalArgumentOf(CommandLineOption.CHANGELOG_LOCK_TABLE_NAME));
+    String liquibaseSchemaName = getValueByOptionalArgumentOf(CommandLineOption.CHANGELOG_SCHEMA);
+    upgradeParameter.setLiquibaseSchemaName(liquibaseSchemaName);
+    String installationSchema = getValueByOptionalArgumentOf(CommandLineOption.INSTALL_SCHEMA);
+    upgradeParameter.setDefaultSchemaName(installationSchema);
+    if (StringUtils.isNotBlank(installationSchema) && StringUtils.isBlank(liquibaseSchemaName)) {
+      // Installation Schema has been set but not the Liquibase Schema
+      // --> set the Liquibase Schema to the Installation Schema
+      upgradeParameter.setLiquibaseSchemaName(liquibaseSchemaName);
+    }
     upgradeParameter
-    .setLiquibaseTablespaceName(getValueByOptionalArgumentOf(CommandLineOption.CHANGELOG_TABLESPACE_NAME));
+        .setLiquibaseTablespaceName(getValueByOptionalArgumentOf(CommandLineOption.CHANGELOG_TABLESPACE_NAME));
     upgradeParameter.setDbUser(getValueByArgumentOf(CommandLineOption.DB_USER));
     upgradeParameter.setDbConnection(getValueByArgumentOf(CommandLineOption.DB_CONNECT));
     return upgradeParameter;
@@ -462,7 +468,7 @@ public class CommandLineCommandSettingsAdapter implements CommandSettings {
   }
 
   @Override
-  public ApexParameter getApexParameter(boolean withDbUserAsFallback) {
+  public ApexParameter getApexParameter() {
     ApexParameter apexParameter = new ApexParameter();
     apexParameter.setSourceId(getIntegerByOptionalArgumentOf(CommandLineOption.APEX_SOURCE_ID));
     apexParameter.setGenerateTargetId(isOptionSet(CommandLineOption.APEX_TARGET_GENERATE_ID));
@@ -474,20 +480,14 @@ public class CommandLineCommandSettingsAdapter implements CommandSettings {
     apexParameter.setAutoInstallSupportingObjects(isOptionSet(CommandLineOption.APEX_TARGET_AUTO_INSTALL_SUP_OBJECT));
     apexParameter.setImagePrefix(getValueByOptionalArgumentOf(CommandLineOption.APEX_TARGET_IMAGE_PREFIX));
     apexParameter.setProxy(getValueByOptionalArgumentOf(CommandLineOption.APEX_TARGET_PROXY));
-    log.debug("Get the Installation Schema from the Settings");
-    String installationSchema = getValueByOptionalArgumentOf(CommandLineOption.INSTALL_SCHEMA);
-    if (withDbUserAsFallback && StringUtils.isBlank(installationSchema)) {
-      installationSchema = getValueByArgumentOf(CommandLineOption.DB_USER);
-      log.debug("No Installation Schema has been specified --> use the Logon User {}", installationSchema);
-    }
-    apexParameter.setSchema(StringUtils.upperCase(installationSchema));
+    apexParameter.setSchema(StringUtils.upperCase(getValueByOptionalArgumentOf(CommandLineOption.INSTALL_SCHEMA)));
     apexParameter.setWorkspace(getValueByOptionalArgumentOf(CommandLineOption.APEX_TARGET_WORKSPACE));
     apexParameter
-    .setStaticAppFilePrefix(getValueByOptionalArgumentOf(CommandLineOption.APEX_TARGET_STATIC_APP_FILE_PREFIX));
+        .setStaticAppFilePrefix(getValueByOptionalArgumentOf(CommandLineOption.APEX_TARGET_STATIC_APP_FILE_PREFIX));
+    apexParameter.setStaticPluginFilePrefix(
+        getValueByOptionalArgumentOf(CommandLineOption.APEX_TARGET_STATIC_PLUGIN_FILE_PREFIX));
     apexParameter
-        .setStaticPluginFilePrefix(getValueByOptionalArgumentOf(CommandLineOption.APEX_TARGET_STATIC_PLUGIN_FILE_PREFIX));
-    apexParameter
-    .setStaticThemeFilePrefix(getValueByOptionalArgumentOf(CommandLineOption.APEX_TARGET_STATIC_THEME_FILE_PREFIX));
+        .setStaticThemeFilePrefix(getValueByOptionalArgumentOf(CommandLineOption.APEX_TARGET_STATIC_THEME_FILE_PREFIX));
     return apexParameter;
   }
 

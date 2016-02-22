@@ -20,7 +20,7 @@ public class ExtractApexCommand extends AbstractCommand {
 
   @Override
   public void execute() {
-    ApexApplication candidate = getInstallationCandidate(false);
+    ApexApplication candidate = getInstallationCandidate();
     Path outputDirectory = getSettings().getOutputDirectory();
     Path applicationOutputLocation = outputDirectory.toAbsolutePath().normalize()
         .resolve(candidate.getLocation().toString());

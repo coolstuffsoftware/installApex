@@ -60,6 +60,13 @@ public class TestDatabaseCheckRepository extends AbstractInstallApexTestWithCont
   }
 
   @Test
+  public void testGetApexWorkspacesForNullUser() {
+    List<ApexWorkspace> apexWorkspaces = repository.getApexWorkspacesFor(null);
+    Assert.assertNotNull(apexWorkspaces);
+    Assert.assertTrue(apexWorkspaces.isEmpty());
+  }
+
+  @Test
   public void testApplicationExists() {
     boolean existsApexApplication = repository.existsApexApplication(103);
     Assert.assertTrue(existsApexApplication);

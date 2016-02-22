@@ -43,8 +43,10 @@ BEGIN
     APEX_APPLICATION_INSTALL.get_workspace_id || ')');
 #if( ${apexParameter.schema} )
   APEX_APPLICATION_INSTALL.set_schema ('${apexParameter.schema}');
-  DBMS_OUTPUT.put_line (c_left || LPAD('Schema: ', c_padding) || APEX_APPLICATION_INSTALL.get_schema);
+#else
+  APEX_APPLICATION_INSTALL.set_schema (USER);
 #end
+  DBMS_OUTPUT.put_line (c_left || LPAD('Schema: ', c_padding) || APEX_APPLICATION_INSTALL.get_schema);
 #if ( ${apexParameter.name} )
   APEX_APPLICATION_INSTALL.set_application_name ('${apexParameter.name}');
   DBMS_OUTPUT.put_line (c_left || LPAD('Application Name: ', c_padding) || APEX_APPLICATION_INSTALL.get_application_name);
