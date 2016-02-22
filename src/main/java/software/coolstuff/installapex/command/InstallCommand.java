@@ -47,7 +47,7 @@ public class InstallCommand extends AbstractDataSourceCommand {
 
   private static final String KEY_EXTRACT_APEX_APPLICAITON = "installCommand.extractApexApplication";
 
-  private static final String KEY_INSTALL_ON_ADMIN_SCHEMA = "installCommand.confirm.overwriteExistingApexApplication";
+  private static final String KEY_INSTALL_ON_ADMIN_SCHEMA = "installCommand.confirm.installOnApexAdministratorSchema";
   private static final String KEY_OVERWRITE_APPLICATION = "installCommand.confirm.overwriteExistingApexApplication";
 
   private static final String KEY_CONFIRM_TRUE = "installCommand.confirm.true";

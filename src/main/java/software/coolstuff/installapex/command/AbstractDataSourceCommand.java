@@ -58,7 +58,8 @@ public abstract class AbstractDataSourceCommand extends AbstractCommand {
       String databaseConnect = getSettings().getSQLPlusConnect();
       String passwordPrompt = messageSource.getMessage(KEY_PASSWORD_PROMPT, new String[] { databaseConnect },
           Locale.getDefault());
-      return console.readLine(passwordPrompt, '*');
+      print(passwordPrompt);
+      return console.readLine('*');
     } catch (IOException e) {
       throw new InstallApexException(Reason.CONSOLE_PROBLEM, e).setPrintStrackTrace(true);
     }
