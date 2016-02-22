@@ -221,8 +221,8 @@ public class TestCommandLineCommandSettingsAdapter extends AbstractInstallApexTe
   @Test
   public void testSYSDBAConnect() throws SQLException {
     if (!environment.containsProperty("testCommandLineCommandSettingsAdapter.sydbaPassword")) {
-      System.err
-          .println("Test would not run due to missing Property \"testCommandLineCommandSettingsAdapter.sydbaPassword\"");
+      System.err.println(
+          "Test would not run due to missing Property \"testCommandLineCommandSettingsAdapter.sydbaPassword\"");
       return;
     }
 
@@ -282,8 +282,8 @@ public class TestCommandLineCommandSettingsAdapter extends AbstractInstallApexTe
     testSQLPlus(connect, expectedExitStatus, tnsAdmin.getFile());
   }
 
-  private void testSQLPlus(String connect, int expectedExitStatus, File tnsAdmin) throws IOException,
-      InterruptedException {
+  private void testSQLPlus(String connect, int expectedExitStatus, File tnsAdmin)
+      throws IOException, InterruptedException {
     CommandSettings commandSettings;
     if (tnsAdmin == null) {
       //@formatter:off
@@ -326,7 +326,8 @@ public class TestCommandLineCommandSettingsAdapter extends AbstractInstallApexTe
     return context;
   }
 
-  private void redirectStandardInputToScript(OutputStream outputStream, Map<String, Object> context) throws IOException {
+  private void redirectStandardInputToScript(OutputStream outputStream, Map<String, Object> context)
+      throws IOException {
     try (Writer output = new PrintWriter(outputStream)) {
       VelocityEngineUtils.mergeTemplate(velocityEngine, sqlplusScriptName, sqlplusScriptEncoding, context, output);
     }
@@ -466,7 +467,6 @@ public class TestCommandLineCommandSettingsAdapter extends AbstractInstallApexTe
     ApexParameter expectedApexParameter = new ApexParameter();
     expectedApexParameter.setSchema("OTHER");
     expectedApexParameter.setSourceId(103);
-    expectedApexParameter.setGenerateTargetId(false);
     expectedApexParameter.setAutoInstallSupportingObjects(true);
     expectedApexParameter.setKeepTargetOffset(false);
     expectedApexParameter.setAlias("ALIAS");
@@ -481,9 +481,8 @@ public class TestCommandLineCommandSettingsAdapter extends AbstractInstallApexTe
   }
 
   @Test
-  public void testApexParameterWithGenerateTargetIdAndKeepOffset() {
+  public void testApexParameterWithKeepOffset() {
     ApexParameter expectedApexParameter = prepareApexParameter();
-    expectedApexParameter.setGenerateTargetId(true);
     expectedApexParameter.setKeepTargetOffset(true);
     //@formatter:off
     CommandSettings commandSettings = createCommandLine(
@@ -493,7 +492,6 @@ public class TestCommandLineCommandSettingsAdapter extends AbstractInstallApexTe
         CommandLineOption.APEX_SOURCE_ID.getLongOption("--"), expectedApexParameter.getSourceId().toString(),
         CommandLineOption.APEX_TARGET_AUTO_INSTALL_SUP_OBJECT.getLongOption("--"),
         CommandLineOption.APEX_TARGET_ALIAS.getLongOption("--"), expectedApexParameter.getAlias(),
-        CommandLineOption.APEX_TARGET_GENERATE_ID.getLongOption("--"),
         CommandLineOption.APEX_TARGET_IMAGE_PREFIX.getLongOption("--"), expectedApexParameter.getImagePrefix(),
         CommandLineOption.APEX_TARGET_NAME.getLongOption("--"), expectedApexParameter.getName(),
         CommandLineOption.APEX_TARGET_KEEP_OFFSET.getLongOption("--"),

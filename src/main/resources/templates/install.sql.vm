@@ -15,14 +15,12 @@ DECLARE
   v_workspace_id           APEX_WORKSPACES."WORKSPACE_ID"%TYPE;
 BEGIN
   DBMS_OUTPUT.put_line ('set Installation Parameter');
-#if ( ${apexParameter.generateTargetId} && !${apexParameter.targetId} )
-  APEX_APPLICATION_INSTALL.generate_application_id;
-  DBMS_OUTPUT.put_line (c_left || LPAD('Application ID: ', c_padding) || APEX_APPLICATION_INSTALL.get_application_id);
-#end
 #if ( ${apexParameter.targetId} )
   APEX_APPLICATION_INSTALL.set_application_id (TO_NUMBER('${apexParameter.targetId}'));
-  DBMS_OUTPUT.put_line (c_left || LPAD('Application ID: ', c_padding) || APEX_APPLICATION_INSTALL.get_application_id);
+#else
+  APEX_APPLICATION_INSTALL.generate_application_id;
 #end
+  DBMS_OUTPUT.put_line (c_left || LPAD('Application ID: ', c_padding) || APEX_APPLICATION_INSTALL.get_application_id);
 #if ( !${apexParameter.keepTargetOffset} )
   APEX_APPLICATION_INSTALL.generate_offset;
   DBMS_OUTPUT.put_line (c_left || LPAD('Offset: ', c_padding) || APEX_APPLICATION_INSTALL.get_offset);
@@ -52,7 +50,7 @@ BEGIN
   DBMS_OUTPUT.put_line (c_left || LPAD('Application Name: ', c_padding) || APEX_APPLICATION_INSTALL.get_application_name);
 #end
 #if ( ${apexParameter.alias} )
-  APEX_APPLICATION_INSTALL.set_application_alias('${applicationParameter.alias}');
+  APEX_APPLICATION_INSTALL.set_application_alias('${apexParameter.alias}');
   DBMS_OUTPUT.put_line (c_left || LPAD('Application Alias: ', c_padding) || APEX_APPLICATION_INSTALL.get_application_alias);
 #end
 #if ( ${apexParameter.autoInstallSupportingObjects} )

@@ -109,7 +109,9 @@ public class InstallApexException extends RuntimeException {
     CANNOT_OVERWRITE_OUTPUT_DIRECTORY_WITHOUT_FORCE_FLAG(22, "cannotOverwriteOutputDirectoryWithoutForceFlag", false),
     CANNOT_QUIETLY_READ_PASSWORD_FROM_CONSOLE(23, "cannotQuietlyReadPasswordFromConsole", false),
     ERROR_WHILE_INSTALL_WITH_SQLPLUS(24, "errorWhileInstallApplicationWithSQLPlus", true),
-    NO_APEX_INSTALLATION_SCRIPT_AVAILABLE(25, "noApexInstallationScriptAvailable", false);
+    NO_APEX_INSTALLATION_SCRIPT_AVAILABLE(25, "noApexInstallationScriptAvailable", false),
+    INTERRUPTED_BY_USER(26, "interruptedByUser", false),
+    INVALID_ERROR_CODE_BY_SQLPLUS(27, "invalidErrorCodeBySQLPlus", false);
 
     private int code;
     private String messageKey;

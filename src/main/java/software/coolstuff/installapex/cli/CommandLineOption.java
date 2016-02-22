@@ -44,7 +44,6 @@ public enum CommandLineOption {
 
   APEX_SOURCE_ID(new Settings("sourceId").setArgument("ID")),
   APEX_TARGET_ID(new Settings("targetId").setArgument("ID")),
-  APEX_TARGET_GENERATE_ID(new Settings("generateTargetId")),
   APEX_TARGET_ALIAS(new Settings("targetAlias").setArgument("Alias")),
   APEX_TARGET_NAME(new Settings("targetName").setArgument("Name")),
   APEX_TARGET_AUTO_INSTALL_SUP_OBJECT(new Settings("targetAutoInstallSupObj")),
@@ -115,9 +114,6 @@ public enum CommandLineOption {
     final OptionGroup commandGroup = new OptionGroup();
     commandGroup.setRequired(true);
 
-    final OptionGroup targetIdGroup = new OptionGroup();
-    targetIdGroup.setRequired(false);
-
     final OptionGroup targetOffsetGroup = new OptionGroup();
     targetOffsetGroup.setRequired(false);
 
@@ -127,12 +123,10 @@ public enum CommandLineOption {
       setDescription(option, messageSource, locale);
       setArgument(settings, option);
       setOptionAsCommand(settings, option, commandGroup);
-      setOptionAsTargetId(option, targetIdGroup);
       setOptionAsTargetOffset(option, targetOffsetGroup);
       options.addOption(option);
     }
     options.addOptionGroup(commandGroup);
-    options.addOptionGroup(targetIdGroup);
     options.addOptionGroup(targetOffsetGroup);
 
     return options;
@@ -170,13 +164,6 @@ public enum CommandLineOption {
   private static void setOptionAsCommand(Settings settings, Option option, OptionGroup commandGroup) {
     if (settings.isCommand()) {
       commandGroup.addOption(option);
-    }
-  }
-
-  private static void setOptionAsTargetId(Option option, OptionGroup targetIdGroup) {
-    if (CommandLineOption.APEX_TARGET_GENERATE_ID.equalsTo(option)
-        || CommandLineOption.APEX_TARGET_ID.equalsTo(option)) {
-      targetIdGroup.addOption(option);
     }
   }
 

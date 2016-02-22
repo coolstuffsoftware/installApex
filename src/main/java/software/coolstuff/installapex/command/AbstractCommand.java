@@ -8,8 +8,6 @@ import java.util.Locale;
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.MessageSource;
@@ -27,8 +25,6 @@ import software.coolstuff.installapex.service.apex.parser.ApexApplication;
 import software.coolstuff.installapex.service.apex.parser.ApexApplicationParserService;
 
 public abstract class AbstractCommand implements Command {
-
-  private static final Logger log = LoggerFactory.getLogger(AbstractCommand.class);
 
   @Autowired
   private CommandRegistryImpl commandRegistry;

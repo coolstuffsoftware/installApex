@@ -13,7 +13,6 @@ public class ApexParameter {
   private String staticPluginFilePrefix;
   private String staticThemeFilePrefix;
   private Integer sourceId;
-  private boolean generateTargetId = true;
   private Integer targetId;
   private String workspace;
   private String schema;
@@ -86,24 +85,16 @@ public class ApexParameter {
     return !isSourceIdNotSpecified();
   }
 
-  public void setGenerateTargetId(boolean generateTargetId) {
-    this.generateTargetId = generateTargetId;
-  }
-
-  public boolean isGenerateTargetId() {
-    return generateTargetId;
-  }
-
-  public boolean isNotGenerateTargetId() {
-    return !isGenerateTargetId();
-  }
-
   public void setTargetId(Integer targetId) {
     this.targetId = targetId;
   }
 
   public Integer getTargetId() {
     return targetId;
+  }
+
+  public boolean isTargetIdSpecified() {
+    return targetId != null;
   }
 
   public String getWorkspace() {
@@ -169,8 +160,7 @@ public class ApexParameter {
   @Override
   public int hashCode() {
     return Objects.hash(autoInstallSupportingObjects, imagePrefix, proxy, staticAppFilePrefix, staticPluginFilePrefix,
-        staticThemeFilePrefix, sourceId, generateTargetId, targetId, workspace, schema, keepTargetOffset, offset, alias,
-        name);
+        staticThemeFilePrefix, sourceId, targetId, workspace, schema, keepTargetOffset, offset, alias, name);
   }
 
   @Override
@@ -184,10 +174,10 @@ public class ApexParameter {
         && Objects.equals(staticAppFilePrefix, otherObj.staticAppFilePrefix)
         && Objects.equals(staticPluginFilePrefix, otherObj.staticPluginFilePrefix)
         && Objects.equals(staticThemeFilePrefix, otherObj.staticThemeFilePrefix)
-        && Objects.equals(sourceId, otherObj.sourceId) && Objects.equals(generateTargetId, otherObj.generateTargetId)
-        && Objects.equals(targetId, otherObj.targetId) && Objects.equals(workspace, otherObj.workspace)
-        && Objects.equals(schema, otherObj.schema) && Objects.equals(keepTargetOffset, otherObj.keepTargetOffset)
-        && Objects.equals(offset, otherObj.offset) && Objects.equals(alias, otherObj.alias);
+        && Objects.equals(sourceId, otherObj.sourceId) && Objects.equals(targetId, otherObj.targetId)
+        && Objects.equals(workspace, otherObj.workspace) && Objects.equals(schema, otherObj.schema)
+        && Objects.equals(keepTargetOffset, otherObj.keepTargetOffset) && Objects.equals(offset, otherObj.offset)
+        && Objects.equals(alias, otherObj.alias);
   }
 
 }

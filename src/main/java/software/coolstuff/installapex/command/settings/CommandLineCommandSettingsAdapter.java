@@ -471,7 +471,6 @@ public class CommandLineCommandSettingsAdapter implements CommandSettings {
   public ApexParameter getApexParameter() {
     ApexParameter apexParameter = new ApexParameter();
     apexParameter.setSourceId(getIntegerByOptionalArgumentOf(CommandLineOption.APEX_SOURCE_ID));
-    apexParameter.setGenerateTargetId(isOptionSet(CommandLineOption.APEX_TARGET_GENERATE_ID));
     apexParameter.setTargetId(getIntegerByOptionalArgumentOf(CommandLineOption.APEX_TARGET_ID));
     apexParameter.setKeepTargetOffset(isOptionSet(CommandLineOption.APEX_TARGET_KEEP_OFFSET));
     apexParameter.setOffset(getLongByOptionalArgumentOf(CommandLineOption.APEX_TARGET_OFFSET));
