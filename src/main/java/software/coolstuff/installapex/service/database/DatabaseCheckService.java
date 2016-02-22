@@ -12,4 +12,6 @@ public interface DatabaseCheckService {
 
   boolean isApexAdministrator();
 
+  boolean isLoggedOnUserAllowedToModifyOtherUser();
+
 }

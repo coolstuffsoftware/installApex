@@ -40,6 +40,9 @@ public class DatabaseCheckRepositoryImpl implements DatabaseCheckRepository {
   @Value("${databaseCheckRepository.queryCurrentSchema}")
   private String queryCurrentSchema;
 
+  @Value("${databaseCheckRepository.querySessionPrivs}")
+  private String querySessionPrivs;
+
   @Override
   public String getApexVersion() {
     log.debug("Execute Query: {}", queryApexVersion);
@@ -94,6 +97,12 @@ public class DatabaseCheckRepositoryImpl implements DatabaseCheckRepository {
   private String mapApexInstallationSchema(CallableStatement cs) throws SQLException, DataAccessException {
     cs.executeUpdate();
     return (String) cs.getObject(1);
+  }
+
+  @Override
+  public List<String> getSessionPrivs() {
+    log.debug("Execute Query {}", querySessionPrivs);
+    return operations.queryForList(querySessionPrivs, String.class);
   }
 
 }

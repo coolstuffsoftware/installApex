@@ -16,4 +16,6 @@ public interface DatabaseCheckRepository {
 
   String getApexInstallationSchema();
 
+  List<String> getSessionPrivs();
+
 }

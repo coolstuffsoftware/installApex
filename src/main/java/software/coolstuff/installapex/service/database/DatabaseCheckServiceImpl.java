@@ -23,6 +23,14 @@ public class DatabaseCheckServiceImpl implements DatabaseCheckService {
   private static final String[] SYSTEM_USERS = new String[] { "SYS", "SYSTEM" };
   private static final String APEX_ADMINISTRATOR_ROLE = "APEX_ADMINISTRATOR_ROLE";
 
+  //@formatter:off
+  private static final String[] MODIFICATION_PRIVILEGES = new String[] {
+      "CREATE ANY TABLE",
+      "ALTER ANY TABLE",
+      "DROP ANY TABLE"
+  };
+  //@formatter:on
+
   @Autowired
   private DatabaseCheckRepository repository;
 
@@ -75,6 +83,17 @@ public class DatabaseCheckServiceImpl implements DatabaseCheckService {
 
     List<String> sessionRoles = repository.getSessionRoles();
     return sessionRoles.contains(APEX_ADMINISTRATOR_ROLE);
+  }
+
+  @Override
+  public boolean isLoggedOnUserAllowedToModifyOtherUser() {
+    List<String> sessionPrivileges = repository.getSessionPrivs();
+    for (String privilege : MODIFICATION_PRIVILEGES) {
+      if (!sessionPrivileges.contains(privilege)) {
+        return false;
+      }
+    }
+    return true;
   }
 
 }
