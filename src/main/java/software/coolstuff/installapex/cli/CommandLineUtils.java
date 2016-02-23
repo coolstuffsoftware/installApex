@@ -7,6 +7,8 @@ import java.net.URL;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
+import net.sourceforge.cobertura.interaction.annotations.api.metrics.CoberturaIgnored;
+
 public final class CommandLineUtils {
 
   private final static String MANIFEST_LOCATION = "/META-INF/MANIFEST.MF";
@@ -14,6 +16,7 @@ public final class CommandLineUtils {
   // this is only a Utility Class with static Methods
   private CommandLineUtils() {}
 
+  @CoberturaIgnored
   public static String getSyntax(Class<?> clazz) {
     String className = clazz.getSimpleName() + ".class";
     String classPath = clazz.getResource(className).toString();

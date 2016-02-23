@@ -139,13 +139,13 @@
 			<version>2.7</version>
 			<configuration>
 				<instrumentation>
+					<excludes>
+						<exclude>software/coolstuff/installapex/config/EmptyDataSource*</exclude>
+					</excludes>
 					<ignoreTrivial>true</ignoreTrivial>
 					<ignoreMethodAnnotations>
 						<ignoreMethodAnnotation>net.sourceforge.cobertura.interaction.annotations.api.metrics.CoberturaIgnored</ignoreMethodAnnotation>
 					</ignoreMethodAnnotations>
-					<ignores>
-						<ignore>software.coolstuff.installapex.config.EmptyDataSource</ignore>
-					</ignores>
 				</instrumentation>
 				<formats>
 					<format>html</format>
@@ -172,13 +172,13 @@
 			<version>2.7</version>
 			<configuration>
 				<instrumentation>
+					<excludes>
+						<exclude>software/coolstuff/installapex/config/EmptyDataSource*</exclude>
+					</excludes>
 					<ignoreTrivial>true</ignoreTrivial>
 					<ignoreMethodAnnotations>
 						<ignoreMethodAnnotation>net.sourceforge.cobertura.interaction.annotations.api.metrics.CoberturaIgnored</ignoreMethodAnnotation>
 					</ignoreMethodAnnotations>
-					<ignores>
-						<ignore>software.coolstuff.installapex.config.EmptyDataSource</ignore>
-					</ignores>
 				</instrumentation>
 				<formats>
 					<format>html</format>
