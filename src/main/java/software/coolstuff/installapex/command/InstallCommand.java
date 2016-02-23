@@ -66,11 +66,8 @@ public class InstallCommand extends AbstractDataSourceCommand {
     long workspace = getInstallationWorkspace();
 
     ApexApplication apexApplication = getInstallationCandidate();
-    printlnMessage(KEY_INSTALL_APEX_APPLICAITON, apexApplication.getName(), apexApplication.getId(),
-        apexApplication.getVersion());
-
-    upgradeDatabase(apexApplication);
     try {
+      upgradeDatabase(apexApplication);
       installApexApplication(apexApplication, workspace);
     } catch (IOException | InterruptedException e) {
       throw new InstallApexException(Reason.ERROR_WHILE_INSTALL_WITH_SQLPLUS, e, apexApplication.getId(),
@@ -102,7 +99,7 @@ public class InstallCommand extends AbstractDataSourceCommand {
   }
 
   private void upgradeDatabase(ApexApplication apexApplication) {
-    printlnMessage(KEY_UPGRADE_DATABASE, getSettings().getSQLPlusConnect(), apexApplication.getId());
+    printlnMessage(KEY_UPGRADE_DATABASE, getSettings().getInstallSchemaConnect(), apexApplication.getId());
     UpgradeParameter upgradeParameter = getSettings().getUpgradeParameter();
     upgradeParameter.setApexApplication(apexApplication.getId());
     upgradeService.updateDatabase(upgradeParameter);
@@ -114,6 +111,8 @@ public class InstallCommand extends AbstractDataSourceCommand {
     printlnMessage(KEY_EXTRACT_APEX_APPLICAITON, apexApplication.getId(), apexApplication.getName(),
         temporaryDirectory.toAbsolutePath());
     Path installationScript = parserService.extract(apexApplication, temporaryDirectory);
+    printlnMessage(KEY_INSTALL_APEX_APPLICAITON, apexApplication.getName(), apexApplication.getId(),
+        apexApplication.getVersion());
     ProcessBuilder sqlPlusBuilder = getSettings().getSQLPlusCommand();
     setExecutionDirectory(installationScript.getParent(), sqlPlusBuilder);
     Process sqlplus = sqlPlusBuilder.start();

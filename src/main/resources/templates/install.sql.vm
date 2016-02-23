@@ -3,7 +3,6 @@ WHENEVER SQLERROR EXIT SQL.SQLCODE ROLLBACK
 WHENEVER OSERROR EXIT FAILURE ROLLBACK
 
 CONNECT ${sqlPlusConnect}
-PROMPT connected to ${sqlPlusConnectWithoutPassword}
 
 SET SERVEROUTPUT ON SIZE UNLIMITED FORMAT WRAPPED
 SET FEEDBACK OFF
@@ -23,7 +22,6 @@ BEGIN
   DBMS_OUTPUT.put_line (c_left || LPAD('Application ID: ', c_padding) || APEX_APPLICATION_INSTALL.get_application_id);
 #if ( !${apexParameter.keepTargetOffset} )
   APEX_APPLICATION_INSTALL.generate_offset;
-  DBMS_OUTPUT.put_line (c_left || LPAD('Offset: ', c_padding) || APEX_APPLICATION_INSTALL.get_offset);
 #end
 #if ( ${apexParameter.offset} )
   APEX_APPLICATION_INSTALL.set_offset (TO_NUMBER('${apexParameter.offset}'));

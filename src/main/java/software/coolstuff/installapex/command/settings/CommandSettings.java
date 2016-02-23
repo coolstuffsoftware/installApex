@@ -20,6 +20,8 @@ public interface CommandSettings {
 
   String getSQLPlusConnect();
 
+  String getInstallSchemaConnect();
+
   boolean isQuiet();
 
   boolean isPasswordAvailable();

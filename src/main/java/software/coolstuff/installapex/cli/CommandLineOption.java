@@ -21,7 +21,7 @@ public enum CommandLineOption {
   QUIET(new Settings("quiet", 'q')),
 
   LIST(new Settings(CommandType.LIST, 'l')),
-  INSTALL(new Settings(CommandType.INSTALL)),
+  INSTALL(new Settings(CommandType.INSTALL, 'i')),
   EXTRACT_DDL(new Settings(CommandType.EXTRACT_DDL)),
   EXTRACT_APEX(new Settings(CommandType.EXTRACT_APEX)),
 
@@ -43,8 +43,8 @@ public enum CommandLineOption {
   CHANGELOG_TABLESPACE_NAME(new Settings("changeLogTablespaceName").setArgument("Tablespace")),
 
   APEX_SOURCE_ID(new Settings("sourceId").setArgument("ID")),
-  APEX_TARGET_ID(new Settings("targetId").setArgument("ID")),
-  APEX_TARGET_ALIAS(new Settings("targetAlias").setArgument("Alias")),
+  APEX_TARGET_ID(new Settings("targetId", 't').setArgument("ID")),
+  APEX_TARGET_ALIAS(new Settings("targetAlias", 'a').setArgument("Alias")),
   APEX_TARGET_NAME(new Settings("targetName").setArgument("Name")),
   APEX_TARGET_AUTO_INSTALL_SUP_OBJECT(new Settings("targetAutoInstallSupObj")),
   APEX_TARGET_IMAGE_PREFIX(new Settings("targetImagePrefix").setArgument("Prefix")),

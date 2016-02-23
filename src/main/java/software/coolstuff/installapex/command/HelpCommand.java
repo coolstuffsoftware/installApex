@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 
+import software.coolstuff.installapex.InstallApex;
 import software.coolstuff.installapex.cli.CommandLineOption;
 import software.coolstuff.installapex.cli.CommandLineUtils;
 
@@ -36,7 +37,7 @@ public class HelpCommand extends AbstractCommand {
 
   @Override
   public void execute() {
-    String syntax = CommandLineUtils.getSyntax(HelpCommand.class);
+    String syntax = CommandLineUtils.getSyntax(InstallApex.class);
 
     String header = getMultiLineHelpMessage(HELP_HEADER_PREFIX, syntax);
     String footer = getMultiLineHelpMessage(HELP_FOOTER_PREFIX, syntax);

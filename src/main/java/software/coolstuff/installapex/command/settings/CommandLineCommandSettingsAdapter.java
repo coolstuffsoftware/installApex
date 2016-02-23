@@ -411,6 +411,16 @@ public class CommandLineCommandSettingsAdapter implements CommandSettings {
   }
 
   @Override
+  public String getInstallSchemaConnect() {
+    String databaseConnect = getValueByArgumentOf(CommandLineOption.DB_CONNECT);
+    String installSchema = getValueByArgumentOf(CommandLineOption.DB_USER);
+    if (isOptionSet(CommandLineOption.INSTALL_SCHEMA)) {
+      installSchema = getValueByOptionalArgumentOf(CommandLineOption.INSTALL_SCHEMA);
+    }
+    return installSchema.toUpperCase() + "@" + databaseConnect;
+  }
+
+  @Override
   public boolean isQuiet() {
     return isOptionSet(CommandLineOption.QUIET);
   }
