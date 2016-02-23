@@ -16,6 +16,8 @@ import java.util.Map;
 import org.apache.commons.io.output.NullOutputStream;
 import org.apache.commons.lang.StringUtils;
 import org.apache.velocity.app.VelocityEngine;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -33,6 +35,8 @@ import software.coolstuff.installapex.service.upgrade.UpgradeService;
 
 @Service
 public class InstallCommand extends AbstractDataSourceCommand {
+
+  private static final Logger log = LoggerFactory.getLogger(InstallCommand.class);
 
   private static final String KEY_SHOW_APEX_VERSION = "installCommand.showApexVersion";
   private static final String KEY_INSTALL_APEX_APPLICAITON = "installCommand.installApexApplication";

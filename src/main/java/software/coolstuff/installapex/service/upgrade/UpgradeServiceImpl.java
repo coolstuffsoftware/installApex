@@ -82,6 +82,7 @@ public class UpgradeServiceImpl implements UpgradeService {
   private Database getDatabase(DatabaseConnection databaseConnection, UpgradeParameter parameter)
       throws DatabaseException {
     Database database = databaseFactory.findCorrectDatabaseImplementation(databaseConnection);
+    log.debug("Set Liquibase Parameter");
     setLiquibaseDatabaseProperties(database, parameter);
     return database;
   }
@@ -117,6 +118,7 @@ public class UpgradeServiceImpl implements UpgradeService {
   }
 
   private void injectParameters(Liquibase liquibase) throws LiquibaseException {
+    log.debug("Inject provided CommandLine Arguments as Configuration Parameter");
     Database database = liquibase.getDatabase();
     injectParameter(liquibase, DATABASE_CHANGELOG_TABLE_NAME, database.getDatabaseChangeLogTableName());
     injectParameter(liquibase, DATABASE_CHANGELOG_LOCK_TABLE_NAME, database.getDatabaseChangeLogLockTableName());
@@ -136,6 +138,7 @@ public class UpgradeServiceImpl implements UpgradeService {
 
   private void injectParameter(Liquibase liquibase, String parameter, String value) {
     if (StringUtils.isNotBlank(value)) {
+      log.debug("Inject Configuration Parameter {} with Value {}", parameter, value);
       liquibase.setChangeLogParameter(parameter, value);
     }
   }
@@ -145,6 +148,7 @@ public class UpgradeServiceImpl implements UpgradeService {
       return null;
     }
 
+    log.debug("Convert APEX Application Id {} into a Liquibase Context", apexApplicationId);
     Contexts contexts = new Contexts();
     contexts.add(apexApplicationId.toString());
     return contexts;
