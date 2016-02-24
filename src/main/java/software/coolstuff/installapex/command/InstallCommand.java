@@ -10,7 +10,6 @@ import java.io.PrintWriter;
 import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collection;
 import java.util.Map;
 
 import org.apache.commons.io.output.NullOutputStream;
@@ -36,7 +35,7 @@ import software.coolstuff.installapex.service.upgrade.UpgradeService;
 @Service
 public class InstallCommand extends AbstractDataSourceCommand {
 
-  private static final Logger log = LoggerFactory.getLogger(InstallCommand.class);
+  private static final Logger LOG = LoggerFactory.getLogger(InstallCommand.class);
 
   private static final String KEY_SHOW_APEX_VERSION = "installCommand.showApexVersion";
   private static final String KEY_INSTALL_APEX_APPLICAITON = "installCommand.installApexApplication";
@@ -90,8 +89,14 @@ public class InstallCommand extends AbstractDataSourceCommand {
       if (workspaces.size() == 1) {
         // Installation Schema has only one Workspace assigned and no Workspace
         // has been defined on Command Line --> return this assigned Worksapce
-        Collection<Long> workspaceIds = workspaces.values();
-        return workspaceIds.toArray(new Long[] {})[0];
+        Long workspaceId = null;
+        for (Map.Entry<String, Long> entry : workspaces.entrySet()) {
+          workspace = entry.getKey();
+          workspaceId = entry.getValue();
+        }
+        LOG.debug("Database User {} is assigned to exactly one Workspace: {} (ID: {})", apexParameter.getSchema(),
+            workspace, workspaceId);
+        return workspaceId;
       }
       throw new InstallApexException(Reason.CLI_MISSING_REQUIRED_OPTION,
           CommandLineOption.APEX_TARGET_WORKSPACE.getLongOption("--"), getCommandType().getLongOption("--"));
@@ -105,20 +110,29 @@ public class InstallCommand extends AbstractDataSourceCommand {
   private void upgradeDatabase(ApexApplication apexApplication) {
     printlnMessage(KEY_UPGRADE_DATABASE, getSettings().getInstallSchemaConnect(), apexApplication.getId());
     UpgradeParameter upgradeParameter = getSettings().getUpgradeParameter();
+    LOG.debug("inject APEX Application ID {} into the Upgrade Parameter", apexApplication.getId());
     upgradeParameter.setApexApplication(apexApplication.getId());
+    LOG.debug("Upgrade Parameter: {}", upgradeParameter);
     upgradeService.updateDatabase(upgradeParameter);
   }
 
   private void installApexApplication(ApexApplication apexApplication, long workspace)
       throws IOException, InterruptedException {
+    LOG.debug("Install APEX Application {}", apexApplication);
     Path temporaryDirectory = getSettings().getTemporaryDirectory(true);
+    LOG.debug("temporary Directory: {}", temporaryDirectory);
     printlnMessage(KEY_EXTRACT_APEX_APPLICAITON, apexApplication.getId(), apexApplication.getName(),
         temporaryDirectory.toAbsolutePath());
     Path installationScript = parserService.extract(apexApplication, temporaryDirectory);
+    LOG.debug("Name of the Installation Script: {}", installationScript.toAbsolutePath());
     printlnMessage(KEY_INSTALL_APEX_APPLICAITON, apexApplication.getName(), apexApplication.getId(),
         apexApplication.getVersion());
+    LOG.debug("Get the SQL*Plus Process Builder");
     ProcessBuilder sqlPlusBuilder = getSettings().getSQLPlusCommand();
     setExecutionDirectory(installationScript.getParent(), sqlPlusBuilder);
+    LOG.debug("Process Command: {}", StringUtils.join(sqlPlusBuilder.command(), ' '));
+    LOG.debug("Environment Variables: {}", sqlPlusBuilder.environment());
+    LOG.debug("Execution Directory: {}", sqlPlusBuilder.directory().getAbsolutePath());
     Process sqlplus = sqlPlusBuilder.start();
     //@formatter:off
     Map<String, Object> context = new InstallContextBuilder()
@@ -134,10 +148,9 @@ public class InstallCommand extends AbstractDataSourceCommand {
     PrintStream out = getOutputStream();
     redirectStream(sqlplus.getInputStream(), out);
     redirectStream(sqlplus.getErrorStream(), out);
+    LOG.debug("Wait for SQL*Plus to be finished");
     sqlplus.waitFor();
-    if (sqlplus.exitValue() != 0) {
-      throw new InstallApexException(Reason.INVALID_ERROR_CODE_BY_SQLPLUS, sqlplus.exitValue());
-    }
+    evaluateExitCode(sqlplus);
   }
 
   private void setExecutionDirectory(Path extractionLocation, ProcessBuilder sqlPlusBuilder) {
@@ -158,6 +171,8 @@ public class InstallCommand extends AbstractDataSourceCommand {
   private void redirectStandardInputToScript(OutputStream outputStream, Map<String, Object> context)
       throws IOException {
     try (Writer output = new PrintWriter(outputStream)) {
+      LOG.debug("internal Velocity Script Name: {}", sqlplusScriptName);
+      LOG.debug("Velocity Context: {}", context);
       VelocityEngineUtils.mergeTemplate(velocityEngine, sqlplusScriptName, sqlplusScriptEncoding, context, output);
     }
   }
@@ -167,6 +182,13 @@ public class InstallCommand extends AbstractDataSourceCommand {
       for (String line = null; (line = input.readLine()) != null;) {
         outputStream.println(line);
       }
+    }
+  }
+
+  private void evaluateExitCode(Process sqlplus) {
+    LOG.debug("Evaluate the Exit Code of SQL*Plus {}", sqlplus.exitValue());
+    if (sqlplus.exitValue() != 0) {
+      throw new InstallApexException(Reason.INVALID_ERROR_CODE_BY_SQLPLUS, sqlplus.exitValue());
     }
   }
 

@@ -109,4 +109,13 @@ public class UpgradeParameter {
         && Objects.equals(dbConnection, otherObj.dbConnection);
   }
 
+  @Override
+  public String toString() {
+    return this.getClass().getSimpleName() + "{databaseChangeLogTableName:\"" + databaseChangeLogTableName
+        + "\",databaseChangeLogLockTableName:\"" + databaseChangeLogLockTableName + "\",defaultSchemaName:\""
+        + defaultSchemaName + "\",liquibaseSchemaName:\"" + liquibaseSchemaName + "\",liquibaseTablespaceName:\""
+        + liquibaseTablespaceName + "\"apexApplication:\"" + apexApplication + "\",dbUser:\"" + dbUser
+        + "\",dbConnection:\"" + dbConnection + "\"}";
+  }
+
 }

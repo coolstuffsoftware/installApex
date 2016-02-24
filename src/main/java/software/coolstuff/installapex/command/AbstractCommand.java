@@ -8,6 +8,8 @@ import java.util.Locale;
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.MessageSource;
@@ -25,6 +27,8 @@ import software.coolstuff.installapex.service.apex.parser.ApexApplication;
 import software.coolstuff.installapex.service.apex.parser.ApexApplicationParserService;
 
 public abstract class AbstractCommand implements Command {
+
+  private static final Logger LOG = LoggerFactory.getLogger(AbstractCommand.class);
 
   @Autowired
   private CommandRegistryImpl commandRegistry;
@@ -48,7 +52,10 @@ public abstract class AbstractCommand implements Command {
 
   @PostConstruct
   protected void init() {
+    LOG.debug("Register CommandType {} with Class {} as a Service", this.getCommandType(),
+        this.getClass().getSimpleName());
     commandRegistry.register(this);
+    LOG.debug("Set the ConsolePrinter");
     printWriter = new PrintWriter(console.getOutput());
   }
 
@@ -63,19 +70,29 @@ public abstract class AbstractCommand implements Command {
   }
 
   protected void printMessage(String messageKey, Object... arguments) {
+    if (getSettings().isQuiet()) {
+      return;
+    }
     String message = messageSource.getMessage(messageKey, arguments, Locale.getDefault());
-    print(message);
+    internalPrint(message);
   }
 
   protected void printlnMessage(String messageKey, Object... arguments) {
+    if (getSettings().isQuiet()) {
+      return;
+    }
     String message = messageSource.getMessage(messageKey, arguments, Locale.getDefault());
-    println(message);
+    internalPrintln(message);
   }
 
   protected void print(Object message) {
     if (getSettings().isQuiet()) {
       return;
     }
+    internalPrint(message);
+  }
+
+  private void internalPrint(Object message) {
     try {
       console.print(message != null ? message.toString() : "null");
       console.flush();
@@ -88,6 +105,10 @@ public abstract class AbstractCommand implements Command {
     if (getSettings().isQuiet()) {
       return;
     }
+    internalPrintln(message);
+  }
+
+  private void internalPrintln(Object message) {
     try {
       console.println(message != null ? message.toString() : "null");
       console.flush();
@@ -120,11 +141,9 @@ public abstract class AbstractCommand implements Command {
   }
 
   protected ApexApplication getInstallationCandidate() {
+    LOG.debug("Get Installation Candidates by parsing all packaged APEX Applications");
     List<ApexApplication> candidates = apexApplicationParserService.getCandidates();
-    if (CollectionUtils.isEmpty(candidates)) {
-      throw new InstallApexException(Reason.NO_APEX_APPLICATIONS_INCLUDED,
-          apexApplicationParserService.getDefaultLocation());
-    }
+    checkEmptyCandidateList(candidates);
     ApexParameter apexParameter = getSettings().getApexParameter();
     Integer requestedApplicationId = apexParameter.getSourceId();
     if (requestedApplicationId == null) {
@@ -133,8 +152,16 @@ public abstract class AbstractCommand implements Command {
     return findCandidate(candidates, requestedApplicationId);
   }
 
+  private void checkEmptyCandidateList(List<ApexApplication> candidates) {
+    if (CollectionUtils.isEmpty(candidates)) {
+      throw new InstallApexException(Reason.NO_APEX_APPLICATIONS_INCLUDED,
+          apexApplicationParserService.getDefaultLocation());
+    }
+  }
+
   protected ApexApplication getSingleApexApplication(List<ApexApplication> candidates) {
     if (candidates.size() == 1) {
+      LOG.debug("Only 1 APEX Application has been packaged: {}", candidates.get(0));
       return candidates.get(0);
     }
     throw new InstallApexException(Reason.CLI_MISSING_REQUIRED_OPTION,
@@ -144,6 +171,7 @@ public abstract class AbstractCommand implements Command {
   private ApexApplication findCandidate(List<ApexApplication> candidates, Integer requestedApplicationId) {
     for (ApexApplication candidate : candidates) {
       if (candidate.getId() == requestedApplicationId) {
+        LOG.debug("Requested APEX Application with ID {} has been packaged: {}", requestedApplicationId, candidate);
         return candidate;
       }
     }

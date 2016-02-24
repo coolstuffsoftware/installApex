@@ -2,6 +2,8 @@ package software.coolstuff.installapex.command;
 
 import java.nio.file.Path;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -10,6 +12,8 @@ import software.coolstuff.installapex.service.apex.parser.ApexApplicationParserS
 
 @Service
 public class ExtractApexCommand extends AbstractCommand {
+
+  private static final Logger LOG = LoggerFactory.getLogger(ExtractApexCommand.class);
 
   private static final String KEY_EXTRACT_FILE = "extractApexCommand.extractApexApplicationIntoFile";
   private static final String KEY_EXTRACT_DIRECTORY = "extractApexCommand.extractApexApplicationIntoDirectory";
