@@ -38,7 +38,7 @@ import software.coolstuff.installapex.exception.InstallApexException.Reason;
 @Service
 public class ApexApplicationParserServiceImpl implements ApexApplicationParserService {
 
-  private static final Logger log = LoggerFactory.getLogger(ApexApplicationParserServiceImpl.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ApexApplicationParserServiceImpl.class);
 
   private static final String SQL_SUFFIX = ".sql";
   private static final String[] CREATE_APPLICATION_PATH = new String[] { "application", "create_application.sql" };
@@ -78,9 +78,6 @@ public class ApexApplicationParserServiceImpl implements ApexApplicationParserSe
   }
 
   private void checkBaseDirectoryResource(Resource baseDirectoryAsResource) {
-    if (baseDirectoryAsResource == null) {
-      throw new IllegalStateException("baseDirectory Resource is null");
-    }
     String directoryName = baseDirectoryAsResource.getFilename();
     if (!baseDirectoryAsResource.exists()) {
       throw new InstallApexException(Reason.NO_APEX_DIRECTORY_INCLUDED, "/" + directoryName);
@@ -96,11 +93,11 @@ public class ApexApplicationParserServiceImpl implements ApexApplicationParserSe
     URL jarURL = baseDirectoryAsResource.getURL();
     JarURLConnection jarURLConnection = (JarURLConnection) jarURL.openConnection();
     URL jarFileURL = jarURLConnection.getJarFileURL();
-    log.debug("URL of the JarFile: {}", jarFileURL);
+    LOG.debug("URL of the JarFile: {}", jarFileURL);
     Path jarFilePath = Paths.get(jarFileURL.toURI());
-    log.debug("Path of the JarFile: {}", jarFilePath);
+    LOG.debug("Path of the JarFile: {}", jarFilePath);
     URI jarFileURI = new URI("jar", jarFilePath.toUri().toString(), null);
-    log.debug("URI of the JarFile: {}", jarFileURI);
+    LOG.debug("URI of the JarFile: {}", jarFileURI);
 
     // then create a new FileSystem for this JAR-Archive
     Map<String, String> env = new HashMap<>();
@@ -207,20 +204,18 @@ public class ApexApplicationParserServiceImpl implements ApexApplicationParserSe
 
   private int extractApplicationIdFromPath(Path location) {
     Path fileName = location.getFileName();
-    log.debug("Extract ApplicationId from FileName {}", fileName);
+    LOG.debug("Extract ApplicationId from FileName {}", fileName);
     String applicationIdAsString = fileName.toString().substring(1);
     if (Files.isRegularFile(location)) {
       applicationIdAsString = StringUtils.substring(applicationIdAsString, 0, SQL_SUFFIX.length() * -1);
-    } else if (applicationIdAsString.endsWith("/")) {
-      applicationIdAsString = StringUtils.substring(applicationIdAsString, 0, -1);
     }
-    log.debug("Try to parse extracted ApplicationId {} as Integer", applicationIdAsString);
+    LOG.debug("Try to parse extracted ApplicationId {} as Integer", applicationIdAsString);
     return Integer.parseInt(applicationIdAsString);
   }
 
   private void parseApplicationFiles(Path file, ApexApplication apexApplication) {
     try (Scanner scanner = new Scanner(file)) {
-      log.debug("Content of File {}", file);
+      LOG.debug("Content of File {}", file);
       scanner.useDelimiter(
           "[Ww][Ww][Vv]_[Ff][Ll][Oo][Ww]_[Aa][Pp][Ii]\\.[Cc][Rr][Ee][Aa][Tt][Ee]_[Ff][Ll][Oo][Ww]\\s*\\(");
       if (scanner.hasNext()) {
@@ -338,7 +333,7 @@ public class ApexApplicationParserServiceImpl implements ApexApplicationParserSe
     Path fileName = packagedApexApplication.getFileName();
     Path extractionLocation = extractDirectory.resolve(fileName.toString()).normalize();
     if (Files.isRegularFile(packagedApexApplication)) {
-      log.debug("Extract APEX Application File {} to {}", packagedApexApplication.toAbsolutePath(),
+      LOG.debug("Extract APEX Application File {} to {}", packagedApexApplication.toAbsolutePath(),
           extractionLocation.toAbsolutePath());
       Files.copy(packagedApexApplication, extractionLocation, StandardCopyOption.REPLACE_EXISTING,
           StandardCopyOption.COPY_ATTRIBUTES);
@@ -349,10 +344,10 @@ public class ApexApplicationParserServiceImpl implements ApexApplicationParserSe
 
   private Path extractDirectory(Path packagedApexApplication, Path extractionDirectory) throws IOException {
     if (Files.exists(extractionDirectory)) {
-      log.debug("Remove existing Extraction Directory {}", extractionDirectory.toAbsolutePath());
+      LOG.debug("Remove existing Extraction Directory {}", extractionDirectory.toAbsolutePath());
       FileUtils.deleteDirectory(extractionDirectory.toFile());
     }
-    log.debug("Create Extraction Directory {}", extractionDirectory.toAbsolutePath());
+    LOG.debug("Create Extraction Directory {}", extractionDirectory.toAbsolutePath());
     Files.createDirectories(extractionDirectory.toAbsolutePath());
 
     try (Stream<Path> stream = Files.walk(packagedApexApplication)) {
@@ -362,12 +357,12 @@ public class ApexApplicationParserServiceImpl implements ApexApplicationParserSe
           Path extractionLocation = extractionDirectory.resolve(pathExtension.toString()).normalize();
 
           if (Files.isDirectory(path)) {
-            log.debug("Create Directory {}", extractionLocation);
+            LOG.debug("Create Directory {}", extractionLocation);
             Files.createDirectories(extractionLocation);
             return;
           }
 
-          log.debug("Extract APEX Application File {} to {}", path, extractionLocation);
+          LOG.debug("Extract APEX Application File {} to {}", path, extractionLocation);
           Files.copy(path, extractionLocation, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
         } catch (Exception e) {
           throw new InstallApexException(Reason.ERROR_ON_APEX_DIRECTORY_ACCESS, e, packagedApexApplication,

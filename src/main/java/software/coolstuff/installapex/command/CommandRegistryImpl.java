@@ -15,12 +15,12 @@ import software.coolstuff.installapex.command.settings.CommandSettings;
 @Service
 public class CommandRegistryImpl implements CommandRegistry {
 
-  private static final Logger log = LoggerFactory.getLogger(CommandRegistryImpl.class);
+  private static final Logger LOG = LoggerFactory.getLogger(CommandRegistryImpl.class);
 
   private Map<CommandType, AbstractCommand> commands = new HashMap<>();
 
   public void register(AbstractCommand command) {
-    log.debug("Registering Command {}", command);
+    LOG.debug("Registering Command {}", command);
     commands.put(command.getCommandType(), command);
   }
 
@@ -28,15 +28,15 @@ public class CommandRegistryImpl implements CommandRegistry {
   public Command prepareCommandBy(CommandLine commandLine) {
     CommandType commandType = evaluateCommandType(commandLine);
     if (commandType == null) {
-      log.warn("No CommandType found on the CommandLine");
+      LOG.warn("No CommandType found on the CommandLine");
       return null;
     }
-    log.debug("CommandLine has discovered CommandType {}", commandType);
+    LOG.debug("CommandLine has discovered CommandType {}", commandType);
 
     AbstractCommand command = commands.get(commandType);
     checkCommandAvailability(command, commandType);
 
-    log.debug("prepare the CommandSettings of Command {}", command);
+    LOG.debug("prepare the CommandSettings of Command {}", command);
     CommandSettings commandSettings = new CommandLineCommandSettingsAdapter(commandType, commandLine);
     command.setCommandSettings(commandSettings);
 

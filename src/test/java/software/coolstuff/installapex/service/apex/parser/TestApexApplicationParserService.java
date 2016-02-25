@@ -15,6 +15,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import software.coolstuff.installapex.AbstractInstallApexTestWithContext;
+import software.coolstuff.installapex.exception.InstallApexException;
 
 public class TestApexApplicationParserService extends AbstractInstallApexTestWithContext {
 
@@ -45,6 +46,13 @@ public class TestApexApplicationParserService extends AbstractInstallApexTestWit
 
     Resource defaultResource = resourceLoader.getResource(defaultLocation);
     compareList(candidates, defaultResource.getFile().toPath());
+  }
+
+  @Test(expectedExceptions = InstallApexException.class,
+      expectedExceptionsMessageRegExp = "installApexException.reason.noApexDirectoryIncluded")
+  public void testNotExistingBaseDirectory() {
+    parser.setDefaultLocation("notExistingDirectory");
+    parser.getCandidates();
   }
 
   private void compareList(List<ApexApplication> candidates, Path baseDirectory) {
