@@ -64,6 +64,8 @@ public class ApexApplicationParserServiceImpl implements ApexApplicationParserSe
       Path baseDirectory = convertToPathFrom(baseDirectoryAsResource);
       checkBaseDirectory(baseDirectoryAsResource.getFilename(), baseDirectory);
       return parseApexApplications(baseDirectoryAsResource.getURI());
+    } catch (InstallApexException reThrowable) {
+      throw reThrowable;
     } catch (Exception e) {
       throw new InstallApexException(Reason.ERROR_ON_APEX_DIRECTORY_ACCESS, e, baseDirectoryAsResource.getFilename(),
           e.getMessage());
@@ -78,9 +80,8 @@ public class ApexApplicationParserServiceImpl implements ApexApplicationParserSe
   }
 
   private void checkBaseDirectoryResource(Resource baseDirectoryAsResource) {
-    String directoryName = baseDirectoryAsResource.getFilename();
     if (!baseDirectoryAsResource.exists()) {
-      throw new InstallApexException(Reason.NO_APEX_DIRECTORY_INCLUDED, "/" + directoryName);
+      throw new InstallApexException(Reason.NO_APEX_DIRECTORY_INCLUDED, baseDirectoryAsResource.getDescription());
     }
   }
 

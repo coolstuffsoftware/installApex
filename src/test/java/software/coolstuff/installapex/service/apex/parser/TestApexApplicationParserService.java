@@ -1,12 +1,17 @@
 package software.coolstuff.installapex.service.apex.parser;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -29,6 +34,17 @@ public class TestApexApplicationParserService extends AbstractInstallApexTestWit
   private String defaultLocation;
 
   @Test
+  public void testParseApexDefaultDirectory() throws IOException {
+    parser.setDefaultLocation(defaultLocation);
+    List<ApexApplication> candidates = parser.getCandidates();
+    Assert.assertNotNull(candidates);
+    Assert.assertEquals(candidates.size(), 2);
+
+    Resource defaultResource = resourceLoader.getResource(defaultLocation);
+    compareList(candidates, defaultResource.getFile().toPath());
+  }
+
+  @Test
   public void testParseApexDirectory() throws IOException {
     Resource apexPath = resourceLoader.getResource("classpath:/apex");
     parser.setDefaultLocation("classpath:/apex");
@@ -38,20 +54,40 @@ public class TestApexApplicationParserService extends AbstractInstallApexTestWit
     compareList(candidates, apexPath.getFile().toPath());
   }
 
-  @Test
-  public void testParseApexDefaultDirectory() throws IOException {
-    List<ApexApplication> candidates = parser.getCandidates();
-    Assert.assertNotNull(candidates);
-    Assert.assertEquals(candidates.size(), 2);
-
-    Resource defaultResource = resourceLoader.getResource(defaultLocation);
-    compareList(candidates, defaultResource.getFile().toPath());
-  }
-
   @Test(expectedExceptions = InstallApexException.class,
       expectedExceptionsMessageRegExp = "installApexException.reason.noApexDirectoryIncluded")
   public void testNotExistingBaseDirectory() {
     parser.setDefaultLocation("notExistingDirectory");
+    parser.getCandidates();
+  }
+
+  @Test(expectedExceptions = InstallApexException.class,
+      expectedExceptionsMessageRegExp = "installApexException.reason.noApexApplicationsIncluded")
+  public void testEmptyDirectory() throws IOException {
+    Path localDirectory = Paths.get("target", "test-classes", "testWithEmptyDirectory");
+    FileUtils.forceDeleteOnExit(localDirectory.toFile());
+    Files.createDirectories(localDirectory);
+    parser.setDefaultLocation("testWithEmptyDirectory");
+    parser.getCandidates();
+  }
+
+  @Test(expectedExceptions = InstallApexException.class,
+      expectedExceptionsMessageRegExp = "installApexException.reason.noApexDirectoryIncluded")
+  public void testFileAsDefaultLocation() throws IOException {
+    Path fileAsLocalDirectory = Paths.get("target", "test-classes", "FileAsLocalDirectory");
+    FileUtils.forceDeleteOnExit(fileAsLocalDirectory.toFile());
+    try (Writer writer = new BufferedWriter(new FileWriter(fileAsLocalDirectory.toFile()))) {
+      writer.write("This is just a Test for a local File which acts as a default location");
+      writer.flush();
+    }
+    parser.setDefaultLocation("FileAsLocalDirectory");
+    parser.getCandidates();
+  }
+
+  @Test(expectedExceptions = InstallApexException.class,
+      expectedExceptionsMessageRegExp = "installApexException.reason.wrongInternalApexId")
+  public void testWithWrongInternalApplicationId() {
+    parser.setDefaultLocation("classpath:/apexWithWrongApp");
     parser.getCandidates();
   }
 
