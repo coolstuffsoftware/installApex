@@ -65,7 +65,7 @@ public class TestApexApplicationParserService extends AbstractInstallApexTestWit
       expectedExceptionsMessageRegExp = "installApexException.reason.noApexApplicationsIncluded")
   public void testEmptyDirectory() throws IOException {
     Path localDirectory = Paths.get("target", "test-classes", "testWithEmptyDirectory");
-    FileUtils.forceDeleteOnExit(localDirectory.toFile());
+    FileUtils.deleteDirectory(localDirectory.toFile());
     Files.createDirectories(localDirectory);
     parser.setDefaultLocation("testWithEmptyDirectory");
     parser.getCandidates();
@@ -75,7 +75,7 @@ public class TestApexApplicationParserService extends AbstractInstallApexTestWit
       expectedExceptionsMessageRegExp = "installApexException.reason.noApexDirectoryIncluded")
   public void testFileAsDefaultLocation() throws IOException {
     Path fileAsLocalDirectory = Paths.get("target", "test-classes", "FileAsLocalDirectory");
-    FileUtils.forceDeleteOnExit(fileAsLocalDirectory.toFile());
+    Files.deleteIfExists(fileAsLocalDirectory);
     try (Writer writer = new BufferedWriter(new FileWriter(fileAsLocalDirectory.toFile()))) {
       writer.write("This is just a Test for a local File which acts as a default location");
       writer.flush();
@@ -89,6 +89,49 @@ public class TestApexApplicationParserService extends AbstractInstallApexTestWit
   public void testWithWrongInternalApplicationId() {
     parser.setDefaultLocation("classpath:/apexWithWrongApp");
     parser.getCandidates();
+  }
+
+  @Test
+  public void testExtractFile() throws IOException {
+    parser.setDefaultLocation(defaultLocation);
+    List<ApexApplication> candidates = parser.getCandidates();
+    Assert.assertNotNull(candidates);
+    Assert.assertFalse(candidates.isEmpty());
+    ApexApplication apexApplication = null;
+    for (ApexApplication candidate : candidates) {
+      if (candidate.getId() == 104) {
+        apexApplication = candidate;
+      }
+    }
+    Assert.assertNotNull(apexApplication, "No Application with id 104 found");
+    Path outputPath = Paths.get("target", "test-compare");
+    FileUtils.deleteDirectory(outputPath.toFile());
+    Files.createDirectories(outputPath);
+    Path startFile = parser.extract(apexApplication, outputPath);
+    Assert.assertEquals(startFile.getFileName().toString(), "f104.sql");
+    Resource original = resourceLoader.getResource("classpath:/apex/f104.sql");
+    Assert.assertEquals(FileUtils.checksumCRC32(startFile.toFile()), FileUtils.checksumCRC32(original.getFile()));
+  }
+
+  @Test
+  public void testExtractDirectory() throws IOException {
+    parser.setDefaultLocation(defaultLocation);
+    List<ApexApplication> candidates = parser.getCandidates();
+    Assert.assertNotNull(candidates);
+    Assert.assertFalse(candidates.isEmpty());
+    ApexApplication apexApplication = null;
+    for (ApexApplication candidate : candidates) {
+      if (candidate.getId() == 103) {
+        apexApplication = candidate;
+      }
+    }
+    Assert.assertNotNull(apexApplication, "No Application with id 103 found");
+    Path outputPath = Paths.get("target", "test-compare");
+    FileUtils.deleteDirectory(outputPath.toFile());
+    Files.createDirectories(outputPath);
+    Path startFile = parser.extract(apexApplication, outputPath);
+    Assert.assertEquals(startFile.getFileName().toString(), "install.sql");
+    Resource original = resourceLoader.getResource("classpath:/apex/f103");
   }
 
   private void compareList(List<ApexApplication> candidates, Path baseDirectory) {
