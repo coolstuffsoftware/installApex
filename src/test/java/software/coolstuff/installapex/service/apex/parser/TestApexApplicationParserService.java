@@ -10,6 +10,7 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +43,35 @@ public class TestApexApplicationParserService extends AbstractInstallApexTestWit
 
     Resource defaultResource = resourceLoader.getResource(defaultLocation);
     compareList(candidates, defaultResource.getFile().toPath());
+  }
+
+  private void compareList(List<ApexApplication> candidates, Path baseDirectory) {
+    Map<Integer, ApexApplication> expectedCandidates = getExpectedCandidates(baseDirectory);
+    for (ApexApplication candidate : candidates) {
+      Assert.assertTrue(expectedCandidates.containsKey(candidate.getId()));
+      ApexApplication expectedCandidate = expectedCandidates.get(candidate.getId());
+      Assert.assertEquals(candidate.getName(), expectedCandidate.getName());
+      Assert.assertEquals(candidate.getVersion(), expectedCandidate.getVersion());
+      Assert.assertEquals(candidate.getLocation().getFileName(), expectedCandidate.getLocation().getFileName());
+    }
+  }
+
+  private Map<Integer, ApexApplication> getExpectedCandidates(Path baseDirectory) {
+    Map<Integer, ApexApplication> apexApplications = new HashMap<>();
+
+    ApexApplication f103 = new ApexApplication(103);
+    f103.setName("Sample Database Application");
+    f103.setVersion("5.0.3");
+    f103.setLocation(baseDirectory.resolve(Paths.get("f103")));
+    apexApplications.put(f103.getId(), f103);
+
+    ApexApplication f104 = new ApexApplication(104);
+    f104.setName("Sample Trees");
+    f104.setVersion("1.0.11");
+    f104.setLocation(baseDirectory.resolve(Paths.get("f104.sql")));
+    apexApplications.put(f104.getId(), f104);
+
+    return apexApplications;
   }
 
   @Test
@@ -132,35 +162,39 @@ public class TestApexApplicationParserService extends AbstractInstallApexTestWit
     Path startFile = parser.extract(apexApplication, outputPath);
     Assert.assertEquals(startFile.getFileName().toString(), "install.sql");
     Resource original = resourceLoader.getResource("classpath:/apex/f103");
+    compareDirectories(original.getFile().toPath().toAbsolutePath(), startFile.getParent().toAbsolutePath());
   }
 
-  private void compareList(List<ApexApplication> candidates, Path baseDirectory) {
-    Map<Integer, ApexApplication> expectedCandidates = getExpectedCandidates(baseDirectory);
-    for (ApexApplication candidate : candidates) {
-      Assert.assertTrue(expectedCandidates.containsKey(candidate.getId()));
-      ApexApplication expectedCandidate = expectedCandidates.get(candidate.getId());
-      Assert.assertEquals(candidate.getName(), expectedCandidate.getName());
-      Assert.assertEquals(candidate.getVersion(), expectedCandidate.getVersion());
-      Assert.assertEquals(candidate.getLocation().getFileName(), expectedCandidate.getLocation().getFileName());
+  private void compareDirectories(Path expected, Path actual) throws IOException {
+    Map<Path, Long> checksums = new HashMap<>();
+    try (Stream<Path> stream = Files.walk(expected)) {
+      stream.forEach(path -> {
+        if (Files.isDirectory(path)) {
+          return;
+        }
+        try {
+          checksums.put(expected.relativize(path), FileUtils.checksumCRC32(path.toFile()));
+        } catch (Exception e) {
+          throw new RuntimeException(e);
+        }
+      });
     }
-  }
-
-  private Map<Integer, ApexApplication> getExpectedCandidates(Path baseDirectory) {
-    Map<Integer, ApexApplication> apexApplications = new HashMap<>();
-
-    ApexApplication f103 = new ApexApplication(103);
-    f103.setName("Sample Database Application");
-    f103.setVersion("5.0.3");
-    f103.setLocation(baseDirectory.resolve(Paths.get("f103")));
-    apexApplications.put(f103.getId(), f103);
-
-    ApexApplication f104 = new ApexApplication(104);
-    f104.setName("Sample Trees");
-    f104.setVersion("1.0.11");
-    f104.setLocation(baseDirectory.resolve(Paths.get("f104.sql")));
-    apexApplications.put(f104.getId(), f104);
-
-    return apexApplications;
+    try (Stream<Path> stream = Files.walk(actual)) {
+      stream.forEachOrdered(path -> {
+        if (Files.isDirectory(path)) {
+          return;
+        }
+        try {
+          Path relativizedPath = actual.relativize(path);
+          Long expectedChecksum = checksums.get(relativizedPath);
+          Assert.assertNotNull(expectedChecksum);
+          Long checksum = Long.valueOf(FileUtils.checksumCRC32(path.toFile()));
+          Assert.assertEquals(checksum, expectedChecksum, "Wrong Checksum on File " + relativizedPath);
+        } catch (Exception e) {
+          throw new RuntimeException(e);
+        }
+      });
+    }
   }
 
   @Test
