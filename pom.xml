@@ -162,6 +162,9 @@
 					<flowInitContext>
 						<versionTagPrefix>release-</versionTagPrefix>
 					</flowInitContext>
+					<pushReleases>true</pushReleases>
+					<pushFeatures>true</pushFeatures>
+					<pushHotfixes>true</pushHotfixes>
 				</configuration>
 			</plugin>
 		</plugins>
