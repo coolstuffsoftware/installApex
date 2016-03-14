@@ -1,11 +1,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
+
 	<groupId>software.coolstuff</groupId>
 	<artifactId>installapex</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
 	<name>installapex</name>
 	<description>Install any exising APEX Application</description>
+	<url>https://github.com/coolstuffsoftware/installApex</url>
+
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<sonar.language>java</sonar.language>
@@ -16,6 +19,19 @@
 		<logback.spring-ext.version>0.1.4</logback.spring-ext.version>
 		<logback.liquibase-ext.version>1.2.1</logback.liquibase-ext.version>
 	</properties>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>io.spring.platform</groupId>
+				<artifactId>platform-bom</artifactId>
+				<version>${spring.bom.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
 	<dependencies>
 		<dependency>
 			<groupId>com.oracle</groupId>
@@ -115,6 +131,7 @@
 			<artifactId>commons-io</artifactId>
 		</dependency>
 	</dependencies>
+
 	<build>
 		<plugins>
 			<plugin>
@@ -203,23 +220,10 @@
 		</plugins>
 	</reporting>
 
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>io.spring.platform</groupId>
-				<artifactId>platform-bom</artifactId>
-				<version>${spring.bom.version}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
-
 	<scm>
-		<connection>scm:git:git@github.com:coolstuffsoftware/installApex.git</connection>
+		<url>https://github.com/coolstuffsoftware/installApex</url>
+		<connection>scm:git:git://github.com/coolstuffsoftware/installApex.git</connection>
 		<developerConnection>scm:git:git@github.com:coolstuffsoftware/installApex.git</developerConnection>
 		<tag>1.0.0-SNAPSHOT</tag>
-		<url>https://github.com/coolstuffsoftware/installApex</url>
 	</scm>
-	<url>https://github.com/coolstuffsoftware/installApex</url>
 </project>
