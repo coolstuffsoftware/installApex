@@ -23,6 +23,7 @@ import java.util.stream.Stream;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.CharUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -209,6 +210,10 @@ public class ApexApplicationParserServiceImpl implements ApexApplicationParserSe
     String applicationIdAsString = fileName.toString().substring(1);
     if (Files.isRegularFile(location)) {
       applicationIdAsString = StringUtils.substring(applicationIdAsString, 0, SQL_SUFFIX.length() * -1);
+    }
+    if (Files.isDirectory(location)
+        && !CharUtils.isAsciiNumeric(applicationIdAsString.charAt(applicationIdAsString.length() - 1))) {
+      applicationIdAsString = StringUtils.substring(applicationIdAsString, 0, -1);
     }
     LOG.debug("Try to parse extracted ApplicationId {} as Integer", applicationIdAsString);
     return Integer.parseInt(applicationIdAsString);
