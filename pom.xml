@@ -3,7 +3,7 @@
 
 	<groupId>software.coolstuff</groupId>
 	<artifactId>installapex</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.1</version>
 	<name>installapex</name>
 	<description>Install any exising APEX Application</description>
 	<url>https://github.com/coolstuffsoftware/installApex</url>
@@ -178,6 +178,7 @@
 					<flowInitContext>
 						<versionTagPrefix>release-</versionTagPrefix>
 					</flowInitContext>
+					<scmCommentPrefix>[jgitflow plugin]</scmCommentPrefix>
 					<noDeploy>true</noDeploy>
 					<pushReleases>true</pushReleases>
 					<pushFeatures>true</pushFeatures>
