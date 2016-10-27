@@ -225,6 +225,5 @@
 		<url>https://github.com/coolstuffsoftware/installApex</url>
 		<connection>scm:git:git://github.com/coolstuffsoftware/installApex.git</connection>
 		<developerConnection>scm:git:git@github.com:coolstuffsoftware/installApex.git</developerConnection>
-		<tag>1.0.0-SNAPSHOT</tag>
 	</scm>
 </project>
