@@ -173,6 +173,13 @@ public class InstallCommand extends AbstractDataSourceCommand {
     try (Writer output = new PrintWriter(outputStream)) {
       LOG.debug("internal Velocity Script Name: {}", sqlplusScriptName);
       LOG.debug("Velocity Context: {}", context);
+      if (LOG.isDebugEnabled()) {
+        try (Writer debugOutput = new PrintWriter(getOutputStream())) {
+          VelocityEngineUtils.mergeTemplate(velocityEngine, sqlplusScriptName, sqlplusScriptEncoding, context,
+              debugOutput);
+          debugOutput.write('\n');
+        }
+      }
       VelocityEngineUtils.mergeTemplate(velocityEngine, sqlplusScriptName, sqlplusScriptEncoding, context, output);
     }
   }

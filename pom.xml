@@ -3,7 +3,7 @@
 
 	<groupId>software.coolstuff</groupId>
 	<artifactId>installapex</artifactId>
-	<version>1.0.1</version>
+	<version>1.0.2</version>
 	<name>installapex</name>
 	<description>Install any exising APEX Application</description>
 	<url>https://github.com/coolstuffsoftware/installApex</url>
@@ -225,6 +225,5 @@
 		<url>https://github.com/coolstuffsoftware/installApex</url>
 		<connection>scm:git:git://github.com/coolstuffsoftware/installApex.git</connection>
 		<developerConnection>scm:git:git@github.com:coolstuffsoftware/installApex.git</developerConnection>
-		<tag>1.0.0-SNAPSHOT</tag>
 	</scm>
 </project>
