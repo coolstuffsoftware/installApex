@@ -1,4 +1,7 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project
+  xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>software.coolstuff</groupId>
@@ -18,6 +21,19 @@
     <logback.spring-ext.version>0.1.4</logback.spring-ext.version>
     <logback.liquibase-ext.version>1.2.1</logback.liquibase-ext.version>
   </properties>
+
+  <scm>
+    <url>https://github.com/coolstuffsoftware/installApex</url>
+    <connection>scm:git:git://github.com/coolstuffsoftware/installApex.git</connection>
+    <developerConnection>scm:git:git@github.com:coolstuffsoftware/installApex.git</developerConnection>
+  </scm>
+
+  <licenses>
+    <license>
+      <name>GNU General Public License (GPL)</name>
+      <url>http://www.gnu.org/licenses/gpl.txt</url>
+    </license>
+  </licenses>
 
   <dependencyManagement>
     <dependencies>
@@ -228,25 +244,26 @@
       <uniqueVersion>false</uniqueVersion>
       <url>https://oss.sonatype.org/content/repositories/snapshots</url>
     </snapshotRepository>
-
-    <repository>
-      <id>coolstuff.software.releases</id>
-      <name>Coolstuff Software Releases</name>
-      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
-    </repository>
     <downloadUrl>https://oss.sonatype.org/content/groups/public</downloadUrl>
   </distributionManagement>
 
-  <scm>
-    <url>https://github.com/coolstuffsoftware/installApex</url>
-    <connection>scm:git:git://github.com/coolstuffsoftware/installApex.git</connection>
-    <developerConnection>scm:git:git@github.com:coolstuffsoftware/installApex.git</developerConnection>
-  </scm>
+  <profiles>
+    <profile>
+      <id>release-profile</id>
 
-  <licenses>
-    <license>
-      <name>GNU General Public License (GPL)</name>
-      <url>http://www.gnu.org/licenses/gpl.txt</url>
-    </license>
-  </licenses>
+      <activation>
+        <property>
+          <name>performRelease</name>
+        </property>
+      </activation>
+
+      <distributionManagement>
+        <repository>
+          <id>coolstuff.software.releases</id>
+          <name>Coolstuff Software Releases</name>
+          <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+        </repository>
+      </distributionManagement>
+    </profile>
+  </profiles>
 </project>
