@@ -224,6 +224,22 @@
     </plugins>
   </reporting>
 
+  <distributionManagement>
+    <snapshotRepository>
+      <id>coolstuff.software.snapshots</id>
+      <name>Coolstuff Software Snapshots</name>
+      <uniqueVersion>false</uniqueVersion>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+    </snapshotRepository>
+
+    <repository>
+      <id>coolstuff.software.releases</id>
+      <name>Coolstuff Software Releases</name>
+      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+    </repository>
+    <downloadUrl>https://oss.sonatype.org/content/groups/public</downloadUrl>
+  </distributionManagement>
+
   <scm>
     <url>https://github.com/coolstuffsoftware/installApex</url>
     <connection>scm:git:git://github.com/coolstuffsoftware/installApex.git</connection>
