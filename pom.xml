@@ -1,12 +1,10 @@
-<project
-  xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>software.coolstuff</groupId>
   <artifactId>installapex</artifactId>
   <version>1.0.4-SNAPSHOT</version>
+
   <name>installapex</name>
   <description>Install any exising APEX Application</description>
   <url>https://github.com/coolstuffsoftware/installApex</url>
@@ -34,6 +32,15 @@
       <url>http://www.gnu.org/licenses/gpl.txt</url>
     </license>
   </licenses>
+
+  <developers>
+    <developer>
+      <name>Mufasa1976</name>
+      <email>mufasa1976@coolstuff.software</email>
+      <organization>Coolstuff.Software</organization>
+      <organizationUrl>https://github.com/mufasa1976</organizationUrl>
+    </developer>
+  </developers>
 
   <dependencyManagement>
     <dependencies>
@@ -158,6 +165,30 @@
         </configuration>
       </plugin>
       <plugin>
+        <artifactId>maven-source-plugin</artifactId>
+        <version>2.4</version>
+        <executions>
+          <execution>
+            <id>attach-sources</id>
+            <goals>
+              <goal>jar-no-fork</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>2.10.3</version>
+        <executions>
+          <execution>
+            <id>attach-javadoc</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-release-plugin</artifactId>
       </plugin>
@@ -252,8 +283,8 @@
 
   <distributionManagement>
     <snapshotRepository>
-      <id>coolstuff.software.snapshots</id>
-      <name>Coolstuff Software Snapshots</name>
+      <id>ossrh.snapshots</id>
+      <name>OSS Repository Host - Snapshots</name>
       <uniqueVersion>false</uniqueVersion>
       <url>https://oss.sonatype.org/content/repositories/snapshots</url>
     </snapshotRepository>
@@ -272,8 +303,8 @@
 
       <distributionManagement>
         <repository>
-          <id>coolstuff.software.releases</id>
-          <name>Coolstuff Software Releases</name>
+          <id>ossrh.releases</id>
+          <name>OSS Repository Host Releases</name>
           <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
         </repository>
       </distributionManagement>
